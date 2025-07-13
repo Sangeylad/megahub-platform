@@ -17,18 +17,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://api.megahub.humari.fr'
 ]
 
-
-STATIC_ROOT = '/app/staticfiles'  # Chemin Docker container
-
-# Storage avec compression et optimisations production
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
-
-# Cache static files en production
-STATICFILES_DIRS = []  # Pas de dossiers supplémentaires en prod
-
-print("🚀 Django PRODUCTION settings loaded")
-
-# Database - Production (ton setup actuel)
+# ✅ Database - Production (OPTIONS corrigées)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -38,9 +27,8 @@ DATABASES = {
         'HOST': os.environ.get('POSTGRES_HOST', 'postgres'),
         'PORT': '5432',
         'OPTIONS': {
-            'sslmode': 'require',  # SSL obligatoire en prod
             'connect_timeout': 10,
-            'statement_timeout': 300000,  # 5 minutes
+            # ✅ REMOVED: 'statement_timeout' - option invalide
         },
     },
     'shortener': {
@@ -51,7 +39,6 @@ DATABASES = {
         'HOST': os.environ.get('SHORTENER_DB_HOST', 'postgres-shortener'),
         'PORT': '5432',
         'OPTIONS': {
-            'sslmode': 'require',
             'connect_timeout': 10,
         },
     }
@@ -80,6 +67,15 @@ CORS_EXPOSE_HEADERS = [
     'Content-Type',
     'X-Total-Count',
 ]
+
+# ✅ Static files production optimisées
+STATIC_ROOT = '/app/staticfiles'
+
+# Storage avec compression et optimisations production
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
+# Pas de dossiers supplémentaires en prod
+STATICFILES_DIRS = []
 
 # Sécurité production STRICTE
 SECURE_BROWSER_XSS_FILTER = True

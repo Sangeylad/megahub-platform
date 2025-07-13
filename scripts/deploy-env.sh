@@ -21,6 +21,7 @@ ENVIRONMENT=${1:-development}
 case $ENVIRONMENT in
     "development")
         COMPOSE_FILE="docker-compose.yml"
+        PROJECT_NAME="megahub-dev"
         FRONTEND_CONTAINER="megahub-frontend-dev"
         BACKEND_CONTAINER="megahub-backend-dev"
         DJANGO_SETTINGS="django_app.settings.development"
@@ -30,6 +31,7 @@ case $ENVIRONMENT in
         ;;
     "staging")
         COMPOSE_FILE="docker-compose.staging.yml"
+        PROJECT_NAME="megahub-staging"
         FRONTEND_CONTAINER="megahub-frontend-staging"
         BACKEND_CONTAINER="megahub-backend-staging"
         DJANGO_SETTINGS="django_app.settings.staging"
@@ -39,6 +41,7 @@ case $ENVIRONMENT in
         ;;
     "production")
         COMPOSE_FILE="docker-compose.production.yml"
+        PROJECT_NAME="megahub-production"
         FRONTEND_CONTAINER="megahub-frontend-prod"
         BACKEND_CONTAINER="megahub-backend-prod"
         DJANGO_SETTINGS="django_app.settings.production"
@@ -252,11 +255,11 @@ deploy_containers() {
     log "🐳 Déploiement Docker $ENVIRONMENT"
     cd "$PROJECT_DIR"
     
-    # Arrêt propre
-    docker-compose -f $COMPOSE_FILE stop 2>/dev/null || true
+    # Arrêt propre avec project name
+    docker-compose -p $PROJECT_NAME -f $COMPOSE_FILE stop 2>/dev/null || true
     
-    # Build et démarrage
-    docker-compose -f $COMPOSE_FILE up -d --build
+    # Build et démarrage avec project name
+    docker-compose -p $PROJECT_NAME -f $COMPOSE_FILE up -d --build
     
     success "Containers $ENVIRONMENT démarrés"
 }
@@ -271,8 +274,8 @@ health_checks() {
     log "⏳ Attente démarrage (20s)..."
     sleep 20
     
-    # Check containers
-    if ! docker-compose -f $COMPOSE_FILE ps | grep -q -E "(Up|healthy)"; then
+    # Check containers avec project name
+    if ! docker-compose -p $PROJECT_NAME -f $COMPOSE_FILE ps | grep -q -E "(Up|healthy)"; then
         error "Containers ne démarrent pas"
     fi
     success "Containers actifs"
@@ -357,7 +360,7 @@ main() {
     
     # Status final
     log "📊 Status final $ENVIRONMENT:"
-    docker-compose -f $COMPOSE_FILE ps
+    docker-compose -p $PROJECT_NAME -f $COMPOSE_FILE ps
     
     success "🎉 Déploiement $ENVIRONMENT réussi!"
     log "🌐 Frontend: $FRONTEND_URL"

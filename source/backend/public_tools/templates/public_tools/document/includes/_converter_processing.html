@@ -1,0 +1,172 @@
+<!-- templates/public_tools/document/includes/_converter_processing.html -->
+<section class="humari-converter__processing-state"
+         id="humari-processing-state"
+         style="display: none;"
+         aria-labelledby="processing-title"
+         aria-live="polite">
+    
+    <style>
+    .humari-converter__processing-header {
+        text-align: center;
+        margin-bottom: 1.25rem;
+    }
+    
+    .humari-converter__processing-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 0.25rem 0;
+    }
+    
+    .humari-converter__processing-subtitle {
+        color: #6b7280;
+        margin: 0;
+        font-size: 0.85rem;
+    }
+    
+    .humari-converter__progress-container {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        margin-bottom: 1rem;
+        justify-content: center;
+    }
+    
+    .humari-converter__progress-circle {
+        position: relative;
+        width: 4rem;
+        height: 4rem;
+        flex-shrink: 0;
+    }
+    
+    .humari-converter__circular-chart {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+    
+    .humari-converter__circle-bg {
+        fill: none;
+        stroke: #e5e7eb;
+        stroke-width: 3;
+    }
+    
+    .humari-converter__circle-progress {
+        fill: none;
+        stroke: #3b82f6;
+        stroke-width: 3;
+        stroke-linecap: round;
+        transition: stroke-dasharray 0.4s ease;
+    }
+    
+    .humari-converter__progress-percentage {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #111827;
+    }
+    
+    .humari-converter__progress-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .humari-converter__processing-files {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.375rem;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        max-height: 100px;
+        overflow-y: auto;
+    }
+    
+    .humari-converter__processing-file {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+        font-size: 0.8rem;
+    }
+    
+    .humari-converter__processing-file:last-child {
+        margin-bottom: 0;
+    }
+    
+    .humari-converter__processing-file-icon {
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .humari-converter__processing-file-name {
+        font-weight: 600;
+        color: #374151;
+        word-break: break-word;
+        line-height: 1.2;
+    }
+    
+    .humari-converter__progress-text {
+        font-size: 0.85rem;
+        color: #374151;
+        font-weight: 500;
+        text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+        .humari-converter__progress-container {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+    }
+    </style>
+         
+    <header class="humari-converter__processing-header">
+        <h2 id="processing-title" class="humari-converter__processing-title">
+            🔄 Conversion en cours...
+        </h2>
+        <p class="humari-converter__processing-subtitle" id="humari-processing-subtitle">
+            Préparation de votre fichier
+        </p>
+    </header>
+
+    <div class="humari-converter__progress-container">
+        <div class="humari-converter__progress-circle"
+             role="progressbar"
+             aria-labelledby="progress-label"
+             aria-valuenow="0"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             id="humari-progress-circle">
+                     
+            <svg viewBox="0 0 36 36" class="humari-converter__circular-chart" aria-hidden="true">
+                <path class="humari-converter__circle-bg"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                <path class="humari-converter__circle-progress"
+                       id="humari-circle-progress"
+                      stroke-dasharray="0, 100"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            </svg>
+                     
+            <div class="humari-converter__progress-percentage"
+                  id="humari-progress-percentage"
+                 aria-live="polite">0%</div>
+        </div>
+                 
+        <div class="humari-converter__progress-info">
+            <div class="humari-converter__file-info"
+                  id="humari-current-file-info"
+                 aria-live="polite">
+                <!-- Rempli par JS -->
+            </div>
+            <div class="humari-converter__progress-text"
+                  id="humari-progress-text"
+                 aria-live="polite">
+                Initialisation...
+            </div>
+        </div>
+    </div>
+</section>

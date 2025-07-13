@@ -1,0 +1,100 @@
+version: '3.8'
+
+# ==========================================
+# MEGAHUB - DOCKER COMPOSE PRODUCTION
+# Environnement de production
+# ==========================================
+
+services:
+  backend:
+    container_name: megahub-backend-prod
+    build: ./source/backend  # ← Nouveau chemin
+    networks:
+      - megahub_network
+      - nginx-proxy
+    command: sh -c "python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./source/backend:/app  # ← Nouveau chemin
+      - ./mcp_server:/mcp_server
+    environment:
+      - PYTHONPATH=/app:/mcp_server
+      - DJANGO_SETTINGS_MODULE=django_app.settings.production  # ← Settings production
+      - VIRTUAL_HOST=api.megahub.humari.fr,backoffice.humari.fr
+      - VIRTUAL_PORT=8000
+      - LETSENCRYPT_HOST=api.megahub.humari.fr,backoffice.humari.fr
+      - LETSENCRYPT_EMAIL=martin@frenchease.fr
+      - POSTGRES_DB=mhdb24  # ← DB production (actuelle)
+      - POSTGRES_USER=SuperAdminduTurfu
+      - POSTGRES_PASSWORD=MHub2401!
+      - REDIS_URL=redis://redis:6379/0
+      - SHORTENER_DB_HOST=postgres-shortener
+      - SHORTENER_DB_NAME=shortener_db  # ← DB shortener production
+      - SHORTENER_DB_USER=shortener_user
+      - SHORTENER_DB_PASSWORD=ShortUrl2025!
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    container_name: megahub-frontend-prod
+    build: 
+      context: ./source/frontend  # ← Nouveau chemin
+      dockerfile: Dockerfile
+      target: runner
+    networks:
+      - megahub_network
+      - nginx-proxy
+    environment:
+      - VIRTUAL_HOST=megahub.humari.fr
+      - VIRTUAL_PORT=80
+      - LETSENCRYPT_HOST=megahub.humari.fr
+      - LETSENCRYPT_EMAIL=martin@frenchease.fr
+      - VITE_API_BASE_URL=https://backoffice.humari.fr
+      - VITE_APP_NAME=MegaHub
+      - VITE_APP_VERSION=3.0.0
+      - VITE_NODE_ENV=production
+      - VITE_ENABLE_REACT_COMPILER=true
+      - VITE_ENABLE_LIGHTNING_CSS=true
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  postgres:
+    image: postgres:15
+    container_name: megahub-postgres-prod
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data  # ← Volume production
+    networks:
+      - megahub_network
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=MHub2401!
+      - POSTGRES_USER=SuperAdminduTurfu
+      - POSTGRES_DB=mhdb24  # ← DB production
+
+  redis:
+    image: redis:7-alpine
+    container_name: megahub-redis-prod
+    networks:
+      - megahub_network
+    volumes:
+      - redis_prod_data:/data  # ← Volume production
+    restart: always
+    command: redis-server --appendonly yes
+
+volumes:
+  postgres_prod_data:
+    driver: local
+  redis_prod_data:
+    driver: local
+
+networks:
+  megahub_network:
+    driver: bridge
+  nginx-proxy:
+    external: true

@@ -1,0 +1,1326 @@
+<script>
+/**
+ * Humari Converter - VERSION CORRIGÉE COMPLÈTE
+ */
+
+(function() {
+    'use strict';
+    
+    // Configuration
+    const CONFIG = {
+        maxFileSize: 10 * 1024 * 1024, // 10MB
+        maxFiles: 10,
+        statusCheckInterval: 2000,
+        maxStatusChecks: 60,
+        supportedFormats: ['.pdf', '.docx', '.doc', '.txt', '.md', '.html'],
+        ajaxUrl: '/wp-admin/admin-ajax.php'
+    };
+    
+    // État de l'application
+    let appState = {
+        currentState: 'form',
+        conversions: [],
+        selectedFiles: [],
+        targetFormat: null,
+        statusIntervals: [],
+        statusCheckCount: 0
+    };
+    
+    // Cache des éléments DOM
+    const elements = {};
+    
+    /**
+     * Initialisation du cache des éléments DOM
+     */
+    function initElements() {
+        const elementIds = [
+            'humari-converter-root', 'humari-form-state', 'humari-processing-state',
+            'humari-success-state', 'humari-error-state', 'humari-conversion-form',
+            'humari-file-input', 'humari-upload-zone', 'humari-upload-content',
+            'humari-files-preview', 'humari-submit-btn', 'humari-progress-circle', 
+            'humari-circle-progress', 'humari-progress-percentage', 'humari-progress-text', 
+            'humari-processing-subtitle', 'humari-download-btn', 'humari-new-conversion-btn',
+            'humari-retry-btn', 'humari-success-file-info', 'humari-conversion-stats',
+            'humari-error-message', 'humari-format-dropdown-btn', 'humari-format-dropdown',
+            'humari-format-selected', 'humari-format-search', 'humari-format-options',
+            'humari-target-format', 'humari-converted-files', 'humari-download-all-btn'
+        ];
+        
+        elementIds.forEach(id => {
+            elements[id] = document.getElementById(id);
+        });
+    }
+    
+    /**
+     * Utilitaires
+     */
+    const utils = {
+        formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
+        
+        getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'pdf': '📄', 'docx': '📝', 'doc': '📝',
+                'txt': '📋', 'md': '🔖', 'html': '🌐'
+            };
+            return icons[ext] || '📄';
+        },
+        
+        sanitizeHTML(str) {
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        },
+        
+        announceToScreenReader(message) {
+            const announcement = document.createElement('div');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.setAttribute('aria-atomic', 'true');
+            announcement.className = 'sr-only';
+            announcement.textContent = message;
+            document.body.appendChild(announcement);
+            setTimeout(() => {
+                if (document.body.contains(announcement)) {
+                    document.body.removeChild(announcement);
+                }
+            }, 1000);
+        },
+        
+        generateFileId() {
+            return 'file_' + Math.random().toString(36).substr(2, 9);
+        }
+    };
+    
+    /**
+     * Gestion des états de l'interface
+     */
+    const stateManager = {
+        switchToState(newState) {
+            // Masquer tous les états
+            ['form', 'processing', 'success', 'error'].forEach(state => {
+                const element = elements[`humari-${state}-state`];
+                if (element) {
+                    element.style.display = 'none';
+                    element.setAttribute('aria-hidden', 'true');
+                }
+            });
+            
+            // Afficher le nouvel état
+            const stateElement = elements[`humari-${newState}-state`];
+            if (stateElement) {
+                stateElement.style.display = 'block';
+                stateElement.removeAttribute('aria-hidden');
+                appState.currentState = newState;
+                
+                const stateAnnouncements = {
+                    form: 'Formulaire de conversion affiché',
+                    processing: 'Conversion en cours',
+                    success: 'Conversion terminée avec succès',
+                    error: 'Erreur de conversion'
+                };
+                utils.announceToScreenReader(stateAnnouncements[newState]);
+            }
+        }
+    };
+    
+    /**
+     * 🔧 NOUVEAU: Gestion du sélecteur de format avec recherche fonctionnelle
+     */
+    /**
+ * 🔧 FORMATSELECTOR CORRIGÉ - Recherche fonctionnelle + debug
+ */
+const formatSelector = {
+    isOpen: false,
+    selectedFormat: null,
+    allOptions: [],
+    
+    init() {
+        this.cacheOptions();
+        this.attachEvents();
+        console.log('🔧 FormatSelector initialisé avec', this.allOptions.length, 'options');
+    },
+    
+    cacheOptions() {
+        if (elements['humari-format-options']) {
+            // 🔧 CORRECTION : Exclure le message "aucun résultat"
+            this.allOptions = Array.from(
+                elements['humari-format-options'].querySelectorAll('.humari-converter__format-option')
+            ).filter(option => !option.id || option.id !== 'humari-no-results');
+            
+            console.log('📋 Options trouvées:', this.allOptions.map(opt => ({
+                value: opt.dataset.value,
+                searchTerms: opt.dataset.searchTerms
+            })));
+        }
+    },
+    
+    attachEvents() {
+        // Bouton dropdown
+        if (elements['humari-format-dropdown-btn']) {
+            elements['humari-format-dropdown-btn'].addEventListener('click', (e) => {
+                e.preventDefault();
+                this.toggle();
+            });
+        }
+        
+        // Options
+        if (elements['humari-format-options']) {
+            elements['humari-format-options'].addEventListener('click', (e) => {
+                const option = e.target.closest('.humari-converter__format-option');
+                if (option && option.id !== 'humari-no-results') {
+                    this.selectOption(option);
+                }
+            });
+        }
+        
+        // 🔧 RECHERCHE CORRIGÉE
+        if (elements['humari-format-search']) {
+            elements['humari-format-search'].addEventListener('input', (e) => {
+                const searchTerm = e.target.value;
+                console.log('🔍 Recherche:', searchTerm);
+                this.filterOptions(searchTerm);
+            });
+            
+            elements['humari-format-search'].addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+            
+            elements['humari-format-search'].addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    this.focusFirstVisibleOption();
+                } else if (e.key === 'Escape') {
+                    this.close();
+                    elements['humari-format-dropdown-btn'].focus();
+                }
+            });
+        }
+        
+        // Fermer en cliquant à l'extérieur
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.humari-converter__format-selector')) {
+                this.close();
+            }
+        });
+        
+        // Navigation clavier
+        if (elements['humari-format-options']) {
+            elements['humari-format-options'].addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    this.navigateOptions(e.key === 'ArrowDown' ? 1 : -1);
+                } else if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const focusedOption = e.target.closest('.humari-converter__format-option');
+                    if (focusedOption && focusedOption.id !== 'humari-no-results') {
+                        this.selectOption(focusedOption);
+                    }
+                } else if (e.key === 'Escape') {
+                    this.close();
+                    elements['humari-format-dropdown-btn'].focus();
+                }
+            });
+        }
+    },
+    
+    toggle() {
+        this.isOpen ? this.close() : this.open();
+    },
+    
+    open() {
+        if (elements['humari-format-dropdown']) {
+            elements['humari-format-dropdown'].style.display = 'block';
+            elements['humari-format-dropdown-btn'].setAttribute('aria-expanded', 'true');
+            this.isOpen = true;
+            
+            // Focus sur la recherche à l'ouverture
+            setTimeout(() => {
+                if (elements['humari-format-search']) {
+                    elements['humari-format-search'].focus();
+                }
+            }, 100);
+            
+            this.resetSearch();
+        }
+    },
+    
+    close() {
+        if (elements['humari-format-dropdown']) {
+            elements['humari-format-dropdown'].style.display = 'none';
+            elements['humari-format-dropdown-btn'].setAttribute('aria-expanded', 'false');
+            this.isOpen = false;
+            this.resetSearch();
+        }
+    },
+    
+    // 🔧 FILTRAGE CORRIGÉ avec debug détaillé
+    filterOptions(searchTerm) {
+        const term = searchTerm.toLowerCase().trim();
+        let visibleCount = 0;
+        
+        console.log(`🔍 Filtrage avec terme: "${term}"`);
+        
+        this.allOptions.forEach((option, index) => {
+            const searchTerms = option.dataset.searchTerms || '';
+            const value = option.dataset.value || '';
+            const label = option.querySelector('.humari-converter__format-label')?.textContent.toLowerCase() || '';
+            
+            // 🔧 RECHERCHE ÉLARGIE : terme vide OU présent dans searchTerms OU dans value OU dans label
+            const isMatch = term === '' || 
+                           searchTerms.toLowerCase().includes(term) || 
+                           value.toLowerCase().includes(term) || 
+                           label.includes(term);
+            
+            console.log(`  Option ${index}:`, {
+                value: value,
+                searchTerms: searchTerms,
+                label: label,
+                term: term,
+                isMatch: isMatch
+            });
+            
+            if (isMatch) {
+                option.classList.remove('search-hidden');
+                option.style.display = 'flex';
+                visibleCount++;
+            } else {
+                option.classList.add('search-hidden');
+                option.style.display = 'none';
+            }
+        });
+        
+        // Message "aucun résultat"
+        const noResultsElement = document.getElementById('humari-no-results');
+        if (noResultsElement) {
+            if (visibleCount === 0 && term !== '') {
+                noResultsElement.style.display = 'block';
+                console.log('📭 Aucun résultat affiché');
+            } else {
+                noResultsElement.style.display = 'none';
+            }
+        }
+        
+        console.log(`✅ Recherche "${term}": ${visibleCount}/${this.allOptions.length} résultats visibles`);
+    },
+    
+    resetSearch() {
+        if (elements['humari-format-search']) {
+            elements['humari-format-search'].value = '';
+            this.filterOptions('');
+        }
+    },
+    
+    focusFirstVisibleOption() {
+        const firstVisible = this.allOptions.find(option => 
+            !option.classList.contains('search-hidden') && 
+            option.style.display !== 'none'
+        );
+        if (firstVisible) {
+            firstVisible.focus();
+        }
+    },
+    
+    navigateOptions(direction) {
+        const visibleOptions = this.allOptions.filter(option => 
+            !option.classList.contains('search-hidden') && 
+            option.style.display !== 'none'
+        );
+        
+        if (visibleOptions.length === 0) return;
+        
+        const currentIndex = visibleOptions.findIndex(option => option === document.activeElement);
+        let nextIndex;
+        
+        if (currentIndex === -1) {
+            nextIndex = direction > 0 ? 0 : visibleOptions.length - 1;
+        } else {
+            nextIndex = (currentIndex + direction + visibleOptions.length) % visibleOptions.length;
+        }
+        
+        visibleOptions[nextIndex].focus();
+    },
+    
+    selectOption(option) {
+        const value = option.dataset.value;
+        const icon = option.querySelector('.humari-converter__format-icon').textContent;
+        const label = option.querySelector('.humari-converter__format-label').textContent;
+        
+        // Mettre à jour l'affichage
+        if (elements['humari-format-selected']) {
+            elements['humari-format-selected'].innerHTML = `
+                <span class="humari-converter__format-icon">${icon}</span>
+                <span class="humari-converter__format-text">${label}</span>
+            `;
+        }
+        
+        // Mettre à jour l'input hidden
+        if (elements['humari-target-format']) {
+            elements['humari-target-format'].value = value;
+        }
+        
+        this.selectedFormat = value;
+        appState.targetFormat = value;
+        
+        this.close();
+        this.updateSubmitButton();
+        
+        utils.announceToScreenReader(`Format sélectionné: ${label}`);
+        console.log(`✅ Format sélectionné: ${value} (${label})`);
+    },
+    
+    updateSubmitButton() {
+        if (elements['humari-submit-btn'] && appState.selectedFiles.length > 0 && this.selectedFormat) {
+            elements['humari-submit-btn'].disabled = false;
+            
+            const btnText = elements['humari-submit-btn'].querySelector('.humari-converter__btn-text');
+            if (btnText) {
+                const fileCount = appState.selectedFiles.length;
+                btnText.textContent = `Convertir ${fileCount} fichier${fileCount > 1 ? 's' : ''} en ${this.selectedFormat.toUpperCase()}`;
+            }
+        } else if (elements['humari-submit-btn']) {
+            elements['humari-submit-btn'].disabled = true;
+            
+            const btnText = elements['humari-submit-btn'].querySelector('.humari-converter__btn-text');
+            if (btnText) {
+                btnText.textContent = 'Lancer la conversion';
+            }
+        }
+    }
+};
+    /**
+     * Gestion des fichiers multiples
+     */
+    const fileHandler = {
+        validateFile(file) {
+            const errors = [];
+            
+            if (file.size > CONFIG.maxFileSize) {
+                errors.push(`${file.name}: Fichier trop volumineux (max ${utils.formatFileSize(CONFIG.maxFileSize)})`);
+            }
+            
+            const extension = '.' + file.name.split('.').pop().toLowerCase();
+            if (!CONFIG.supportedFormats.includes(extension)) {
+                errors.push(`${file.name}: Format non supporté`);
+            }
+            
+            if (appState.selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                errors.push(`${file.name}: Fichier déjà sélectionné`);
+            }
+            
+            return errors;
+        },
+        
+        addFiles(fileList) {
+            const files = Array.from(fileList);
+            const errors = [];
+            const validFiles = [];
+            
+            if (appState.selectedFiles.length + files.length > CONFIG.maxFiles) {
+                errors.push(`Maximum ${CONFIG.maxFiles} fichiers autorisés`);
+                return { success: false, errors };
+            }
+            
+            files.forEach(file => {
+                const fileErrors = this.validateFile(file);
+                if (fileErrors.length === 0) {
+                    file._id = utils.generateFileId();
+                    validFiles.push(file);
+                } else {
+                    errors.push(...fileErrors);
+                }
+            });
+            
+            appState.selectedFiles.push(...validFiles);
+            this.updateDisplay();
+            
+            if (validFiles.length > 0) {
+                utils.announceToScreenReader(`${validFiles.length} fichier(s) ajouté(s)`);
+            }
+            
+            return {
+                success: validFiles.length > 0,
+                errors,
+                addedCount: validFiles.length
+            };
+        },
+        
+        removeFile(fileId) {
+            const index = appState.selectedFiles.findIndex(f => f._id === fileId);
+            if (index !== -1) {
+                const fileName = appState.selectedFiles[index].name;
+                appState.selectedFiles.splice(index, 1);
+                this.updateDisplay();
+                utils.announceToScreenReader(`${fileName} supprimé`);
+            }
+        },
+        
+        clearAllFiles() {
+            appState.selectedFiles = [];
+            this.updateDisplay();
+            utils.announceToScreenReader('Tous les fichiers supprimés');
+        },
+        
+        updateDisplay() {
+            if (!elements['humari-files-preview'] || !elements['humari-upload-zone']) {
+                return;
+            }
+            
+            if (appState.selectedFiles.length === 0) {
+                elements['humari-files-preview'].style.display = 'none';
+                elements['humari-upload-zone'].classList.remove('has-files');
+                if (elements['humari-upload-content']) {
+                    elements['humari-upload-content'].style.display = 'flex';
+                }
+            } else {
+                elements['humari-files-preview'].style.display = 'block';
+                elements['humari-upload-zone'].classList.add('has-files');
+                if (elements['humari-upload-content']) {
+                    elements['humari-upload-content'].style.display = 'none';
+                }
+                
+                const filesHtml = appState.selectedFiles.map(file => `
+                    <div class="humari-converter__file-item" data-file-id="${file._id}">
+                        <span class="humari-converter__file-icon" aria-hidden="true">${utils.getFileIcon(file.name)}</span>
+                        <div class="humari-converter__file-details">
+                            <div class="humari-converter__file-name">${utils.sanitizeHTML(file.name)}</div>
+                            <div class="humari-converter__file-size">${utils.formatFileSize(file.size)}</div>
+                        </div>
+                        <button type="button" 
+                                class="humari-converter__file-remove" 
+                                onclick="window.humariConverter.removeFile('${file._id}')"
+                                aria-label="Supprimer ${utils.sanitizeHTML(file.name)}">✕</button>
+                    </div>
+                `).join('');
+                
+                elements['humari-files-preview'].innerHTML = `
+                    ${filesHtml}
+                    <div class="humari-converter__files-count">
+                        ${appState.selectedFiles.length} fichier(s) sélectionné(s) 
+                        ${appState.selectedFiles.length < CONFIG.maxFiles ? `(max ${CONFIG.maxFiles})` : ''}
+                        ${appState.selectedFiles.length > 1 ? `• <button type="button" onclick="window.humariConverter.clearAllFiles()" style="background:none;border:none;color:#ef4444;text-decoration:underline;cursor:pointer;font-size:inherit;">Tout supprimer</button>` : ''}
+                    </div>
+                `;
+            }
+            
+            formatSelector.updateSubmitButton();
+        }
+    };
+    
+    /**
+     * Gestion de la progression
+     */
+    const progressManager = {
+        updateProgress(percentage, text, subtitle) {
+            const clampedPercentage = Math.max(0, Math.min(100, percentage));
+            
+            if (elements['humari-circle-progress']) {
+                elements['humari-circle-progress'].style.strokeDasharray = `${clampedPercentage}, 100`;
+            }
+            
+            if (elements['humari-progress-percentage']) {
+                elements['humari-progress-percentage'].textContent = Math.round(clampedPercentage) + '%';
+            }
+            
+            if (elements['humari-progress-circle']) {
+                elements['humari-progress-circle'].setAttribute('aria-valuenow', clampedPercentage);
+            }
+            
+            if (elements['humari-progress-text'] && text) {
+                elements['humari-progress-text'].textContent = text;
+            }
+            
+            if (elements['humari-processing-subtitle'] && subtitle) {
+                elements['humari-processing-subtitle'].textContent = subtitle;
+            }
+        },
+        
+        updateProcessingFiles() {
+            const processingHtml = appState.selectedFiles.map(file => `
+                <div class="humari-converter__processing-file">
+                    <span class="humari-converter__processing-file-icon" aria-hidden="true">${utils.getFileIcon(file.name)}</span>
+                    <div class="humari-converter__processing-file-name">${utils.sanitizeHTML(file.name)}</div>
+                </div>
+            `).join('');
+            
+            const processingState = elements['humari-processing-state'];
+            if (processingState) {
+                let filesContainer = processingState.querySelector('.humari-converter__processing-files');
+                if (!filesContainer) {
+                    filesContainer = document.createElement('div');
+                    filesContainer.className = 'humari-converter__processing-files';
+                    const progressInfo = processingState.querySelector('.humari-converter__progress-info');
+                    if (progressInfo) {
+                        progressInfo.appendChild(filesContainer);
+                    }
+                }
+                filesContainer.innerHTML = processingHtml;
+            }
+        }
+    };
+    
+    /**
+     * Gestion de la conversion
+     */
+    const conversionManager = {
+        checkStatus(conversionId) {
+            const url = `${CONFIG.ajaxUrl}?action=humari_conversion_status&conversion_id=${encodeURIComponent(conversionId)}`;
+            
+            return fetch(url)
+                .then(response => response.json())
+                .then(result => {
+                    if (!result.success) {
+                        throw new Error(result.data || 'Erreur de statut');
+                    }
+                    return result.data;
+                })
+                .catch(error => {
+                    console.error('Erreur checking status:', error);
+                    return { status: 'error', error_message: error.message };
+                });
+        },
+        
+        async startConversions() {
+            if (appState.selectedFiles.length === 0 || !appState.targetFormat) {
+                this.showError('Fichiers ou format manquant');
+                return;
+            }
+            
+            stateManager.switchToState('processing');
+            progressManager.updateProgress(10, 'Lancement des conversions...', `${appState.selectedFiles.length} fichier(s) à traiter`);
+            progressManager.updateProcessingFiles();
+            
+            const conversions = [];
+            
+            try {
+                for (let i = 0; i < appState.selectedFiles.length; i++) {
+                    const file = appState.selectedFiles[i];
+                    
+                    const startProgress = 10 + (i / appState.selectedFiles.length) * 30;
+                    progressManager.updateProgress(
+                        startProgress, 
+                        `Envoi de ${file.name}...`, 
+                        `Fichier ${i + 1}/${appState.selectedFiles.length}`
+                    );
+                    
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('target_format', appState.targetFormat);
+                    formData.append('action', 'humari_process_conversion');
+                    
+                    const response = await fetch(CONFIG.ajaxUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success && result.data.status === 'success') {
+                        conversions.push({
+                            id: result.data.conversion_id,
+                            filename: result.data.filename,
+                            download_token: result.data.download_url ? result.data.download_url.split('token=')[1] : null
+                        });
+                    } else {
+                        console.error(`Erreur conversion ${file.name}:`, result.data || 'Erreur inconnue');
+                    }
+                }
+                
+                if (conversions.length === 0) {
+                    this.showError('Aucune conversion n\'a pu être lancée');
+                    return;
+                }
+                
+                appState.conversions = conversions;
+                this.monitorConversions();
+                
+            } catch (error) {
+                console.error('Erreur démarrage conversions:', error);
+                this.showError('Erreur lors du lancement des conversions');
+            }
+        },
+        
+        async monitorConversions() {
+            const totalConversions = appState.conversions.length;
+            let completedConversions = [];
+            let failedConversions = [];
+            
+            const checkAllStatus = async () => {
+                const results = await Promise.all(
+                    appState.conversions.map(conv => this.checkStatus(conv.id))
+                );
+                
+                completedConversions = [];
+                failedConversions = [];
+                let processingCount = 0;
+                
+                results.forEach((result, index) => {
+                    const conversion = appState.conversions[index];
+                    
+                    if (result.status === 'completed') {
+                        // 🔧 SEULE CORRECTION : Extraire le token depuis result.download_url
+                        let downloadToken = conversion.download_token; // Garder l'existant par défaut
+                        
+                        if (result.download_url && result.download_url.includes('token=')) {
+                            const tokenMatch = result.download_url.match(/[?&]token=([^&]+)/);
+                            if (tokenMatch) {
+                                downloadToken = tokenMatch[1];
+                                // Mettre à jour l'état global
+                                appState.conversions[index].download_token = downloadToken;
+                            }
+                        }
+                        
+                        completedConversions.push({
+                            ...conversion,
+                            download_token: downloadToken,
+                            result: result
+                        });
+                    } else if (result.status === 'failed') {
+                        failedConversions.push({
+                            ...conversion,
+                            error: result.error_message
+                        });
+                    } else {
+                        processingCount++;
+                    }
+                });
+                
+                const completedCount = completedConversions.length + failedConversions.length;
+                const progress = 40 + (completedCount / totalConversions) * 60;
+                
+                progressManager.updateProgress(
+                    progress,
+                    `${completedCount}/${totalConversions} conversions terminées`,
+                    `${processingCount} en cours, ${failedConversions.length} échecs`
+                );
+                
+                if (completedCount === totalConversions) {
+                    this.showResults(completedConversions, failedConversions);
+                    return true;
+                }
+                
+                return false;
+            };
+            
+            await checkAllStatus();
+            
+            const statusInterval = setInterval(async () => {
+                const isComplete = await checkAllStatus();
+                if (isComplete) {
+                    clearInterval(statusInterval);
+                }
+            }, CONFIG.statusCheckInterval);
+            
+            setTimeout(() => {
+                clearInterval(statusInterval);
+                if (completedConversions.length + failedConversions.length < totalConversions) {
+                    this.showError('Timeout - Certaines conversions ont pris trop de temps');
+                }
+            }, CONFIG.maxStatusChecks * CONFIG.statusCheckInterval);
+        },
+        
+        showResults(completed, failed) {
+            console.log('🎯 Affichage résultats:', { completed, failed });
+            
+            // 🔧 CORRECTION : Vérifier les tokens avant d'afficher le bouton
+            const validTokenCount = completed.filter(conv => 
+                conv.download_token && conv.download_token.trim() !== ''
+            ).length;
+
+            // Afficher le bouton "Télécharger tout" si plusieurs fichiers avec tokens valides
+            if (elements['humari-download-all-btn'] && validTokenCount > 1) {
+                elements['humari-download-all-btn'].style.display = 'flex';
+                console.log(`✅ Bouton téléchargement multiple activé (${validTokenCount} fichiers)`);
+            }
+            
+            // Générer la liste des fichiers convertis
+            if (elements['humari-converted-files']) {
+                let filesHtml = '';
+                
+                if (completed.length > 0 || failed.length > 0) {
+                    filesHtml += `
+                        <h3 class="humari-converter__files-title">
+                            📁 Fichiers convertis (${completed.length + failed.length})
+                        </h3>
+                        <div class="humari-converter__files-list">
+                    `;
+                    
+                    // Fichiers réussis
+                    completed.forEach((conv, index) => {
+                        const outputName = conv.filename.replace(/\.[^/.]+$/, "") + `.${appState.targetFormat}`;
+                        const fileSize = conv.result.output_size ? utils.formatFileSize(conv.result.output_size) : 'Taille inconnue';
+                        const fileIcon = utils.getFileIcon(outputName);
+                        
+                        // 🔧 CORRECTION : Validation rigoureuse du token
+                        const hasValidToken = conv.download_token && 
+                                            conv.download_token.trim() !== '' && 
+                                            conv.download_token !== 'null' && 
+                                            conv.download_token !== 'undefined';
+
+                        console.log(`📄 Fichier ${index + 1}:`, {
+                            filename: outputName,
+                            hasToken: hasValidToken,
+                            token: conv.download_token,
+                            downloadUrl: conv.result?.download_url
+                        });
+                        
+                        filesHtml += `
+                            <div class="humari-converter__file-card humari-converter__file-card--success">
+                                <div class="humari-converter__file-info">
+                                    <div class="humari-converter__file-type-icon">
+                                        ${fileIcon}
+                                    </div>
+                                    <div class="humari-converter__file-details">
+                                        <div class="humari-converter__file-name">
+                                            ${utils.sanitizeHTML(outputName)}
+                                        </div>
+                                        <div class="humari-converter__file-meta">
+                                            <span>📊 ${fileSize}</span>
+                                            <span>🎯 ${appState.targetFormat.toUpperCase()}</span>
+                                            <span>✅ Converti</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                ${hasValidToken ? `
+                                    <a href="${CONFIG.ajaxUrl}?action=humari_download_file&token=${conv.download_token}" 
+                                       class="humari-converter__download-btn" 
+                                       download>
+                                        <span>📥</span>
+                                        <span>Télécharger</span>
+                                    </a>
+                                ` : `
+                                    <button class="humari-converter__download-btn" disabled title="Token manquant: ${conv.download_token || 'null'}">
+                                        <span>❌</span>
+                                        <span>Indisponible</span>
+                                    </button>
+                                `}
+                            </div>
+                        `;
+                    });
+                    
+                    // Fichiers échoués
+                    failed.forEach(conv => {
+                        const fileIcon = utils.getFileIcon(conv.filename);
+                        
+                        filesHtml += `
+                            <div class="humari-converter__file-card humari-converter__file-card--error">
+                                <div class="humari-converter__file-info">
+                                    <div class="humari-converter__file-type-icon">
+                                        ${fileIcon}
+                                    </div>
+                                    <div class="humari-converter__error-info">
+                                        <div class="humari-converter__file-name">
+                                            ${utils.sanitizeHTML(conv.filename)}
+                                        </div>
+                                        <div class="humari-converter__error-message">
+                                            ❌ ${utils.sanitizeHTML(conv.error || 'Erreur inconnue')}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="humari-converter__retry-single">
+                                    <span>🔄</span>
+                                    <span>Réessayer</span>
+                                </button>
+                            </div>
+                        `;
+                    });
+                    
+                    filesHtml += `</div>`;
+                }
+                
+                elements['humari-converted-files'].innerHTML = filesHtml;
+            }
+            
+            // Stats
+            if (elements['humari-conversion-stats']) {
+                const totalFiles = completed.length + failed.length;
+                const successRate = totalFiles > 0 ? Math.round((completed.length / totalFiles) * 100) : 0;
+                
+                elements['humari-conversion-stats'].innerHTML = `
+                    <p class="humari-converter__stats-text">
+                        <span class="humari-converter__stats-numbers">${completed.length}/${totalFiles}</span> 
+                        conversions réussies 
+                        <span class="humari-converter__stats-numbers">(${successRate}%)</span>
+                        • ${validTokenCount} téléchargements disponibles
+                    </p>
+                `;
+            }
+            
+            stateManager.switchToState('success');
+        },
+        
+        showError(message) {
+            if (elements['humari-error-message']) {
+                elements['humari-error-message'].innerHTML = `
+                    <div class="humari-converter__error-details">
+                        <p>${utils.sanitizeHTML(message)}</p>
+                    </div>
+                `;
+            }
+            
+            stateManager.switchToState('error');
+        },
+        
+        downloadAll() {
+            // 🔧 CORRECTION : Filtrer les conversions avec tokens valides
+            const validConversions = appState.conversions.filter(conv => {
+                const isValid = conv.download_token && 
+                               conv.download_token.trim() !== '' && 
+                               conv.download_token !== 'null' && 
+                               conv.download_token !== 'undefined';
+                
+                console.log(`🔍 Validation téléchargement ${conv.filename}:`, {
+                    hasToken: !!conv.download_token,
+                    token: conv.download_token,
+                    isValid: isValid
+                });
+                
+                return isValid;
+            });
+
+            console.log(`📦 Téléchargement multiple: ${validConversions.length}/${appState.conversions.length} fichiers valides`);
+            
+            if (validConversions.length === 0) {
+                alert('❌ Aucun fichier disponible pour le téléchargement.');
+                return;
+            }
+            
+            validConversions.forEach((conv, index) => {
+                setTimeout(() => {
+                    const downloadUrl = `${CONFIG.ajaxUrl}?action=humari_download_file&token=${conv.download_token}`;
+                    console.log(`⬇️ Téléchargement ${index + 1}/${validConversions.length}: ${downloadUrl}`);
+                    
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = true;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }, index * 800);
+            });
+            
+            utils.announceToScreenReader(`Téléchargement de ${validConversions.length} fichiers lancé`);
+        },
+        
+        reset() {
+            appState = {
+                currentState: 'form',
+                conversions: [],
+                selectedFiles: [],
+                targetFormat: null,
+                statusIntervals: [],
+                statusCheckCount: 0
+            };
+            
+            if (elements['humari-conversion-form']) {
+                elements['humari-conversion-form'].reset();
+            }
+            
+            fileHandler.clearAllFiles();
+            
+            formatSelector.selectedFormat = null;
+            if (elements['humari-format-selected']) {
+                elements['humari-format-selected'].innerHTML = `
+                    <span class="humari-converter__format-icon">📄</span>
+                    <span class="humari-converter__format-text">Choisir un format</span>
+                `;
+            }
+            if (elements['humari-target-format']) {
+                elements['humari-target-format'].value = '';
+            }
+            
+            if (elements['humari-submit-btn']) {
+                elements['humari-submit-btn'].disabled = true;
+            }
+            
+            stateManager.switchToState('form');
+        }
+    };
+    
+    /**
+     * Utilitaires de debug pour le système de conversion
+     * Aide à diagnostiquer les problèmes de tokens et d'état
+     */
+    const debugUtils = {
+        /**
+         * Valide et audite l'état des conversions
+         */
+        auditConversions() {
+            const audit = {
+                timestamp: new Date().toISOString(),
+                totalConversions: appState.conversions.length,
+                byStatus: {},
+                tokensAnalysis: {
+                    valid: 0,
+                    invalid: 0,
+                    missing: 0,
+                    details: []
+                },
+                downloadability: {
+                    ready: 0,
+                    blocked: 0,
+                    reasons: []
+                }
+            };
+
+            appState.conversions.forEach((conv, index) => {
+                // Analyse du statut
+                const status = conv.status || 'unknown';
+                audit.byStatus[status] = (audit.byStatus[status] || 0) + 1;
+
+                // Analyse des tokens
+                const tokenAnalysis = this.analyzeToken(conv.download_token);
+                audit.tokensAnalysis.details.push({
+                    index,
+                    filename: conv.filename,
+                    status: status,
+                    tokenStatus: tokenAnalysis.status,
+                    token: tokenAnalysis.masked,
+                    downloadable: tokenAnalysis.valid && status === 'completed'
+                });
+
+                if (tokenAnalysis.valid) {
+                    audit.tokensAnalysis.valid++;
+                } else if (tokenAnalysis.missing) {
+                    audit.tokensAnalysis.missing++;
+                } else {
+                    audit.tokensAnalysis.invalid++;
+                }
+
+                // Analyse de téléchargeabilité
+                if (tokenAnalysis.valid && status === 'completed') {
+                    audit.downloadability.ready++;
+                } else {
+                    audit.downloadability.blocked++;
+                    const reason = !tokenAnalysis.valid ? 
+                        `Token ${tokenAnalysis.status}` : 
+                        `Status: ${status}`;
+                    audit.downloadability.reasons.push(`${conv.filename}: ${reason}`);
+                }
+            });
+
+            // Calculs de performance
+            audit.metrics = {
+                successRate: audit.totalConversions > 0 ? 
+                    Math.round((audit.byStatus.completed || 0) / audit.totalConversions * 100) : 0,
+                tokenValidityRate: audit.totalConversions > 0 ? 
+                    Math.round(audit.tokensAnalysis.valid / audit.totalConversions * 100) : 0,
+                downloadabilityRate: audit.totalConversions > 0 ? 
+                    Math.round(audit.downloadability.ready / audit.totalConversions * 100) : 0
+            };
+
+            return audit;
+        },
+
+        /**
+         * Analyse un token de téléchargement
+         */
+        analyzeToken(token) {
+            if (!token || token === null || token === undefined) {
+                return {
+                    valid: false,
+                    missing: true,
+                    status: 'missing',
+                    masked: 'null'
+                };
+            }
+
+            const tokenStr = String(token).trim();
+            
+            if (tokenStr === '' || tokenStr === 'null' || tokenStr === 'undefined') {
+                return {
+                    valid: false,
+                    missing: false,
+                    status: 'empty',
+                    masked: `"${tokenStr}"`
+                };
+            }
+
+            // Validation format UUID (pattern habituel pour les tokens)
+            const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            const isUuidFormat = uuidPattern.test(tokenStr);
+
+            return {
+                valid: isUuidFormat && tokenStr.length >= 8,
+                missing: false,
+                status: isUuidFormat ? 'valid-uuid' : (tokenStr.length >= 8 ? 'valid-custom' : 'invalid-format'),
+                masked: tokenStr.length > 8 ? 
+                    `${tokenStr.substring(0, 8)}...${tokenStr.substring(tokenStr.length - 4)}` : 
+                    tokenStr
+            };
+        },
+
+        /**
+         * Log détaillé de l'état des conversions
+         */
+        logConversionsState() {
+            const audit = this.auditConversions();
+            
+            console.group('🔍 AUDIT CONVERSIONS - ' + audit.timestamp);
+            
+            console.log('📊 Vue d\'ensemble:', {
+                'Total conversions': audit.totalConversions,
+                'Taux de succès': `${audit.metrics.successRate}%`,
+                'Tokens valides': `${audit.metrics.tokenValidityRate}%`,
+                'Téléchargeables': `${audit.metrics.downloadabilityRate}%`
+            });
+
+            console.log('📈 Statuts:', audit.byStatus);
+            
+            console.log('🔑 Analyse tokens:', {
+                'Valides': audit.tokensAnalysis.valid,
+                'Invalides': audit.tokensAnalysis.invalid,
+                'Manquants': audit.tokensAnalysis.missing
+            });
+
+            console.log('⬇️ Téléchargeabilité:', {
+                'Prêts': audit.downloadability.ready,
+                'Bloqués': audit.downloadability.blocked,
+                'Raisons blocage': audit.downloadability.reasons
+            });
+
+            console.table(audit.tokensAnalysis.details);
+            
+            console.groupEnd();
+            
+            return audit;
+        },
+
+        /**
+         * Teste la validité d'une URL de téléchargement
+         */
+        async testDownloadUrl(conversionId, downloadToken) {
+            if (!downloadToken) {
+                return { valid: false, error: 'Token manquant' };
+            }
+
+            const testUrl = `${CONFIG.ajaxUrl}?action=humari_download_file&token=${downloadToken}`;
+            
+            try {
+                const response = await fetch(testUrl, { method: 'HEAD' });
+                
+                return {
+                    valid: response.ok,
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: {
+                        contentType: response.headers.get('content-type'),
+                        contentLength: response.headers.get('content-length'),
+                        contentDisposition: response.headers.get('content-disposition')
+                    },
+                    url: testUrl
+                };
+            } catch (error) {
+                return {
+                    valid: false,
+                    error: error.message,
+                    url: testUrl
+                };
+            }
+        },
+
+        /**
+         * Valide tous les téléchargements disponibles
+         */
+        async validateAllDownloads() {
+            const validTokens = appState.conversions.filter(conv => 
+                conv.download_token && conv.status === 'completed'
+            );
+
+            if (validTokens.length === 0) {
+                console.warn('⚠️ Aucun token de téléchargement à valider');
+                return [];
+            }
+
+            console.log(`🧪 Test de ${validTokens.length} liens de téléchargement...`);
+
+            const results = await Promise.all(
+                validTokens.map(async (conv) => {
+                    const test = await this.testDownloadUrl(conv.id, conv.download_token);
+                    return {
+                        filename: conv.filename,
+                        conversionId: conv.id,
+                        token: conv.download_token,
+                        ...test
+                    };
+                })
+            );
+
+            console.table(results);
+            
+            const validDownloads = results.filter(r => r.valid);
+            console.log(`✅ ${validDownloads.length}/${results.length} téléchargements fonctionnels`);
+
+            return results;
+        },
+
+        /**
+         * Affiche les métriques de performance
+         */
+        getPerformanceMetrics() {
+            const audit = this.auditConversions();
+            
+            return {
+                efficiency: {
+                    conversionSuccess: `${audit.metrics.successRate}%`,
+                    tokenGeneration: `${audit.metrics.tokenValidityRate}%`,
+                    downloadAvailability: `${audit.metrics.downloadabilityRate}%`,
+                    overallEfficiency: `${Math.round((audit.metrics.successRate + audit.metrics.tokenValidityRate + audit.metrics.downloadabilityRate) / 3)}%`
+                },
+                bottlenecks: audit.downloadability.reasons.slice(0, 3),
+                recommendations: this.generateRecommendations(audit)
+            };
+        },
+
+        /**
+         * Génère des recommandations d'amélioration
+         */
+        generateRecommendations(audit) {
+            const recommendations = [];
+
+            if (audit.metrics.successRate < 90) {
+                recommendations.push('🔧 Investiguer les échecs de conversion (taux < 90%)');
+            }
+
+            if (audit.metrics.tokenValidityRate < 95) {
+                recommendations.push('🔑 Corriger la génération/extraction des tokens de téléchargement');
+            }
+
+            if (audit.downloadability.blocked > 0) {
+                recommendations.push(`📥 ${audit.downloadability.blocked} fichiers non téléchargeables à corriger`);
+            }
+
+            if (audit.tokensAnalysis.missing > 0) {
+                recommendations.push('⚠️ Vérifier le processus de mise à jour des tokens en fin de conversion');
+            }
+
+            return recommendations;
+        }
+    };
+    
+    /**
+     * Gestionnaires d'événements
+     */
+    function attachEventListeners() {
+        // Input file
+        if (elements['humari-file-input']) {
+            elements['humari-file-input'].addEventListener('change', function(e) {
+                console.log('✅ Input file change triggered:', e.target.files.length, 'files');
+                if (e.target.files && e.target.files.length > 0) {
+                    const result = fileHandler.addFiles(e.target.files);
+                    if (result.errors.length > 0) {
+                        alert(result.errors.join('\n'));
+                    }
+                    e.target.value = '';
+                }
+            });
+        }
+        
+        // Zone de drag & drop
+        if (elements['humari-upload-zone']) {
+            const uploadZone = elements['humari-upload-zone'];
+            
+            ['dragover', 'dragenter'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, function(e) {
+                    e.preventDefault();
+                    this.classList.add('drag-over');
+                });
+            });
+            
+            ['dragleave', 'dragend', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                });
+            });
+            
+            uploadZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const result = fileHandler.addFiles(files);
+                    if (result.errors.length > 0) {
+                        alert(result.errors.join('\n'));
+                    }
+                }
+            });
+        }
+        
+        // Soumission du formulaire
+        if (elements['humari-conversion-form']) {
+            elements['humari-conversion-form'].addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!appState.targetFormat) {
+                    alert('Veuillez sélectionner un format de sortie');
+                    return;
+                }
+                
+                if (appState.selectedFiles.length === 0) {
+                    alert('Veuillez sélectionner au moins un fichier');
+                    return;
+                }
+                
+                conversionManager.startConversions();
+            });
+        }
+        
+        // Boutons d'action
+        if (elements['humari-new-conversion-btn']) {
+            elements['humari-new-conversion-btn'].addEventListener('click', () => {
+                conversionManager.reset();
+            });
+        }
+        
+        if (elements['humari-download-all-btn']) {
+            elements['humari-download-all-btn'].addEventListener('click', () => {
+                conversionManager.downloadAll();
+            });
+        }
+        
+        if (elements['humari-retry-btn']) {
+            elements['humari-retry-btn'].addEventListener('click', () => {
+                if (appState.selectedFiles.length > 0 && appState.targetFormat) {
+                    conversionManager.startConversions();
+                } else {
+                    conversionManager.reset();
+                }
+            });
+        }
+    }
+    
+    /**
+     * Initialisation
+     */
+    function init() {
+        console.log('🚀 Humari Converter initializing...');
+        initElements();
+        formatSelector.init();
+        attachEventListeners();
+        console.log('✅ Humari Converter initialized');
+    }
+    
+    // API publique
+    window.humariConverter = {
+        removeFile: fileHandler.removeFile.bind(fileHandler),
+        clearAllFiles: fileHandler.clearAllFiles.bind(fileHandler),
+        downloadAll: conversionManager.downloadAll.bind(conversionManager),
+        reset: conversionManager.reset.bind(conversionManager),
+        debug: debugUtils // Outils de debug
+    };
+    
+    // Initialisation au chargement du DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+    
+})();
+</script>

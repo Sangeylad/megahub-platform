@@ -1,0 +1,32 @@
+[
+  {
+    "model": "brands_template_categories.templatetag",
+    "pk": 1,
+    "fields": {
+      "name": "seo-optimized",
+      "display_name": "SEO Optimisé",
+      "description": "Template optimisé pour le référencement",
+      "color": "green"
+    }
+  },
+  {
+    "model": "brands_template_categories.templatetag",
+    "pk": 2,
+    "fields": {
+      "name": "conversion-focused",
+      "display_name": "Orienté Conversion",
+      "description": "Template conçu pour maximiser les conversions",
+      "color": "orange"
+    }
+  },
+  {
+    "model": "brands_template_categories.templatetag",
+    "pk": 3,
+    "fields": {
+      "name": "beginner-friendly",
+      "display_name": "Débutant",
+      "description": "Template simple à utiliser",
+      "color": "blue"
+    }
+  }
+]

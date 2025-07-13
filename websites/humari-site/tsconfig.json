@@ -1,0 +1,46 @@
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022",                    // Support des features modernes (private fields, top-level await, etc.)
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,                        // Mode strict obligatoire
+    "noEmit": true,                        // Next.js gère la compilation
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",         // Plus moderne que "node"
+    "resolveJsonModule": true,
+    "isolatedModules": true,               // Requis pour Next.js
+    "jsx": "preserve",                     // Next.js transforme le JSX
+    "incremental": true,                   // Performances de compilation
+    "forceConsistentCasingInFileNames": true,
+    
+    // Vérifications strictes additionnelles
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,      // Sécurité d'accès aux tableaux/objets
+    
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/public/*": ["./public/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

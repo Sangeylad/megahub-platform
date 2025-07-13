@@ -1,0 +1,1305 @@
+<div class="volume-simulator">
+    <div class="simulator-intro">
+        <h2>📈 Simulateur de Volume & Rentabilité</h2>
+        <p>Projetez vos revenus, bénéfices et budgets publicitaires selon différents scénarios de croissance.</p>
+        
+        <!-- Métriques auto-importées -->
+        <div class="imported-values">
+            <h3>⚙️ Valeurs Actuelles (synchronisées avec le calculateur)</h3>
+            <div class="base-metrics">
+                <div class="base-metric">
+                    <span class="metric-label">Prix de vente HT</span>
+                    <span class="metric-value" id="vol-selling-price">29,99 €</span>
+                    <small>Prix unitaire</small>
+                </div>
+                <div class="base-metric">
+                    <span class="metric-label">Marge unitaire</span>
+                    <span class="metric-value" id="vol-unit-margin">11,05 €</span>
+                    <small>Profit par vente</small>
+                </div>
+                <div class="base-metric">
+                    <span class="metric-label">BEROAS</span>
+                    <span class="metric-value" id="vol-beroas">2,71</span>
+                    <small>Seuil de rentabilité</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="simulator-layout">
+        <!-- Configuration -->
+        <div class="volume-inputs">
+            <h3>🎯 Paramètres de Simulation</h3>
+            
+            <div class="volume-controls">
+                <div class="input-group featured">
+                    <label for="monthly-orders">🛒 Objectif de commandes mensuelles</label>
+                    <div class="input-wrapper">
+                        <input type="number" 
+                               id="monthly-orders" 
+                               name="monthlyOrders"
+                               class="calc-input" 
+                               min="0" 
+                               step="10" 
+                               value="150">
+                        <span class="input-unit">commandes</span>
+                    </div>
+                    <div class="input-slider">
+                        <input type="range" 
+                               id="orders-slider" 
+                               min="10" 
+                               max="500" 
+                               step="10" 
+                               value="150">
+                        <div class="slider-labels">
+                            <span>10</span>
+                            <span>250</span>
+                            <span>500</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="conversion-rate">📊 Taux de conversion de votre site</label>
+                    <div class="input-wrapper">
+                        <input type="number" 
+                               id="conversion-rate" 
+                               name="conversionRate"
+                               step="0.1" 
+                               min="0.1" 
+                               max="15" 
+                               value="2.5">
+                        <span class="input-unit">%</span>
+                    </div>
+                    <small class="input-help">% de visiteurs qui achètent (moyenne e-commerce : 1-3%)</small>
+                </div>
+
+                <div class="input-group">
+                    <label for="traffic-cost">💸 Coût d'acquisition trafic (CPC)</label>
+                    <div class="input-wrapper">
+                        <input type="number" 
+                               id="traffic-cost" 
+                               name="trafficCost"
+                               step="0.05" 
+                               min="0.10" 
+                               max="5.00"
+                               value="0.65">
+                        <span class="input-unit">€/clic</span>
+                    </div>
+                    <small class="input-help">Coût moyen par clic selon votre canal publicitaire</small>
+                </div>
+
+                <div class="input-group">
+                    <label for="growth-rate">📈 Croissance mensuelle visée</label>
+                    <div class="input-wrapper">
+                        <input type="number" 
+                               id="growth-rate" 
+                               name="growthRate"
+                               step="1" 
+                               min="0" 
+                               max="50"
+                               value="15">
+                        <span class="input-unit">%</span>
+                    </div>
+                    <small class="input-help">Croissance du nombre de commandes mois après mois</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projections principales -->
+        <div class="volume-projections">
+            <h3>📊 Projections Mensuelles</h3>
+            
+            <div class="projections-grid">
+                <div class="projection-card primary">
+                    <div class="projection-icon">💰</div>
+                    <div class="projection-content">
+                        <div class="projection-label">Chiffre d'Affaires</div>
+                        <div class="projection-value" id="monthly-revenue">4 498 €</div>
+                        <div class="projection-subtitle">par mois</div>
+                    </div>
+                </div>
+
+                <div class="projection-card">
+                    <div class="projection-icon">👥</div>
+                    <div class="projection-content">
+                        <div class="projection-label">Trafic Nécessaire</div>
+                        <div class="projection-value" id="required-traffic">6 000</div>
+                        <div class="projection-subtitle">visiteurs/mois</div>
+                    </div>
+                </div>
+
+                <div class="projection-card budget">
+                    <div class="projection-icon">💸</div>
+                    <div class="projection-content">
+                        <div class="projection-label">Budget Pub Recommandé</div>
+                        <div class="projection-value" id="recommended-budget">3 900 €</div>
+                        <div class="projection-subtitle">pour rester rentable</div>
+                    </div>
+                </div>
+
+                <div class="projection-card profit">
+                    <div class="projection-icon">📈</div>
+                    <div class="projection-content">
+                        <div class="projection-label">Profit Net Estimé</div>
+                        <div class="projection-value" id="net-profit">750 €</div>
+                        <div class="projection-subtitle">après pub</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Explication du budget recommandé -->
+            <div class="budget-explanation">
+                <h4>💡 À propos du "Budget Pub Recommandé"</h4>
+                <div class="explanation-content">
+                    <p><strong>Ce budget correspond à votre seuil de rentabilité :</strong></p>
+                    <ul>
+                        <li>✅ <strong>En dessous</strong> : Vous êtes bénéficiaire</li>
+                        <li>⚖️ <strong>À ce niveau</strong> : Vous êtes à l'équilibre (break-even)</li>
+                        <li>❌ <strong>Au-dessus</strong> : Vous perdez de l'argent</li>
+                    </ul>
+                    <p class="calculation-detail">
+                        <strong>Calcul :</strong> Marge unitaire × Nombre de commandes = Budget max rentable
+                    </p>
+                </div>
+            </div>
+
+            <!-- Projections trimestrielles et annuelles -->
+            <div class="extended-projections">
+                <h4>📅 Projections Étendues</h4>
+                <div class="extended-grid">
+                    <div class="extended-period">
+                        <h5>Trimestre 1</h5>
+                        <div class="period-stats">
+                            <div class="period-stat">
+                                <span class="stat-label">CA</span>
+                                <span class="stat-value" id="q1-revenue">14 244 €</span>
+                            </div>
+                            <div class="period-stat">
+                                <span class="stat-label">Commandes</span>
+                                <span class="stat-value" id="q1-orders">475</span>
+                            </div>
+                            <div class="period-stat">
+                                <span class="stat-label">Profit</span>
+                                <span class="stat-value" id="q1-profit">2 375 €</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="extended-period">
+                        <h5>Année 1 (avec croissance)</h5>
+                        <div class="period-stats">
+                            <div class="period-stat">
+                                <span class="stat-label">CA</span>
+                                <span class="stat-value" id="yearly-revenue">72 450 €</span>
+                            </div>
+                            <div class="period-stat">
+                                <span class="stat-label">Commandes</span>
+                                <span class="stat-value" id="yearly-orders">2 415</span>
+                            </div>
+                            <div class="period-stat">
+                                <span class="stat-label">Profit</span>
+                                <span class="stat-value" id="yearly-profit">12 075 €</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scénarios dynamiques basés sur les paramètres utilisateur -->
+    <div class="scenarios-section">
+        <h3>🎯 Scénarios de Croissance Dynamiques</h3>
+        <p class="scenarios-description">
+            Basés sur vos paramètres (marge de <span id="scenario-margin">11,05 €</span>, 
+            conversion <span id="scenario-conversion">2,5%</span>, CPC <span id="scenario-cpc">0,65 €</span>)
+        </p>
+        
+        <div class="scenarios-grid">
+            <!-- Scénario Prudent -->
+            <div class="scenario-card conservative">
+                <div class="scenario-header">
+                    <h4>🐌 Croissance Prudente</h4>
+                    <div class="scenario-badge">-50% volume</div>
+                </div>
+                <div class="scenario-params">
+                    <div class="param">
+                        <span>Commandes/mois:</span>
+                        <span id="conservative-orders">75</span>
+                    </div>
+                    <div class="param">
+                        <span>CA mensuel:</span>
+                        <span id="conservative-revenue">2 249 €</span>
+                    </div>
+                    <div class="param">
+                        <span>Budget pub max:</span>
+                        <span id="conservative-budget">829 €</span>
+                    </div>
+                    <div class="param">
+                        <span>Trafic requis:</span>
+                        <span id="conservative-traffic">3 000</span>
+                    </div>
+                    <div class="param profit">
+                        <span><strong>Profit potentiel:</strong></span>
+                        <span id="conservative-profit">634 €</span>
+                    </div>
+                </div>
+                <div class="scenario-insight">
+                    <strong>💡 Stratégie :</strong> Démarrage sécurisé, focus sur l'optimisation du taux de conversion
+                </div>
+            </div>
+
+            <!-- Scénario Actuel -->
+            <div class="scenario-card current">
+                <div class="scenario-header">
+                    <h4>🎯 Objectif Actuel</h4>
+                    <div class="scenario-badge current-badge">Volume cible</div>
+                </div>
+                <div class="scenario-params">
+                    <div class="param">
+                        <span>Commandes/mois:</span>
+                        <span id="current-orders">150</span>
+                    </div>
+                    <div class="param">
+                        <span>CA mensuel:</span>
+                        <span id="current-revenue">4 498 €</span>
+                    </div>
+                    <div class="param">
+                        <span>Budget pub max:</span>
+                        <span id="current-budget">1 658 €</span>
+                    </div>
+                    <div class="param">
+                        <span>Trafic requis:</span>
+                        <span id="current-traffic">6 000</span>
+                    </div>
+                    <div class="param profit">
+                        <span><strong>Profit potentiel:</strong></span>
+                        <span id="current-profit">1 268 €</span>
+                    </div>
+                </div>
+                <div class="scenario-insight">
+                    <strong>💡 Stratégie :</strong> Équilibre croissance/risque, surveillance KPIs
+                </div>
+            </div>
+
+            <!-- Scénario Ambitieux -->
+            <div class="scenario-card aggressive">
+                <div class="scenario-header">
+                    <h4>🚀 Croissance Ambitieuse</h4>
+                    <div class="scenario-badge">+100% volume</div>
+                </div>
+                <div class="scenario-params">
+                    <div class="param">
+                        <span>Commandes/mois:</span>
+                        <span id="aggressive-orders">300</span>
+                    </div>
+                    <div class="param">
+                        <span>CA mensuel:</span>
+                        <span id="aggressive-revenue">8 997 €</span>
+                    </div>
+                    <div class="param">
+                        <span>Budget pub max:</span>
+                        <span id="aggressive-budget">3 315 €</span>
+                    </div>
+                    <div class="param">
+                        <span>Trafic requis:</span>
+                        <span id="aggressive-traffic">12 000</span>
+                    </div>
+                    <div class="param profit">
+                        <span><strong>Profit potentiel:</strong></span>
+                        <span id="aggressive-profit">2 535 €</span>
+                    </div>
+                </div>
+                <div class="scenario-insight">
+                    <strong>💡 Stratégie :</strong> Scaling agressif, diversification des canaux d'acquisition
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analyse ROI et recommandations -->
+    <div class="roi-analysis">
+        <h3>💡 Analyse & Recommandations</h3>
+        <div class="roi-content">
+            <div class="roi-insights-section">
+                <h4>📊 Insights Clés</h4>
+                <div class="roi-insights" id="roi-insights">
+                    <!-- Insights dynamiques -->
+                </div>
+            </div>
+            
+            <div class="roi-actions">
+                <h4>🎯 Plan d'Action</h4>
+                <div class="action-list" id="volume-actions">
+                    <!-- Actions dynamiques -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.volume-simulator {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.simulator-intro {
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    padding: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.simulator-intro h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
+}
+
+.simulator-intro p {
+    color: #718096;
+    margin: 0 0 1.5rem 0;
+}
+
+.imported-values {
+    margin-top: 1.5rem;
+}
+
+.imported-values h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4a5568;
+    margin: 0 0 1rem 0;
+}
+
+.base-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.base-metric {
+    text-align: center;
+}
+
+.base-metric .metric-label {
+    font-size: 0.8rem;
+    color: #718096;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.base-metric .metric-value {
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 1.2rem;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.base-metric small {
+    font-size: 0.75rem;
+    color: #a0aec0;
+}
+
+.simulator-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.volume-inputs h3,
+.volume-projections h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 1.5rem 0;
+}
+
+.volume-controls {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.input-group.featured {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+}
+
+.input-group label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 0.875rem 4rem 0.875rem 0.875rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+}
+
+.input-unit {
+    position: absolute;
+    right: 0.875rem;
+    color: #718096;
+    font-weight: 500;
+    pointer-events: none;
+    font-size: 0.9rem;
+}
+
+.input-slider {
+    margin-top: 1rem;
+}
+
+.input-slider input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #e2e8f0;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.input-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #a0aec0;
+}
+
+.input-help {
+    color: #a0aec0;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    line-height: 1.3;
+}
+
+.projections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.projection-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.projection-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.projection-card.primary {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea10, #764ba220);
+}
+
+.projection-card.budget {
+    border-color: #ed8936;
+    background: linear-gradient(135deg, #ed893610, #f6ad5520);
+}
+
+.projection-card.profit {
+    border-color: #48bb78;
+    background: linear-gradient(135deg, #48bb7810, #68d39120);
+}
+
+.projection-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.projection-content {
+    flex: 1;
+}
+
+.projection-label {
+    font-size: 0.85rem;
+    color: #718096;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.projection-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.projection-subtitle {
+    font-size: 0.8rem;
+    color: #a0aec0;
+}
+
+.budget-explanation {
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid #667eea;
+}
+
+.budget-explanation h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 1rem 0;
+}
+
+.explanation-content ul {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+}
+
+.explanation-content li {
+    margin-bottom: 0.5rem;
+    color: #4a5568;
+}
+
+.calculation-detail {
+    background: white;
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+    color: #4a5568;
+    border: 1px solid #e2e8f0;
+    margin-top: 1rem;
+}
+
+.extended-projections {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.extended-projections h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 1rem 0;
+}
+
+.extended-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.extended-period {
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.extended-period h5 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 1rem 0;
+    text-align: center;
+}
+
+.period-stats {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.period-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.period-stat:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #718096;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.scenarios-section {
+    margin-top: 2rem;
+    padding: 2rem;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.scenarios-section h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
+}
+
+.scenarios-description {
+    color: #718096;
+    margin: 0 0 1.5rem 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.scenarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.scenario-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.scenario-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.scenario-card.conservative {
+    border-color: #4299e1;
+    background: linear-gradient(135deg, #4299e110, #3182ce20);
+}
+
+.scenario-card.current {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea10, #764ba220);
+}
+
+.scenario-card.aggressive {
+    border-color: #48bb78;
+    background: linear-gradient(135deg, #48bb7810, #68d39120);
+}
+
+.scenario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.scenario-header h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+}
+
+.scenario-badge {
+    background: #718096;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.scenario-badge.current-badge {
+    background: #667eea;
+}
+
+.scenario-params {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.param {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.9rem;
+}
+
+.param:last-child {
+    border-bottom: none;
+}
+
+.param.profit {
+    border-top: 2px solid #e2e8f0;
+    padding-top: 0.75rem;
+    margin-top: 0.5rem;
+    background: rgba(72, 187, 120, 0.05);
+    border-radius: 0.25rem;
+    margin: 0.5rem -0.5rem 0;
+    padding: 0.75rem 1rem;
+}
+
+.param span:first-child {
+    color: #718096;
+    font-weight: 500;
+}
+
+.param span:last-child {
+    color: #2d3748;
+    font-weight: 700;
+}
+
+.scenario-insight {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.85rem;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+.roi-analysis {
+    padding: 2rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.roi-analysis h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 1.5rem 0;
+}
+
+.roi-content {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 2rem;
+}
+
+.roi-insights-section,
+.roi-actions {
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.roi-insights-section h4,
+.roi-actions h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 1rem 0;
+}
+
+.roi-insights {
+    display: grid;
+    gap: 1rem;
+}
+
+.insight-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.insight-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.insight-text {
+    font-size: 0.9rem;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+.action-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.action-item {
+    padding: 0.75rem;
+    background: white;
+    border-radius: 0.5rem;
+    border-left: 3px solid #48bb78;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #4a5568;
+}
+
+.action-item.warning {
+    border-left-color: #ed8936;
+}
+
+.action-item.info {
+    border-left-color: #4299e1;
+}
+
+.action-placeholder {
+    text-align: center;
+    color: #a0aec0;
+    font-style: italic;
+    padding: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .simulator-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .roi-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .base-metrics {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .simulator-layout,
+    .scenarios-section,
+    .roi-analysis {
+        padding: 1.5rem;
+    }
+    
+    .projections-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .scenarios-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .extended-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .projection-card {
+        padding: 1rem;
+    }
+    
+    .projection-value {
+        font-size: 1.2rem;
+    }
+    
+    .input-group {
+        padding: 1rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const volumeState = {
+        monthlyOrders: 150,
+        conversionRate: 2.5,
+        trafficCost: 0.65,
+        growthRate: 15
+    };
+    
+    // Initialize with default values
+    initializeVolumeInputs();
+    
+    // Auto-calculate on load
+    setTimeout(() => {
+        calculateVolumeProjections();
+    }, 200);
+    
+    function initializeVolumeInputs() {
+        // Set default values
+        document.getElementById('monthly-orders').value = volumeState.monthlyOrders;
+        document.getElementById('orders-slider').value = volumeState.monthlyOrders;
+        document.getElementById('conversion-rate').value = volumeState.conversionRate;
+        document.getElementById('traffic-cost').value = volumeState.trafficCost;
+        document.getElementById('growth-rate').value = volumeState.growthRate;
+        
+        // Sync sliders with inputs
+        const ordersSlider = document.getElementById('orders-slider');
+        const ordersInput = document.getElementById('monthly-orders');
+        
+        if (ordersSlider && ordersInput) {
+            ordersSlider.addEventListener('input', function() {
+                ordersInput.value = this.value;
+                volumeState.monthlyOrders = parseInt(this.value);
+                calculateVolumeProjections();
+            });
+            
+            ordersInput.addEventListener('input', function() {
+                const value = parseInt(this.value) || 0;
+                ordersSlider.value = Math.min(Math.max(value, 10), 500);
+                volumeState.monthlyOrders = value;
+                calculateVolumeProjections();
+            });
+        }
+        
+        // Bind other inputs
+        ['conversionRate', 'trafficCost', 'growthRate'].forEach(inputName => {
+            const element = document.querySelector(`[name="${inputName}"]`);
+            if (element) {
+                element.addEventListener('input', function() {
+                    volumeState[inputName] = parseFloat(this.value) || 0;
+                    calculateVolumeProjections();
+                });
+            }
+        });
+    }
+    
+    function calculateVolumeProjections() {
+        if (!window.roasCalculator) return;
+        
+        const baseResults = window.roasCalculator.calculate();
+        
+        // Update base metrics display
+        updateElement('vol-selling-price', formatCurrency(baseResults.sellingPriceHT));
+        updateElement('vol-unit-margin', formatCurrency(baseResults.unitMargin));
+        updateElement('vol-beroas', baseResults.calculatedBeroas.toFixed(2));
+        
+        // Update scenario parameters display
+        updateElement('scenario-margin', formatCurrency(baseResults.unitMargin));
+        updateElement('scenario-conversion', volumeState.conversionRate + '%');
+        updateElement('scenario-cpc', formatCurrency(volumeState.trafficCost));
+        
+        // Monthly projections
+        const monthlyRevenue = baseResults.sellingPriceHT * volumeState.monthlyOrders;
+        const requiredTraffic = volumeState.conversionRate > 0 ? 
+            Math.ceil(volumeState.monthlyOrders / (volumeState.conversionRate / 100)) : 0;
+        
+        // Budget recommandé = marge unitaire × nombre de commandes (seuil de rentabilité)
+        const recommendedBudget = baseResults.unitMargin * volumeState.monthlyOrders;
+        
+        // Coût trafic réel
+        const actualTrafficCost = requiredTraffic * volumeState.trafficCost;
+        
+        // Profit net = marge brute - coût trafic réel
+        const grossProfit = baseResults.unitMargin * volumeState.monthlyOrders;
+        const netProfit = grossProfit - actualTrafficCost;
+        
+        // Update main projections
+        updateElement('monthly-revenue', formatCurrency(monthlyRevenue));
+        updateElement('required-traffic', requiredTraffic.toLocaleString('fr-FR'));
+        updateElement('recommended-budget', formatCurrency(recommendedBudget));
+        updateElement('net-profit', formatCurrency(netProfit));
+        
+        // Extended projections with growth
+        calculateExtendedProjections(baseResults);
+        
+        // Dynamic scenarios
+        calculateDynamicScenarios(baseResults);
+        
+        // ROI Analysis
+        generateROIInsights(baseResults, {
+            monthlyOrders: volumeState.monthlyOrders,
+            monthlyRevenue,
+            netProfit,
+            requiredTraffic,
+            actualTrafficCost,
+            recommendedBudget
+        });
+    }
+    
+    function calculateExtendedProjections(baseResults) {
+        const growthFactor = 1 + (volumeState.growthRate / 100);
+        
+        // Q1 projections (3 months with growth)
+        let q1Orders = 0;
+        let currentOrders = volumeState.monthlyOrders;
+        
+        for (let month = 0; month < 3; month++) {
+            q1Orders += currentOrders;
+            currentOrders *= growthFactor;
+        }
+        
+        const q1Revenue = q1Orders * baseResults.sellingPriceHT;
+        const q1Profit = q1Orders * baseResults.unitMargin;
+        
+        updateElement('q1-orders', Math.round(q1Orders).toLocaleString('fr-FR'));
+        updateElement('q1-revenue', formatCurrency(q1Revenue));
+        updateElement('q1-profit', formatCurrency(q1Profit));
+        
+        // Yearly projections (12 months with compound growth)
+        let yearlyOrders = 0;
+        currentOrders = volumeState.monthlyOrders;
+        
+        for (let month = 0; month < 12; month++) {
+            yearlyOrders += currentOrders;
+            currentOrders *= growthFactor;
+        }
+        
+        const yearlyRevenue = yearlyOrders * baseResults.sellingPriceHT;
+        const yearlyProfit = yearlyOrders * baseResults.unitMargin;
+        
+        updateElement('yearly-orders', Math.round(yearlyOrders).toLocaleString('fr-FR'));
+        updateElement('yearly-revenue', formatCurrency(yearlyRevenue));
+        updateElement('yearly-profit', formatCurrency(yearlyProfit));
+    }
+    
+    function calculateDynamicScenarios(baseResults) {
+        const scenarios = [
+            { id: 'conservative', multiplier: 0.5, name: 'Prudente' },
+            { id: 'current', multiplier: 1.0, name: 'Actuelle' },
+            { id: 'aggressive', multiplier: 2.0, name: 'Ambitieuse' }
+        ];
+        
+        scenarios.forEach(scenario => {
+            const orders = Math.round(volumeState.monthlyOrders * scenario.multiplier);
+            const revenue = orders * baseResults.sellingPriceHT;
+            const budget = orders * baseResults.unitMargin; // Budget max pour break-even
+            const traffic = Math.ceil(orders / (volumeState.conversionRate / 100));
+            const actualCost = traffic * volumeState.trafficCost;
+            const profit = (orders * baseResults.unitMargin) - actualCost;
+            
+            updateElement(`${scenario.id}-orders`, orders.toLocaleString('fr-FR'));
+            updateElement(`${scenario.id}-revenue`, formatCurrency(revenue));
+            updateElement(`${scenario.id}-budget`, formatCurrency(budget));
+            updateElement(`${scenario.id}-traffic`, traffic.toLocaleString('fr-FR'));
+            updateElement(`${scenario.id}-profit`, formatCurrency(profit));
+        });
+    }
+    
+    function generateROIInsights(baseResults, projections) {
+        const insights = [];
+        const actions = [];
+        
+        // ROI Analysis
+        const roi = projections.actualTrafficCost > 0 ? 
+            (projections.netProfit / projections.actualTrafficCost) * 100 : 0;
+        
+        // Profitability insights
+        if (projections.netProfit > 0) {
+            if (roi > 300) {
+                insights.push({
+                    icon: '🚀',
+                    text: `ROI exceptionnel (${Math.round(roi)}%) : chaque euro de pub génère ${(roi/100).toFixed(1)}€ de profit net.`
+                });
+                actions.push({
+                    type: 'success',
+                    text: 'Augmentez massivement votre budget publicitaire - votre modèle est très rentable'
+                });
+            } else if (roi > 150) {
+                insights.push({
+                    icon: '💰',
+                    text: `ROI solide (${Math.round(roi)}%) : modèle économique viable et rentable.`
+                });
+                actions.push({
+                    type: 'success',
+                    text: 'Scaling progressif recommandé - testez une augmentation de 50% du budget'
+                });
+            } else if (roi > 50) {
+                insights.push({
+                    icon: '📈',
+                    text: `ROI modéré (${Math.round(roi)}%) : rentable mais perfectible.`
+                });
+                actions.push({
+                    type: 'warning',
+                    text: 'Optimisez votre taux de conversion ou réduisez le CPC avant de scaler'
+                });
+            } else {
+                insights.push({
+                    icon: '⚠️',
+                    text: `ROI faible (${Math.round(roi)}%) : rentabilité très limitée.`
+                });
+                actions.push({
+                    type: 'warning',
+                    text: 'Priorité : améliorer la conversion et négocier de meilleurs CPC'
+                });
+            }
+        } else {
+            insights.push({
+                icon: '🔴',
+                text: `Perte de ${formatCurrency(Math.abs(projections.netProfit))} par mois avec ces paramètres.`
+            });
+            actions.push({
+                type: 'warning',
+                text: 'Modèle non viable : augmentez prix/conversion ou réduisez drastiquement les coûts'
+            });
+        }
+        
+        // Conversion rate insights
+        if (volumeState.conversionRate >= 5) {
+            insights.push({
+                icon: '🎯',
+                text: `Taux de conversion excellent (${volumeState.conversionRate}%) : concentrez-vous sur l'acquisition.`
+            });
+            actions.push({
+                type: 'info',
+                text: 'Diversifiez vos canaux d\'acquisition - votre site convertit déjà très bien'
+            });
+        } else if (volumeState.conversionRate >= 3) {
+            actions.push({
+                type: 'info',
+                text: 'Taux de conversion correct - quelques optimisations UX pourraient booster vos résultats'
+            });
+        } else if (volumeState.conversionRate < 2) {
+            insights.push({
+                icon: '📉',
+                text: `Taux de conversion faible (${volumeState.conversionRate}%) : forte marge d'amélioration.`
+            });
+            actions.push({
+                type: 'warning',
+                text: 'Priorité absolue : optimisation du tunnel de conversion (+1% = +40% de profits)'
+            });
+        }
+        
+        // Traffic cost insights
+        if (volumeState.trafficCost > 1.5) {
+            insights.push({
+                icon: '💸',
+                text: `CPC élevé (${formatCurrency(volumeState.trafficCost)}) : impacte fortement la rentabilité.`
+            });
+            actions.push({
+                type: 'warning',
+                text: 'Explorez des canaux moins chers : SEO, réseaux sociaux, email marketing'
+            });
+        } else if (volumeState.trafficCost < 0.3) {
+            actions.push({
+                type: 'info',
+                text: 'CPC très compétitif - exploitez cet avantage pour scaler rapidement'
+            });
+        }
+        
+        // Volume insights
+        if (volumeState.monthlyOrders > 200) {
+            actions.push({
+                type: 'info',
+                text: 'Volume élevé : négociez de meilleurs tarifs avec vos fournisseurs et processeurs'
+            });
+        }
+        
+        // BEROAS insights
+        if (baseResults.calculatedBeroas > 4) {
+            actions.push({
+                type: 'warning',
+                text: 'BEROAS élevé : réduisez vos coûts ou augmentez vos prix pour plus de flexibilité'
+            });
+        }
+        
+        updateInsightsList('roi-insights', insights);
+        updateActionsList('volume-actions', actions);
+    }
+    
+    function updateInsightsList(containerId, insights) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        if (insights.length === 0) {
+            container.innerHTML = '<div class="insight-item"><span class="insight-icon">💡</span><span class="insight-text">Configurez vos paramètres pour voir l\'analyse</span></div>';
+            return;
+        }
+        
+        const html = insights.map(insight => 
+            `<div class="insight-item">
+                <span class="insight-icon">${insight.icon}</span>
+                <span class="insight-text">${insight.text}</span>
+            </div>`
+        ).join('');
+        
+        container.innerHTML = html;
+    }
+    
+    function updateActionsList(containerId, actions) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        if (actions.length === 0) {
+            container.innerHTML = '<p class="action-placeholder">Des recommandations apparaîtront selon vos paramètres</p>';
+            return;
+        }
+        
+        const html = actions.map(action => 
+            `<div class="action-item ${action.type}">${action.text}</div>`
+        ).join('');
+        
+        container.innerHTML = html;
+    }
+    
+    function updateElement(id, value) {
+        const element = document.getElementById(id);
+        if (element) element.textContent = value;
+    }
+    
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: 'EUR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(Math.round(value));
+    }
+});
+</script>

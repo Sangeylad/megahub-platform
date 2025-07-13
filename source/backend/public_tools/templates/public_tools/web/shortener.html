@@ -1,0 +1,684 @@
+{% extends "public_tools/base/tool_base.html" %}
+
+{% block content %}
+<div class="humari-shortener-tool">
+    <!-- HEADER TOUJOURS VISIBLE (SEO) -->
+    <div class="humari-shortener-header">
+        <h2>🔗 Raccourcisseur d'URL Gratuit</h2>
+        <p>Créez des liens courts et élégants pour vos partages. Service gratuit et sans inscription.</p>
+    </div>
+    
+    <!-- FORMULAIRE INITIAL (VISIBLE PAR DÉFAUT POUR SEO) -->
+    <div id="humari-form-container" class="humari-form-container">
+        <form id="humari-shortener-form" class="humari-shortener-form" method="post">
+            <input type="hidden" name="megahub_action" value="shorten">
+            
+            <div class="humari-shortener-group">
+                <label for="humari-url-input" class="humari-shortener-label">
+                    URL à raccourcir
+                </label>
+                <input 
+                    type="url" 
+                    id="humari-url-input" 
+                    name="url" 
+                    class="humari-shortener-input"
+                    placeholder="https://exemple.com/ma-page-tres-longue"
+                    required
+                    maxlength="1000"
+                    aria-describedby="url-help"
+                >
+                <small id="url-help" class="humari-shortener-help">
+                    Entrez l'URL complète que vous souhaitez raccourcir (HTTPS recommandé)
+                </small>
+            </div>
+            
+            <button type="submit" class="humari-shortener-btn" id="humari-shorten-btn">
+                <span class="humari-shortener-btn-text">🔗 Raccourcir l'URL</span>
+                <span class="humari-shortener-btn-loader" style="display: none;">⏳ Traitement...</span>
+            </button>
+        </form>
+        
+        <!-- FONCTIONNALITÉS VISIBLES POUR SEO -->
+        <div class="humari-features">
+            <h3>Pourquoi utiliser notre raccourcisseur ?</h3>
+            <ul class="humari-features-list">
+                <li>✅ <strong>Gratuit et sans inscription</strong> - Aucun compte requis</li>
+                <li>🔒 <strong>Sécurisé</strong> - URLs validées et protection anti-spam</li>
+                <li>⚡ <strong>Rapide</strong> - Redirection instantanée via hiurl.fr</li>
+                <li>🌟 <strong>Longue durée</strong> - Vos liens restent actifs jusqu'en 2050</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- RÉSULTAT SUCCÈS (CACHÉ PAR DÉFAUT) -->
+    <div id="humari-success-container" class="humari-success-container" style="display: none;">
+        <div class="humari-success-content">
+            <h3>✅ URL raccourcie avec succès !</h3>
+            
+            <div class="humari-url-result">
+                <div class="humari-url-item">
+                    <label>URL originale :</label>
+                    <div id="result-original-url" class="humari-original-url"></div>
+                </div>
+                
+                <div class="humari-url-item">
+                    <label>URL raccourcie :</label>
+                    <div class="humari-short-url-container">
+                        <a id="result-short-url" href="#" target="_blank" class="humari-short-url"></a>
+                        <button type="button" id="humari-copy-btn" class="humari-copy-btn" title="Copier">
+                            📋
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="humari-url-actions">
+                    <a id="result-test-link" href="#" target="_blank" class="humari-action-btn humari-test-btn">
+                        🔗 Tester le lien
+                    </a>
+                    <button type="button" id="humari-new-url-btn" class="humari-action-btn humari-new-btn">
+                        ➕ Créer une autre URL
+                    </button>
+                </div>
+                
+                <div class="humari-url-info">
+                    <small id="result-expiry-msg">✨ Valable jusqu'en 2050 (on a vu large ! 😉)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ERREUR (CACHÉ PAR DÉFAUT) -->
+    <div id="humari-error-container" class="humari-error-container" style="display: none;">
+        <div class="humari-error-content">
+            <h4>❌ Erreur</h4>
+            <p id="error-message">Une erreur s'est produite.</p>
+            <button type="button" id="humari-retry-btn" class="humari-action-btn humari-retry-btn">
+                🔄 Réessayer
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* CSS COMPLET POUR TOUTES LES VUES */
+.humari-shortener-tool {
+    max-width: 650px !important;
+    margin: 20px auto !important;
+    padding: 30px !important;
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+    line-height: 1.6 !important;
+    color: #1a1a1a !important;
+    border: 1px solid #e1e5e9 !important;
+}
+
+.humari-shortener-header {
+    text-align: center !important;
+    margin-bottom: 35px !important;
+}
+
+.humari-shortener-header h2 {
+    margin: 0 0 12px 0 !important;
+    color: #1a1a1a !important;
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.025em !important;
+}
+
+.humari-shortener-header p {
+    margin: 0 !important;
+    color: #64748b !important;
+    font-size: 1.1rem !important;
+    font-weight: 400 !important;
+}
+
+/* FORMULAIRE */
+.humari-form-container {
+    margin-bottom: 25px !important;
+}
+
+.humari-shortener-form {
+    margin-bottom: 30px !important;
+}
+
+.humari-shortener-group {
+    margin-bottom: 25px !important;
+}
+
+.humari-shortener-label {
+    display: block !important;
+    margin-bottom: 8px !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    font-size: 1rem !important;
+}
+
+.humari-shortener-input {
+    width: 100% !important;
+    padding: 16px 18px !important;
+    border: 2px solid #e1e5e9 !important;
+    border-radius: 10px !important;
+    font-size: 1rem !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    color: #1a1a1a !important;
+    font-family: inherit !important;
+    outline: none !important;
+}
+
+.humari-shortener-input:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    background: #ffffff !important;
+}
+
+.humari-shortener-input:invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.humari-shortener-help {
+    display: block !important;
+    margin-top: 8px !important;
+    color: #64748b !important;
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
+}
+
+.humari-shortener-btn {
+    width: 100% !important;
+    padding: 18px 24px !important;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    font-family: inherit !important;
+    text-align: center !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
+}
+
+.humari-shortener-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3) !important;
+}
+
+.humari-shortener-btn:disabled {
+    background: #94a3b8 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.humari-shortener-btn-loader {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    font-size: 1.2rem !important;
+}
+
+/* FEATURES SEO */
+.humari-features {
+    background: #f8fafc !important;
+    padding: 25px !important;
+    border-radius: 10px !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.humari-features h3 {
+    margin: 0 0 18px 0 !important;
+    color: #1e293b !important;
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+}
+
+.humari-features-list {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.humari-features-list li {
+    padding: 8px 0 !important;
+    color: #475569 !important;
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+}
+
+/* SUCCÈS */
+.humari-success-container {
+    animation: slideInUp 0.4s ease-out !important;
+}
+
+.humari-success-content {
+    background: #f0fdf4 !important;
+    border: 2px solid #22c55e !important;
+    border-radius: 12px !important;
+    padding: 30px !important;
+}
+
+.humari-success-content h3 {
+    margin: 0 0 25px 0 !important;
+    color: #15803d !important;
+    font-size: 1.3rem !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+}
+
+.humari-url-result {
+    margin-bottom: 25px !important;
+}
+
+.humari-url-item {
+    margin-bottom: 20px !important;
+}
+
+.humari-url-item label {
+    display: block !important;
+    margin-bottom: 8px !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    font-size: 0.95rem !important;
+}
+
+.humari-original-url {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace !important;
+    background: #ffffff !important;
+    padding: 12px 15px !important;
+    border-radius: 8px !important;
+    word-break: break-all !important;
+    border: 1px solid #d1d5db !important;
+    font-size: 0.9rem !important;
+    color: #475569 !important;
+}
+
+.humari-short-url-container {
+    display: flex !important;
+    gap: 10px !important;
+    align-items: center !important;
+}
+
+.humari-short-url {
+    flex: 1 !important;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace !important;
+    font-weight: 700 !important;
+    color: #3b82f6 !important;
+    text-decoration: none !important;
+    background: #eff6ff !important;
+    padding: 12px 15px !important;
+    border-radius: 8px !important;
+    border: 2px solid #dbeafe !important;
+    font-size: 1rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.humari-short-url:hover {
+    background: #dbeafe !important;
+    border-color: #3b82f6 !important;
+    transform: translateY(-1px) !important;
+}
+
+.humari-copy-btn {
+    background: #3b82f6 !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 15px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    font-size: 1rem !important;
+}
+
+.humari-copy-btn:hover {
+    background: #2563eb !important;
+    transform: translateY(-1px) !important;
+}
+
+.humari-copy-btn.copied {
+    background: #10b981 !important;
+}
+
+.humari-url-actions {
+    display: flex !important;
+    gap: 15px !important;
+    flex-wrap: wrap !important;
+    margin: 25px 0 !important;
+}
+
+.humari-action-btn {
+    flex: 1 !important;
+    min-width: 140px !important;
+    padding: 12px 20px !important;
+    border-radius: 8px !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    text-align: center !important;
+    transition: all 0.2s ease !important;
+    border: none !important;
+    cursor: pointer !important;
+    font-family: inherit !important;
+}
+
+.humari-test-btn {
+    background: #10b981 !important;
+    color: white !important;
+}
+
+.humari-test-btn:hover {
+    background: #059669 !important;
+    color: white !important;
+}
+
+.humari-new-btn {
+    background: #6366f1 !important;
+    color: white !important;
+}
+
+.humari-new-btn:hover {
+    background: #4f46e5 !important;
+}
+
+.humari-retry-btn {
+    background: #f59e0b !important;
+    color: white !important;
+}
+
+.humari-retry-btn:hover {
+    background: #d97706 !important;
+}
+
+.humari-url-info {
+    text-align: center !important;
+    padding: 15px !important;
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    border-left: 4px solid #22c55e !important;
+}
+
+.humari-url-info small {
+    color: #15803d !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+}
+
+/* ERREUR */
+.humari-error-container {
+    animation: slideInUp 0.4s ease-out !important;
+}
+
+.humari-error-content {
+    background: #fef2f2 !important;
+    border: 2px solid #f87171 !important;
+    border-radius: 12px !important;
+    padding: 30px !important;
+    text-align: center !important;
+}
+
+.humari-error-content h4 {
+    color: #dc2626 !important;
+    margin: 0 0 15px 0 !important;
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+}
+
+.humari-error-content p {
+    color: #991b1b !important;
+    margin: 0 0 20px 0 !important;
+    line-height: 1.5 !important;
+}
+
+/* ANIMATIONS */
+@keyframes slideInUp {
+    0% {
+        opacity: 0 !important;
+        transform: translateY(20px) !important;
+    }
+    100% {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+}
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+    .humari-shortener-tool {
+        margin: 10px !important;
+        padding: 20px !important;
+    }
+    
+    .humari-shortener-header h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    .humari-url-actions {
+        flex-direction: column !important;
+    }
+    
+    .humari-action-btn {
+        min-width: auto !important;
+    }
+    
+    .humari-short-url-container {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+}
+</style>
+
+<script>
+(function() {
+    'use strict';
+    
+    // Messages d'expiration fun mais pro
+    const expirationMessages = [
+        "✨ Valable jusqu'en 2050 (on a vu large ! 😉)",
+        "🚀 N'expire jamais* (*sauf invasion alien)",
+        "♾️ Quasi-éternel (plus durable qu'un Nokia 3310)",
+        "⏳ Expiration : quand les humains coloniseront Mars",
+        "🌟 Garantie longue durée par l'agence Humari"
+    ];
+    
+    // Elements
+    let form, urlInput, submitBtn, btnText, btnLoader;
+    let formContainer, successContainer, errorContainer;
+    let copyBtn, newUrlBtn, retryBtn;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Récupération des éléments
+        form = document.getElementById('humari-shortener-form');
+        urlInput = document.getElementById('humari-url-input');
+        submitBtn = document.getElementById('humari-shorten-btn');
+        btnText = submitBtn?.querySelector('.humari-shortener-btn-text');
+        btnLoader = submitBtn?.querySelector('.humari-shortener-btn-loader');
+        
+        formContainer = document.getElementById('humari-form-container');
+        successContainer = document.getElementById('humari-success-container');
+        errorContainer = document.getElementById('humari-error-container');
+        
+        copyBtn = document.getElementById('humari-copy-btn');
+        newUrlBtn = document.getElementById('humari-new-url-btn');
+        retryBtn = document.getElementById('humari-retry-btn');
+        
+        if (!form || !urlInput || !submitBtn) {
+            console.warn('Humari Shortener: Elements manquants');
+            return;
+        }
+        
+        // Event listeners
+        urlInput.addEventListener('input', handleInputValidation);
+        urlInput.addEventListener('blur', handleInputBlur);
+        form.addEventListener('submit', handleFormSubmit);
+        copyBtn?.addEventListener('click', handleCopy);
+        newUrlBtn?.addEventListener('click', showForm);
+        retryBtn?.addEventListener('click', showForm);
+    });
+    
+    function handleInputValidation() {
+        const url = urlInput.value.trim();
+        const isValid = url.length > 0 && (url.startsWith('http://') || url.startsWith('https://'));
+        
+        if (url.length > 0 && !isValid) {
+            urlInput.style.setProperty('border-color', '#ef4444', 'important');
+        } else {
+            urlInput.style.setProperty('border-color', '#e1e5e9', 'important');
+        }
+        
+        submitBtn.disabled = !isValid;
+    }
+    
+    function handleInputBlur() {
+        const url = urlInput.value.trim();
+        if (url && !url.match(/^https?:\/\/.+/)) {
+            urlInput.style.setProperty('border-color', '#ef4444', 'important');
+        }
+    }
+    
+    function handleFormSubmit(e) {
+        e.preventDefault();
+        
+        const url = urlInput.value.trim();
+        if (!url || !url.startsWith('http')) {
+            alert('Veuillez entrer une URL valide commençant par http:// ou https://');
+            return;
+        }
+        
+        setLoadingState(true);
+        
+        const formData = new FormData();
+        formData.append('action', 'humari_process_shortening');
+        formData.append('url', url);
+        
+        fetch('/wp-admin/admin-ajax.php', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showSuccess(result.data);
+            } else {
+                showError(result.data || 'Une erreur est survenue');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showError('Impossible de se connecter au serveur. Veuillez réessayer.');
+        })
+        .finally(() => {
+            setLoadingState(false);
+        });
+    }
+    
+    function setLoadingState(loading) {
+        submitBtn.disabled = loading;
+        if (loading) {
+            btnText.style.display = 'none';
+            btnLoader.style.display = 'inline';
+        } else {
+            btnText.style.display = 'inline';
+            btnLoader.style.display = 'none';
+        }
+    }
+    
+    function showSuccess(data) {
+        // Remplir les données
+        document.getElementById('result-original-url').textContent = data.original_url;
+        document.getElementById('result-short-url').textContent = data.short_url;
+        document.getElementById('result-short-url').href = data.short_url;
+        document.getElementById('result-test-link').href = data.short_url;
+        
+        // Message d'expiration aléatoire
+        const randomMessage = expirationMessages[Math.floor(Math.random() * expirationMessages.length)];
+        document.getElementById('result-expiry-msg').textContent = randomMessage;
+        
+        // Basculer l'affichage
+        formContainer.style.display = 'none';
+        errorContainer.style.display = 'none';
+        successContainer.style.display = 'block';
+        
+        // Scroll vers le résultat
+        successContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    function showError(message) {
+        document.getElementById('error-message').textContent = message;
+        
+        formContainer.style.display = 'none';
+        successContainer.style.display = 'none';
+        errorContainer.style.display = 'block';
+    }
+    
+    function showForm() {
+        // Reset form
+        urlInput.value = '';
+        urlInput.style.setProperty('border-color', '#e1e5e9', 'important');
+        submitBtn.disabled = false;
+        
+        // Basculer l'affichage
+        successContainer.style.display = 'none';
+        errorContainer.style.display = 'none';
+        formContainer.style.display = 'block';
+        
+        // Focus sur l'input
+        urlInput.focus();
+        
+        // Scroll vers le formulaire
+        formContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    function handleCopy() {
+        const shortUrl = document.getElementById('result-short-url').textContent;
+        
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(shortUrl).then(() => {
+                showCopyFeedback();
+            }).catch(() => {
+                fallbackCopy(shortUrl);
+            });
+        } else {
+            fallbackCopy(shortUrl);
+        }
+    }
+    
+    function showCopyFeedback() {
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = '✅';
+        copyBtn.classList.add('copied');
+        
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.classList.remove('copied');
+        }, 2000);
+    }
+    
+    function fallbackCopy(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            showCopyFeedback();
+        } catch (err) {
+            alert('URL copiée : ' + text);
+        }
+        
+        document.body.removeChild(textArea);
+    }
+})();
+</script>
+{% endblock %}

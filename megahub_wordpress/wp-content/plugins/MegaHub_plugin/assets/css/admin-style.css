@@ -1,0 +1,93 @@
+/* Style général de la page d'administration */
+.wrap {
+    font-family: Arial, sans-serif;
+}
+
+/* En-têtes */
+.wrap h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* Description des sections */
+.wrap p {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Styles des onglets */
+.nav-tab-wrapper {
+    margin-bottom: 20px;
+}
+
+.nav-tab {
+    color: #555;
+    background: #f1f1f1;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    padding: 6px 10px;
+    text-decoration: none;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.nav-tab-active, .nav-tab:hover {
+    background: #fff;
+    border-bottom: 1px solid #fff;
+}
+
+/* Styles des champs de formulaire */
+.form-table th {
+    font-weight: normal;
+    padding: 20px 10px 20px 0;
+    text-align: left;
+}
+
+.form-table td {
+    padding: 15px 10px;
+}
+
+.form-table input[type="text"], .form-table select {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px;
+}
+
+/* Bouton de soumission */
+.submit {
+    margin-top: 20px;
+}
+
+.submit .button-primary {
+    background: #0073aa;
+    border-color: #006799;
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 3px;
+}
+
+.submit .button-primary:hover {
+    background: #006799;
+}
+
+#seo_title, #seo_description {
+    transition: border-color 0.3s ease-in-out;
+}
+
+
+.seo-meta-box-content {
+    max-width: 33%;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 5px;
+    margin-right: auto; /* Aligner à gauche */
+}
+
+.seo-meta-box-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}

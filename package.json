@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "@tanstack/react-router": "^1.127.0",
+    "@tanstack/router-devtools": "^1.127.0",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react-swc": "^3.10.2",
+    "react-select": "^5.8.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "critters": "^0.0.23"
+  }
+}

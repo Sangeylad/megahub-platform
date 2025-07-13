@@ -1,0 +1,581 @@
+{% extends "public_tools/base/tool_base.html" %}
+
+{% block content %}
+<div class="roas-calculator-container">
+    <!-- Header pédagogique optimisé -->
+    <header class="calculator-header">
+        <div class="header-content">
+            <h1>🎯 Calculateur BEROAS E-commerce</h1>
+            <p class="header-description">
+                Calculez le <strong>seuil de rentabilité</strong> de vos campagnes publicitaires. 
+                <strong>BEROAS = Break-Even Return On Ad Spend</strong>
+            </p>
+            <div class="concept-explanation">
+                <div class="concept-item">
+                    <span class="concept-icon">📊</span>
+                    <div class="concept-text">
+                        <strong>ROAS :</strong> Chiffre d'affaires généré par €1 de pub<br>
+                        <small>Si vous dépensez 100€ et générez 300€ → ROAS = 3</small>
+                    </div>
+                </div>
+                <div class="concept-item">
+                    <span class="concept-icon">🎯</span>
+                    <div class="concept-text">
+                        <strong>BEROAS :</strong> ROAS minimum pour être rentable<br>
+                        <small>Si BEROAS = 2, vos campagnes doivent avoir ROAS ≥ 2</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation par onglets -->
+    <nav class="calculator-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="basic" role="tab" aria-selected="true">
+            📊 Calculateur Simple
+        </button>
+        <button class="tab-btn" data-tab="advanced" role="tab" aria-selected="false">
+            🚀 BEROAS Avancé
+        </button>
+        <button class="tab-btn" data-tab="volume" role="tab" aria-selected="false">
+            📈 Simulateur Volume
+        </button>
+        <button class="tab-btn" data-tab="matrix" role="tab" aria-selected="false">
+            🎯 Matrice Interactive
+        </button>
+        <!-- <button class="tab-btn" data-tab="glossary" role="tab" aria-selected="false">
+    📚 Glossaire
+</button> -->
+    </nav>
+
+    <!-- Contenu principal -->
+    <main class="calculator-main">
+        <!-- Onglet 1: Calculateur Basic -->
+        <div class="tab-panel active" id="basic-panel" role="tabpanel">
+            {% include 'public_tools/ecommerce/includes/_calculator_basic.html' %}
+        </div>
+
+        <!-- Onglet 2: BEROAS Avancé -->
+        <div class="tab-panel" id="advanced-panel" role="tabpanel">
+            {% include 'public_tools/ecommerce/includes/_calculator_advanced.html' %}
+        </div>
+
+        <!-- Onglet 3: Simulateur Volume -->
+        <div class="tab-panel" id="volume-panel" role="tabpanel">
+            {% include 'public_tools/ecommerce/includes/_volume_simulator.html' %}
+        </div>
+
+        <!-- Onglet 4: Matrice Interactive -->
+        <div class="tab-panel" id="matrix-panel" role="tabpanel">
+            {% include 'public_tools/ecommerce/includes/_beroas_matrix.html' %}
+        </div>
+
+        <!-- Onglet 5: Glossaire -->
+        
+    </main>
+
+    <!-- Export Results -->
+    <div class="export-section">
+        <button class="export-btn" onclick="exportBeroasAnalysis()">
+            📊 Exporter mon analyse BEROAS (PDF)
+        </button>
+    </div>
+
+    <!-- Footer sécurisé -->
+    <footer class="calculator-footer">
+        <p>🔒 <strong>100% gratuit et sécurisé</strong> • Calculs en temps réel dans votre navigateur</p>
+        <small>Aucune donnée n'est envoyée sur nos serveurs - Confidentialité garantie</small>
+    </footer>
+</div>
+
+<!-- CSS Global amélioré -->
+<style>
+.roas-calculator-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #2d3748;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.calculator-header {
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.calculator-header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-description {
+    font-size: 1.1rem;
+    margin: 0 0 1.5rem 0;
+    opacity: 0.95;
+    line-height: 1.6;
+}
+
+.concept-explanation {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.concept-item {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    text-align: left;
+}
+
+.concept-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.concept-text {
+    flex: 1;
+}
+
+.concept-text strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.concept-text small {
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+.calculator-tabs {
+    display: flex;
+    background: white;
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    overflow-x: auto;
+    margin-bottom: 2rem;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border: none;
+    background: transparent;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    color: #718096;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    min-width: 160px;
+}
+
+.tab-btn:hover {
+    background: #f7fafc;
+    color: #4a5568;
+    transform: translateY(-1px);
+}
+
+.tab-btn.active {
+    background: #667eea;
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.calculator-main {
+    min-height: 500px;
+}
+
+.tab-panel {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.export-section {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.export-btn {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+}
+
+.export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4);
+}
+
+.calculator-footer {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    border-radius: 0.75rem;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+}
+
+.calculator-footer p {
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.calculator-footer small {
+    color: #718096;
+    font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .roas-calculator-container {
+        padding: 1rem;
+    }
+    
+    .calculator-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .header-description {
+        font-size: 1rem;
+    }
+    
+    .concept-explanation {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .concept-item {
+        padding: 1rem;
+    }
+    
+    .calculator-tabs {
+        padding: 0.25rem;
+    }
+    
+    .tab-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        min-width: 140px;
+    }
+}
+</style>
+
+<!-- JavaScript Global amélioré avec export PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+class ROASCalculator {
+    constructor() {
+        this.state = {
+            sellingPrice: 29.99,
+            productCost: 12.50,
+            shippingCost: 3.50,
+            paymentFees: 2.9,
+            otherCosts: 2.00,
+            vatRate: 20,
+            targetBeroas: 3.0,
+            monthlyOrders: 100
+        };
+        
+        this.formatter = new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: 'EUR',
+            minimumFractionDigits: 2
+        });
+        
+        this.init();
+    }
+    
+    init() {
+        this.initTabs();
+        this.bindGlobalEvents();
+        this.initializeDefaultValues();
+        console.log('🚀 ROAS Calculator initialized');
+    }
+    
+    initializeDefaultValues() {
+        setTimeout(() => {
+            const defaultInputs = [
+                { selector: '[name="sellingPrice"]', value: this.state.sellingPrice },
+                { selector: '[name="productCost"]', value: this.state.productCost },
+                { selector: '[name="shippingCost"]', value: this.state.shippingCost },
+                { selector: '[name="paymentFees"]', value: this.state.paymentFees },
+                { selector: '[name="otherCosts"]', value: this.state.otherCosts },
+                { selector: '[name="monthlyOrders"]', value: this.state.monthlyOrders }
+            ];
+            
+            defaultInputs.forEach(({ selector, value }) => {
+                const inputs = document.querySelectorAll(selector);
+                inputs.forEach(input => {
+                    if (!input.value || input.value === '0') {
+                        input.value = value;
+                    }
+                });
+            });
+            
+            this.calculate();
+        }, 100);
+    }
+    
+    initTabs() {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+        
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const targetTab = e.target.dataset.tab;
+                
+                tabButtons.forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-selected', 'false');
+                });
+                tabPanels.forEach(p => p.classList.remove('active'));
+                
+                e.target.classList.add('active');
+                e.target.setAttribute('aria-selected', 'true');
+                document.getElementById(`${targetTab}-panel`).classList.add('active');
+                
+                this.onTabChange(targetTab);
+            });
+        });
+    }
+    
+    bindGlobalEvents() {
+        document.addEventListener('input', (e) => {
+            if (e.target.matches('.calc-input')) {
+                this.updateState(e.target);
+                this.calculate();
+            }
+        });
+    }
+    
+    updateState(input) {
+        const name = input.name;
+        const value = parseFloat(input.value) || 0;
+        
+        if (this.state.hasOwnProperty(name)) {
+            this.state[name] = value;
+        }
+    }
+    
+    calculate() {
+        const results = this.calculateMetrics();
+        this.updateAllDisplays(results);
+        return results;
+    }
+    
+    calculateMetrics() {
+        const { sellingPrice, productCost, shippingCost, paymentFees, otherCosts, vatRate } = this.state;
+        
+        const sellingPriceHT = sellingPrice;
+        const sellingPriceTTC = sellingPriceHT * (1 + vatRate / 100);
+        
+        const paymentFeesAmount = (sellingPriceHT * paymentFees) / 100;
+        const totalCosts = productCost + shippingCost + paymentFeesAmount + otherCosts;
+        
+        const unitMargin = sellingPriceHT - totalCosts;
+        const marginPercent = sellingPriceHT > 0 ? (unitMargin / sellingPriceHT) * 100 : 0;
+        
+        const becpa = Math.max(0, unitMargin);
+        const calculatedBeroas = unitMargin > 0 ? sellingPriceHT / unitMargin : 0;
+        
+        return {
+            sellingPriceHT,
+            sellingPriceTTC,
+            totalCosts,
+            unitMargin,
+            marginPercent,
+            becpa,
+            calculatedBeroas,
+            paymentFeesAmount,
+            isRentable: calculatedBeroas >= this.state.targetBeroas && unitMargin > 0
+        };
+    }
+    
+    updateAllDisplays(results) {
+        this.updateDisplay('unit-margin', this.formatter.format(results.unitMargin));
+        this.updateDisplay('margin-percent', `${results.marginPercent.toFixed(1)}%`);
+        this.updateDisplay('calculated-beroas', results.calculatedBeroas.toFixed(2));
+        this.updateDisplay('max-becpa', this.formatter.format(results.becpa));
+        this.updateDisplay('price-ttc', this.formatter.format(results.sellingPriceTTC));
+        
+        const status = results.unitMargin > 0 
+            ? `✅ BEROAS: ${results.calculatedBeroas.toFixed(2)} (${results.calculatedBeroas < 3 ? 'Très bon' : results.calculatedBeroas < 5 ? 'Bon' : 'Acceptable'})`
+            : '❌ Non rentable';
+        this.updateDisplay('beroas-status', status);
+        
+        this.updateDisplay('vol-selling-price', this.formatter.format(results.sellingPriceHT));
+        this.updateDisplay('vol-unit-margin', this.formatter.format(results.unitMargin));
+        this.updateDisplay('vol-beroas', results.calculatedBeroas.toFixed(2));
+        
+        this.updateVolumeCalculations(results);
+    }
+    
+    updateVolumeCalculations(results) {
+        const monthlyOrders = this.state.monthlyOrders || 0;
+        if (monthlyOrders > 0) {
+            const monthlyRevenue = results.sellingPriceHT * monthlyOrders;
+            const monthlyProfit = results.unitMargin * monthlyOrders;
+            this.updateDisplay('monthly-revenue', this.formatter.format(monthlyRevenue));
+            this.updateDisplay('monthly-profit', this.formatter.format(monthlyProfit));
+        }
+    }
+    
+    updateDisplay(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+    
+    onTabChange(tab) {
+        setTimeout(() => {
+            if (tab === 'volume') {
+                this.calculate();
+            }
+        }, 100);
+    }
+    
+    // Export PDF functionality
+    exportAnalysis() {
+        const results = this.calculateMetrics();
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Header
+        doc.setFontSize(20);
+        doc.text('Analyse BEROAS - Rapport Complet', 20, 30);
+        
+        doc.setFontSize(12);
+        doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 20, 45);
+        
+        // Métriques principales
+        let yPos = 65;
+        doc.setFontSize(16);
+        doc.text('📊 Métriques Principales', 20, yPos);
+        
+        yPos += 15;
+        doc.setFontSize(12);
+        doc.text(`Prix de vente HT: ${this.formatter.format(results.sellingPriceHT)}`, 20, yPos);
+        yPos += 10;
+        doc.text(`Marge unitaire: ${this.formatter.format(results.unitMargin)} (${results.marginPercent.toFixed(1)}%)`, 20, yPos);
+        yPos += 10;
+        doc.text(`BEROAS calculé: ${results.calculatedBeroas.toFixed(2)}`, 20, yPos);
+        yPos += 10;
+        doc.text(`Budget publicitaire max: ${this.formatter.format(results.becpa)}`, 20, yPos);
+        
+        // Détail des coûts
+        yPos += 25;
+        doc.setFontSize(16);
+        doc.text('💰 Détail des Coûts', 20, yPos);
+        
+        yPos += 15;
+        doc.setFontSize(12);
+        doc.text(`Coût produit: ${this.formatter.format(this.state.productCost)}`, 20, yPos);
+        yPos += 10;
+        doc.text(`Frais livraison: ${this.formatter.format(this.state.shippingCost)}`, 20, yPos);
+        yPos += 10;
+        doc.text(`Frais bancaires: ${this.formatter.format(results.paymentFeesAmount)} (${this.state.paymentFees}%)`, 20, yPos);
+        yPos += 10;
+        doc.text(`Autres coûts: ${this.formatter.format(this.state.otherCosts)}`, 20, yPos);
+        yPos += 10;
+        doc.text(`Total des coûts: ${this.formatter.format(results.totalCosts)}`, 20, yPos);
+        
+        // Recommandations
+        yPos += 25;
+        doc.setFontSize(16);
+        doc.text('💡 Recommandations', 20, yPos);
+        
+        yPos += 15;
+        doc.setFontSize(12);
+        if (results.calculatedBeroas <= 2.5) {
+            doc.text('✅ Excellent BEROAS - Investissez massivement en publicité', 20, yPos);
+        } else if (results.calculatedBeroas <= 4) {
+            doc.text('👍 BEROAS correct - Optimisez vos coûts pour plus de flexibilité', 20, yPos);
+        } else {
+            doc.text('⚠️ BEROAS élevé - Réduisez vos coûts ou augmentez vos prix', 20, yPos);
+        }
+        
+        // Footer
+        doc.setFontSize(10);
+        doc.text('Calculateur BEROAS - https://megahub.humari.fr', 20, 280);
+        
+        doc.save('analyse-beroas.pdf');
+    }
+}
+
+// Export function
+function exportBeroasAnalysis() {
+    if (window.roasCalculator) {
+        window.roasCalculator.exportAnalysis();
+    } else {
+        alert('Veuillez d\'abord effectuer un calcul');
+    }
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    window.roasCalculator = new ROASCalculator();
+});
+</script>
+
+<!-- Schema.org pour SEO -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Calculateur BEROAS E-commerce",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": "Calculez le seuil de rentabilité (Break-Even ROAS) de vos campagnes publicitaires e-commerce",
+    "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+    },
+    "featureList": [
+        "Calcul BEROAS automatique",
+        "Simulation de marges",
+        "Calculateur de rentabilité",
+        "Simulateur de volume",
+        "Matrice interactive",
+        "Export PDF"
+    ]
+}
+</script>
+{% endblock %}

@@ -1,0 +1,52 @@
+/* Styles de base pour les outils Humari */
+.megahub-tool {
+    max-width: 1300px;
+    margin: 20px 0;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+.megahub-tool h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.megahub-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.megahub-form input,
+.megahub-form select,
+.megahub-form button {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.megahub-form button {
+    background: #0073aa;
+    color: white;
+    cursor: pointer;
+}
+
+.megahub-form button:hover {
+    background: #005177;
+}
+
+.error {
+    color: #d63638;
+    background: #fcf0f1;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.success {
+    color: #00a32a;
+    background: #f0f6fc;
+    padding: 10px;
+    border-radius: 4px;
+}

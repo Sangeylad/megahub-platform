@@ -1,0 +1,35 @@
+# /var/www/megahub/websites/docker-compose.yml
+services:
+  humari-nextjs:
+    build: ./humari-site
+    container_name: humari-nextjs-prod
+    volumes:
+      - ./humari-site:/app
+      - /app/node_modules
+      # 🚫 Pas de volume .next (conflit résolu)
+    environment:
+      - NODE_ENV=production
+      - MEGAHUB_API_URL=https://backoffice.humari.fr
+      - MEGAHUB_WEBSITE_ID=34
+      - NEXT_PUBLIC_DOMAIN=humari.fr
+      - NEXT_PUBLIC_SITE_NAME=Humari
+      # 🎯 Variables pour optimisation
+      - NEXT_TELEMETRY_DISABLED=1
+      - VIRTUAL_HOST=humari.fr,www.humari.fr
+      - VIRTUAL_PORT=3000
+      - LETSENCRYPT_HOST=humari.fr,www.humari.fr
+      - LETSENCRYPT_EMAIL=martin@frenchease.fr
+    networks:
+      - nginx-proxy
+    restart: always
+    # 🎯 Health check optimisé
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health", "||", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s  # Plus de temps pour le premier build
+
+networks:
+  nginx-proxy:
+    external: true

@@ -1,0 +1,458 @@
+<!-- templates/public_tools/file/includes/_optimizer_form.html -->
+<section class="humari-file-optimizer__form-state" 
+         id="humari-form-state" 
+         aria-labelledby="form-title">
+
+<style>
+/* CSS intégré pour éviter les conflits */
+.humari-file-optimizer__form-state {
+    padding: 24px;
+    display: block;
+    background: #fff;
+    margin: 0;
+}
+
+.humari-file-optimizer__file-dropzone {
+    border: 2px dashed #cbd5e0;
+    border-radius: 8px;
+    padding: 30px 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background: #f7fafc;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.humari-file-optimizer__file-dropzone:hover,
+.humari-file-optimizer__file-dropzone.drag-over {
+    border-color: #667eea;
+    background: #f0f4ff;
+    transform: scale(1.01);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+}
+
+.humari-file-optimizer__dropzone-content {
+    pointer-events: none;
+}
+
+.humari-file-optimizer__dropzone-icon {
+    color: #94a3b8;
+    margin-bottom: 12px;
+    transition: color 0.3s ease;
+}
+
+.humari-file-optimizer__file-dropzone:hover .humari-file-optimizer__dropzone-icon {
+    color: #667eea;
+}
+
+.humari-file-optimizer__dropzone-title {
+    font-size: 18px;
+    color: #475569;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+    font-family: inherit;
+}
+
+.humari-file-optimizer__dropzone-description {
+    font-size: 14px;
+    color: #475569;
+    margin: 0 0 8px 0;
+    font-family: inherit;
+}
+
+.humari-file-optimizer__dropzone-browse {
+    background: none;
+    border: none;
+    color: #667eea;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    pointer-events: auto;
+    font-family: inherit;
+}
+
+.humari-file-optimizer__dropzone-browse:hover {
+    color: #5a67d8;
+}
+
+.humari-file-optimizer__dropzone-help {
+    font-size: 12px;
+    color: #94a3b8;
+    margin: 0;
+    font-family: inherit;
+}
+
+.humari-file-optimizer__file-input {
+    display: none;
+}
+
+.humari-file-optimizer__form-error {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 6px;
+    font-family: inherit;
+    display: none;
+}
+
+.humari-file-optimizer__selected-files {
+    margin: 20px 0;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    display: none;
+}
+
+.humari-file-optimizer__selected-files-title {
+    margin: 0 0 12px 0;
+    color: #334155;
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: 600;
+}
+
+.humari-file-optimizer__selected-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.humari-file-optimizer__file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.humari-file-optimizer__file-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.humari-file-optimizer__file-name {
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: inherit;
+}
+
+.humari-file-optimizer__file-size {
+    font-size: 12px;
+    color: #64748b;
+    font-family: inherit;
+}
+
+.humari-file-optimizer__remove-btn {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    margin-left: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+}
+
+.humari-file-optimizer__remove-btn:hover {
+    background: #fee2e2;
+}
+
+.humari-file-optimizer__optimization-options {
+    margin: 20px 0;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    display: none;
+}
+
+.humari-file-optimizer__options-title {
+    margin: 0 0 16px 0;
+    color: #334155;
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: 600;
+    border: none;
+    padding: 0;
+}
+
+.humari-file-optimizer__form-group {
+    margin-bottom: 16px;
+}
+
+.humari-file-optimizer__form-group:last-child {
+    margin-bottom: 0;
+}
+
+.humari-file-optimizer__form-label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #374151;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.humari-file-optimizer__form-select,
+.humari-file-optimizer__form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.humari-file-optimizer__form-select:focus,
+.humari-file-optimizer__form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.humari-file-optimizer__form-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.humari-file-optimizer__form-checkbox input {
+    width: auto;
+    margin: 0;
+}
+
+.humari-file-optimizer__resize-options {
+    margin-top: 12px;
+    padding-left: 24px;
+    display: none;
+}
+
+.humari-file-optimizer__form-help {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 6px;
+    font-family: inherit;
+    display: block;
+}
+
+.humari-file-optimizer__form-actions {
+    display: flex;
+    gap: 12px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.humari-file-optimizer__btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1;
+    border: 2px solid transparent;
+}
+
+.humari-file-optimizer__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.humari-file-optimizer__btn--primary {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.humari-file-optimizer__btn--primary:hover:not(:disabled) {
+    background: #5a67d8;
+    border-color: #5a67d8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.humari-file-optimizer__btn--secondary {
+    background: #f8fafc;
+    color: #475569;
+    border-color: #e2e8f0;
+    display: none;
+}
+
+.humari-file-optimizer__btn--secondary:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(71, 85, 105, 0.1);
+}
+
+.humari-file-optimizer__btn-icon {
+    flex-shrink: 0;
+}
+
+.humari-file-optimizer__form-footer {
+    background: #f1f5f9;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 24px 0 0 0;
+    text-align: center;
+}
+
+.humari-file-optimizer__security-text {
+    margin: 0;
+    font-size: 12px;
+    color: #475569;
+    font-family: inherit;
+}
+
+.humari-file-optimizer__security-text strong {
+    color: #334155;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .humari-file-optimizer__form-state {
+        padding: 20px;
+    }
+    
+    .humari-file-optimizer__file-dropzone {
+        padding: 24px 16px;
+    }
+    
+    .humari-file-optimizer__form-actions {
+        flex-direction: column;
+    }
+    
+    .humari-file-optimizer__btn {
+        justify-content: center;
+        width: 100%;
+    }
+}
+</style>
+
+    <h2 id="form-title" class="sr-only">Formulaire de compression</h2>
+    
+    <!-- Zone de drop multi-fichiers -->
+    <div class="humari-file-optimizer__file-dropzone" 
+         role="button" 
+         tabindex="0"
+         aria-describedby="file-help"
+         data-drop-target>
+        <div class="humari-file-optimizer__dropzone-content">
+            <svg class="humari-file-optimizer__dropzone-icon" aria-hidden="true" width="48" height="48" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            <h3 class="humari-file-optimizer__dropzone-title">Sélectionnez vos fichiers</h3>
+            <p class="humari-file-optimizer__dropzone-description">
+                Glissez vos fichiers ici ou <button type="button" class="humari-file-optimizer__dropzone-browse">parcourez</button>
+            </p>
+            <p id="file-help" class="humari-file-optimizer__dropzone-help">
+                PDF, JPG, PNG, WebP • Max 50MB • Jusqu'à 5 fichiers
+            </p>
+        </div>
+        
+        <input type="file" 
+               id="file-input" 
+               name="files[]" 
+               class="humari-file-optimizer__file-input" 
+               accept=".pdf,.jpg,.jpeg,.png,.webp"
+               multiple
+               aria-describedby="file-help file-error">
+        
+        <div id="file-error" class="humari-file-optimizer__form-error" role="alert" aria-live="polite"></div>
+    </div>
+
+    <!-- Liste des fichiers sélectionnés -->
+    <div class="humari-file-optimizer__selected-files" id="selected-files" role="region" aria-labelledby="selected-files-title">
+        <h3 id="selected-files-title" class="humari-file-optimizer__selected-files-title">Fichiers sélectionnés</h3>
+        <div class="humari-file-optimizer__selected-files-list" id="selected-files-list">
+            <!-- Fichiers ajoutés dynamiquement par JS -->
+        </div>
+    </div>
+
+    <!-- Options d'optimisation -->
+    <fieldset class="humari-file-optimizer__optimization-options" id="optimization-options">
+        <legend class="humari-file-optimizer__options-title">Options de compression</legend>
+        
+        <div class="humari-file-optimizer__form-group">
+            <label for="quality-level" class="humari-file-optimizer__form-label">Niveau de compression</label>
+            <select id="quality-level" name="quality_level" class="humari-file-optimizer__form-select" required>
+                <option value="medium" selected>Équilibré (recommandé)</option>
+                <option value="high">Conservateur (qualité préservée)</option>
+                <option value="low">Maximum (taille minimale)</option>
+            </select>
+        </div>
+
+        <div class="humari-file-optimizer__form-group" id="resize-group" style="display: none;">
+            <div class="humari-file-optimizer__form-checkbox">
+                <input type="checkbox" id="resize-enabled" name="resize_enabled" class="humari-file-optimizer__checkbox-input">
+                <label for="resize-enabled" class="humari-file-optimizer__form-label">
+                    Redimensionner les images
+                </label>
+            </div>
+            
+            <div class="humari-file-optimizer__resize-options" id="resize-options">
+                <label for="max-dimension" class="humari-file-optimizer__form-label">Dimension maximale (px)</label>
+                <input type="number" 
+                       id="max-dimension" 
+                       name="target_max_dimension" 
+                       class="humari-file-optimizer__form-input"
+                       min="100" 
+                       max="2048" 
+                       value="1024"
+                       placeholder="Ex: 1024">
+                <small class="humari-file-optimizer__form-help">Les proportions sont conservées automatiquement</small>
+            </div>
+        </div>
+    </fieldset>
+
+    <!-- Actions -->
+    <div class="humari-file-optimizer__form-actions">
+        <button type="button" class="humari-file-optimizer__btn humari-file-optimizer__btn--primary" id="optimize-button" disabled>
+            <svg class="humari-file-optimizer__btn-icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M5,17H19V19H5V17M12,5L9,8H11V14H13V8H15L12,5Z"/>
+            </svg>
+            Compresser les fichiers
+        </button>
+        
+        <button type="button" class="humari-file-optimizer__btn humari-file-optimizer__btn--secondary" id="clear-button">
+            <svg class="humari-file-optimizer__btn-icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+            </svg>
+            Tout effacer
+        </button>
+    </div>
+
+    <!-- Info sécurité -->
+    <footer class="humari-file-optimizer__form-footer">
+        <p class="humari-file-optimizer__security-text">
+            🔒 <strong>Traitement sécurisé</strong> : Vos fichiers sont automatiquement supprimés après téléchargement. Aucune donnée conservée.
+        </p>
+    </footer>
+</section>

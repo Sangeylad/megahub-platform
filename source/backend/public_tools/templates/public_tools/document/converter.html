@@ -1,0 +1,49 @@
+<!-- templates/public_tools/document/converter.html -->
+{% extends "public_tools/base/tool_base.html" %}
+
+{% block content %}
+<main class="humari-converter" id="humari-converter-root" role="main">
+    <header class="humari-converter__header">
+        <h1 class="humari-converter__title">🔄 Convertisseur de fichiers</h1>
+        <p class="humari-converter__description">
+            Convertissez vos documents en quelques secondes. Gratuit, sécurisé et sans inscription.
+        </p>
+    </header>
+
+    <!-- États du convertisseur -->
+    <div class="humari-converter__states">
+        {% include "public_tools/document/includes/_converter_form.html" %}
+        {% include "public_tools/document/includes/_converter_processing.html" %}
+        {% include "public_tools/document/includes/_converter_success.html" %}
+        {% include "public_tools/document/includes/_converter_error.html" %}
+    </div>
+
+    <!-- Info sécurité -->
+    <footer class="humari-converter__footer">
+        
+        
+        <!-- Schema.org pour SEO -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Convertisseur de fichiers",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web",
+            "description": "Convertissez vos documents PDF, Word, Markdown et HTML gratuitement en ligne",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "EUR"
+            }
+        }
+        </script>
+    </footer>
+</main>
+
+<!-- Container pour résultats WordPress (caché par défaut) -->
+<div class="result-container" style="display: none;" aria-hidden="true"></div>
+
+<!-- Chargement des assets intégrés -->
+{% include "public_tools/document/includes/_converter_scripts.html" %}
+{% endblock %}

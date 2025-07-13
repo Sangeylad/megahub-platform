@@ -1,0 +1,36 @@
+<!-- templates/public_tools/document/includes/_converter_error.html -->
+<section class="humari-converter__error-state" 
+         id="humari-error-state" 
+         style="display: none;"
+         aria-labelledby="error-title"
+         role="alert">
+    
+    <header class="humari-converter__error-header">
+        <div class="humari-converter__error-icon" aria-hidden="true">😕</div>
+        <h2 id="error-title" class="humari-converter__error-title">
+            Conversion échouée
+        </h2>
+        <p class="humari-converter__error-subtitle">
+            Une erreur s'est produite lors de la conversion
+        </p>
+    </header>
+
+    <div class="humari-converter__error-message" 
+         id="humari-error-message"
+         aria-live="assertive">
+        <!-- Rempli par JS -->
+    </div>
+
+    <div class="humari-converter__error-actions">
+        <button type="button" 
+                class="humari-converter__retry-btn" 
+                id="humari-retry-btn"
+                aria-describedby="retry-help">
+            <span class="humari-converter__btn-icon" aria-hidden="true">🔄</span>
+            <span class="humari-converter__btn-text">Réessayer</span>
+        </button>
+        <small id="retry-help" class="humari-converter__retry-help">
+            Relancer la conversion avec les mêmes paramètres
+        </small>
+    </div>
+</section>

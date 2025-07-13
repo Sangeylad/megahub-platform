@@ -1,0 +1,24 @@
+[
+  {
+    "model": "seo_websites_ai_templates_content.pagetypetemplate",
+    "pk": 1,
+    "fields": {
+      "name": "Landing Page Standard",
+      "page_type": "landing",
+      "template_structure": "# {{h1_title}}\n\n{{hero_description}}\n\n## {{benefits_title}}\n\n{{benefits_list}}\n\n## {{cta_section}}",
+      "default_sections": ["hero", "benefits", "testimonials", "cta"],
+      "required_variables": ["h1_title", "hero_description", "benefits_title"]
+    }
+  },
+  {
+    "model": "seo_websites_ai_templates_content.pagetypetemplate",
+    "pk": 2,
+    "fields": {
+      "name": "Article de Blog SEO",
+      "page_type": "blog",
+      "template_structure": "# {{article_title}}\n\n{{introduction}}\n\n## {{section_1_title}}\n\n{{section_1_content}}\n\n## {{section_2_title}}\n\n{{section_2_content}}\n\n## Conclusion\n\n{{conclusion}}",
+      "default_sections": ["introduction", "body", "conclusion"],
+      "required_variables": ["article_title", "introduction", "conclusion"]
+    }
+  }
+]

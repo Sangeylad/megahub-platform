@@ -1,0 +1,249 @@
+<!-- templates/public_tools/file/includes/_optimizer_error.html -->
+<section class="humari-file-optimizer__error-state" 
+         id="humari-error-state" 
+         style="display: none;" 
+         role="region" 
+         aria-labelledby="error-title">
+
+<style>
+.humari-file-optimizer__error-state {
+    padding: 40px 24px;
+    display: none;
+    background: #fff;
+    margin: 0;
+    text-align: center;
+    min-height: 300px;
+}
+
+.humari-file-optimizer__error-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 0 20px 0;
+    font-size: 20px;
+    color: #dc2626;
+    font-family: inherit;
+    font-weight: 600;
+}
+
+.humari-file-optimizer__error-icon {
+    color: #dc2626;
+    flex-shrink: 0;
+}
+
+.humari-file-optimizer__error-message {
+    margin: 20px auto;
+    padding: 20px;
+    background: #fef2f2;
+    border: 2px solid #fecaca;
+    border-radius: 8px;
+    border-left: 4px solid #dc2626;
+    max-width: 500px;
+}
+
+.humari-file-optimizer__error-message-content {
+    margin: 0;
+}
+
+.humari-file-optimizer__error-text {
+    margin: 0;
+    color: #991b1b;
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: 500;
+}
+
+.humari-file-optimizer__error-solutions {
+    margin: 20px auto;
+    padding: 20px;
+    background: #fffbeb;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    border-left: 4px solid #f59e0b;
+    text-align: left;
+    max-width: 500px;
+}
+
+.humari-file-optimizer__solutions-title {
+    margin: 0 0 16px 0;
+    color: #92400e;
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: 600;
+    text-align: center;
+}
+
+.humari-file-optimizer__solutions-list {
+    margin: 0;
+    padding-left: 20px;
+    color: #92400e;
+    list-style: none;
+}
+
+.humari-file-optimizer__error-solution {
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1.4;
+    position: relative;
+    padding-left: 20px;
+}
+
+.humari-file-optimizer__error-solution:before {
+    content: "•";
+    color: #f59e0b;
+    font-size: 16px;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.humari-file-optimizer__error-solution:last-child {
+    margin-bottom: 0;
+}
+
+.humari-file-optimizer__error-solution strong {
+    color: #78350f;
+    font-weight: 600;
+}
+
+.humari-file-optimizer__error-actions {
+    margin: 32px auto 0 auto;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 300px;
+}
+
+.humari-file-optimizer__btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1;
+    text-align: center;
+    border: 2px solid transparent;
+    flex: 1;
+    justify-content: center;
+}
+
+.humari-file-optimizer__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.humari-file-optimizer__btn--primary {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.humari-file-optimizer__btn--primary:hover:not(:disabled) {
+    background: #5a67d8;
+    border-color: #5a67d8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.humari-file-optimizer__btn--secondary {
+    background: #f8fafc;
+    color: #475569;
+    border-color: #e2e8f0;
+}
+
+.humari-file-optimizer__btn--secondary:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(71, 85, 105, 0.1);
+}
+
+.humari-file-optimizer__btn-icon {
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .humari-file-optimizer__error-state {
+        padding: 32px 20px;
+    }
+    
+    .humari-file-optimizer__error-actions {
+        flex-direction: column;
+        align-items: stretch;
+        margin-top: 28px;
+    }
+    
+    .humari-file-optimizer__btn {
+        flex: none;
+        justify-content: center;
+    }
+    
+    .humari-file-optimizer__error-message,
+    .humari-file-optimizer__error-solutions {
+        padding: 16px;
+    }
+}
+</style>
+
+    <h2 id="error-title" class="humari-file-optimizer__error-title">
+        <svg class="humari-file-optimizer__error-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M13,13H11V7H13M12,17.3A1.3,1.3 0 0,1 10.7,16A1.3,1.3 0 0,1 12,14.7A1.3,1.3 0 0,1 13.3,16A1.3,1.3 0 0,1 12,17.3M15.73,3H8.27L3,8.27V15.73L8.27,21H15.73L21,15.73V8.27L15.73,3Z"/>
+        </svg>
+        Erreur de compression
+    </h2>
+
+    <!-- Message d'erreur -->
+    <div class="humari-file-optimizer__error-message" role="alert" aria-live="assertive">
+        <div class="humari-file-optimizer__error-message-content">
+            <p class="humari-file-optimizer__error-text" id="error-text">
+                Une erreur est survenue lors de la compression.
+            </p>
+        </div>
+    </div>
+
+    <!-- Solutions suggérées simplifiées -->
+    <div class="humari-file-optimizer__error-solutions" role="region" aria-labelledby="solutions-title">
+        <h3 id="solutions-title" class="humari-file-optimizer__solutions-title">Que faire ?</h3>
+        <ul class="humari-file-optimizer__solutions-list">
+            <li class="humari-file-optimizer__error-solution">
+                <strong>Vérifiez la taille :</strong> Maximum 50MB par fichier
+            </li>
+            <li class="humari-file-optimizer__error-solution">
+                <strong>Format supporté :</strong> PDF, JPG, PNG ou WebP uniquement
+            </li>
+            <li class="humari-file-optimizer__error-solution">
+                <strong>Limite atteinte :</strong> 5 fichiers maximum par heure
+            </li>
+            <li class="humari-file-optimizer__error-solution">
+                <strong>Fichier corrompu :</strong> Vérifiez que le fichier s'ouvre correctement
+            </li>
+        </ul>
+    </div>
+
+    <!-- Actions de récupération -->
+    <div class="humari-file-optimizer__error-actions">
+        <button type="button" class="humari-file-optimizer__btn humari-file-optimizer__btn--primary" id="retry-button">
+            <svg class="humari-file-optimizer__btn-icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+            </svg>
+            Réessayer
+        </button>
+        
+        <button type="button" class="humari-file-optimizer__btn humari-file-optimizer__btn--secondary" id="new-file-button">
+            <svg class="humari-file-optimizer__btn-icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            Nouveau fichier
+        </button>
+    </div>
+</section>

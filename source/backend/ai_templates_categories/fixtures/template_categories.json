@@ -1,0 +1,38 @@
+[
+  {
+    "model": "brands_template_categories.templatecategory",
+    "pk": 1,
+    "fields": {
+      "name": "website",
+      "display_name": "Pages Website",
+      "description": "Templates pour pages web",
+      "parent": null,
+      "sort_order": 1,
+      "icon_name": "globe"
+    }
+  },
+  {
+    "model": "brands_template_categories.templatecategory", 
+    "pk": 2,
+    "fields": {
+      "name": "blog",
+      "display_name": "Articles Blog",
+      "description": "Templates pour contenu blog",
+      "parent": null,
+      "sort_order": 2,
+      "icon_name": "edit"
+    }
+  },
+  {
+    "model": "brands_template_categories.templatecategory",
+    "pk": 3,
+    "fields": {
+      "name": "landing",
+      "display_name": "Landing Pages",
+      "description": "Templates pour pages d'atterrissage",
+      "parent": 1,
+      "sort_order": 1,
+      "icon_name": "target"
+    }
+  }
+]

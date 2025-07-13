@@ -1,0 +1,1071 @@
+<div class="advanced-calculator">
+    <div class="calculator-intro">
+        <h2>🚀 Calculateur BEROAS Avancé</h2>
+        <p>Version complète avec tous les paramètres pour une analyse précise de votre rentabilité e-commerce.</p>
+        
+        <!-- Rappel conceptuel condensé -->
+        <div class="concept-reminder-compact">
+            <span class="concept-compact">
+                💡 <strong>BEROAS bas = Mieux</strong> (plus facile d'être rentable) • 
+                <strong>BEROAS élevé = Difficile</strong> (campagnes très performantes requises)
+            </span>
+        </div>
+    </div>
+
+    <!-- Layout une seule colonne plus large -->
+    <div class="advanced-content">
+        <!-- Inputs organisés en sections -->
+        <div class="inputs-sections">
+            <!-- Section Prix et Revenus -->
+            <div class="input-section">
+                <h3>💰 Prix et Revenus</h3>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="adv-selling-price">Prix de vente (HT)</label>
+                        <div class="input-wrapper">
+                            <input type="number" 
+                                   id="adv-selling-price" 
+                                   name="sellingPrice"
+                                   class="calc-input" 
+                                   step="0.01" 
+                                   min="0" 
+                                   value="29.99">
+                            <span class="input-currency">€</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="adv-vat-rate">Taux de TVA</label>
+                        <div class="input-wrapper">
+                            <select id="adv-vat-rate" name="vatRate" class="calc-input">
+                                <option value="0">0% (Hors TVA)</option>
+                                <option value="5.5">5,5% (Produits de première nécessité)</option>
+                                <option value="10">10% (Restauration, transport)</option>
+                                <option value="20" selected>20% (Taux normal)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Coûts Directs -->
+            <div class="input-section">
+                <h3>📦 Coûts Directs</h3>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="adv-product-cost">
+                            Coût du produit (COGS)
+                            <span class="help-tooltip" title="Prix d'achat ou de fabrication du produit">ℹ️</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" 
+                                   id="adv-product-cost" 
+                                   name="productCost"
+                                   class="calc-input" 
+                                   step="0.01" 
+                                   min="0" 
+                                   value="12.50">
+                            <span class="input-currency">€</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="adv-shipping-cost">
+                            Frais de livraison
+                            <span class="help-tooltip" title="Coût de livraison par commande">ℹ️</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" 
+                                   id="adv-shipping-cost" 
+                                   name="shippingCost"
+                                   class="calc-input" 
+                                   step="0.01" 
+                                   min="0" 
+                                   value="3.50">
+                            <span class="input-currency">€</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="adv-packaging-cost">
+                            Emballage & conditionnement
+                            <span class="help-tooltip" title="Coût de l'emballage, étiquettes, etc.">ℹ️</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" 
+                                   id="adv-packaging-cost" 
+                                   name="packagingCost"
+                                   class="calc-input" 
+                                   step="0.01" 
+                                   min="0" 
+                                   value="1.20">
+                            <span class="input-currency">€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Frais Transactionnels -->
+            <div class="input-section">
+                <h3>💳 Frais Transactionnels</h3>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="adv-payment-fees">
+                            Frais bancaires (% du prix HT)
+                            <span class="help-tooltip" title="Commission prélevée par votre processeur de paiement sur le montant HT">ℹ️</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" 
+                                   id="adv-payment-fees" 
+                                   name="paymentFees"
+                                   class="calc-input" 
+                                   step="0.1" 
+                                   min="0" 
+                                   max="10" 
+                                   value="2.9">
+                            <span class="input-currency">%</span>
+                        </div>
+                        <small class="input-help">Stripe: ~2.9%, PayPal: ~3.4%, Banque: ~1-2%</small>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="adv-platform-fees">
+                            Commission plateforme (% du prix HT)
+                            <span class="help-tooltip" title="Commission d'Amazon, eBay, etc. calculée sur le prix HT">ℹ️</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" 
+                                   id="adv-platform-fees" 
+                                   name="platformFees"
+                                   class="calc-input" 
+                                   step="0.1" 
+                                   min="0" 
+                                   max="20" 
+                                   value="0">
+                            <span class="input-currency">%</span>
+                        </div>
+                        <small class="input-help">Amazon: ~15%, eBay: ~10%, Shopify: 0%</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Autres Coûts -->
+            <div class="input-section">
+                <h3>📋 Autres Coûts</h3>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="adv-storage-cost">
+                            Stockage & entreposage
+                            <span class="help-tooltip" title="Coût de stockage par unité vendue">ℹ️</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" 
+                                   id="adv-storage-cost" 
+                                   name="storageCost"
+                                   class="calc-input" 
+                                   step="0.01" 
+                                   min="0" 
+                                   value="0.50">
+                            <span class="input-currency">€</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="adv-returns-rate">
+                            Taux de retour (%)
+                            <span class="help-tooltip" title="Pourcentage de commandes retournées">ℹ️</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" 
+                                   id="adv-returns-rate" 
+                                   name="returnsRate"
+                                   class="calc-input" 
+                                   step="0.1" 
+                                   min="0" 
+                                   max="50" 
+                                   value="5">
+                            <span class="input-currency">%</span>
+                        </div>
+                        <small class="input-help">Moyenne e-commerce: 5-15%</small>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="adv-other-costs">
+                            Autres coûts fixes
+                            <span class="help-tooltip" title="SAV, marketing, frais généraux...">ℹ️</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" 
+                                   id="adv-other-costs" 
+                                   name="otherCosts"
+                                   class="calc-input" 
+                                   step="0.01" 
+                                   min="0" 
+                                   value="2.00">
+                            <span class="input-currency">€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Objectifs -->
+            <div class="input-section">
+                <h3>🎯 Objectifs</h3>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="adv-target-beroas">
+                            BEROAS cible
+                            <span class="help-tooltip" title="Objectif de rentabilité souhaité - Plus c'est bas, plus c'est exigeant">ℹ️</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" 
+                                   id="adv-target-beroas" 
+                                   name="targetBeroas"
+                                   class="calc-input" 
+                                   step="0.1" 
+                                   min="1" 
+                                   value="3.0">
+                            <span class="input-currency">x</span>
+                        </div>
+                        <small class="input-help">Conservateur: 2-3x, Agressif: 1.5-2x</small>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="adv-target-margin">
+                            Marge cible (%)
+                            <span class="help-tooltip" title="Pourcentage de marge souhaité">ℹ️</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="number" 
+                                   id="adv-target-margin" 
+                                   name="targetMargin"
+                                   class="calc-input" 
+                                   step="1" 
+                                   min="0" 
+                                   max="80" 
+                                   value="40">
+                            <span class="input-currency">%</span>
+                        </div>
+                        <small class="input-help">Minimum viable: 20%, Idéal: 40%+</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résultats détaillés en-dessous -->
+        <div class="advanced-results">
+            <h3>📊 Analyse Complète</h3>
+            
+            <!-- Métriques principales -->
+            <div class="metrics-row">
+                <div class="metric-card large beroas-main">
+                    <div class="metric-header">
+                        <div class="metric-icon">🎯</div>
+                        <div class="metric-title">BEROAS Calculé</div>
+                    </div>
+                    <div class="metric-value" id="adv-calculated-beroas">2.71</div>
+                    <div class="metric-status" id="adv-beroas-status">✅ Excellent (< 3.0)</div>
+                    <div class="metric-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="beroas-progress" style="width: 90%"></div>
+                        </div>
+                        <span class="progress-label">vs objectif</span>
+                    </div>
+                </div>
+
+                <div class="metric-card large">
+                    <div class="metric-header">
+                        <div class="metric-icon">💰</div>
+                        <div class="metric-title">Marge Unitaire</div>
+                    </div>
+                    <div class="metric-value" id="adv-unit-margin">11,05 €</div>
+                    <div class="metric-percent" id="adv-margin-percent">36,9%</div>
+                    <div class="metric-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="margin-progress" style="width: 92%"></div>
+                        </div>
+                        <span class="progress-label">vs objectif</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métriques secondaires -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">💸</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Budget Pub Max</div>
+                        <div class="metric-value" id="adv-max-becpa">11,05 €</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">🏷️</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Prix TTC</div>
+                        <div class="metric-value" id="adv-price-ttc">35,99 €</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">📉</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Coûts Totaux</div>
+                        <div class="metric-value" id="adv-total-costs">18,94 €</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">⚖️</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Point Mort ROAS</div>
+                        <div class="metric-value" id="adv-breakeven">2,71</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Breakdown des coûts -->
+            <div class="costs-section">
+                <h4>🔍 Détail des Coûts</h4>
+                <div class="costs-breakdown">
+                    <div class="cost-item">
+                        <span class="cost-label">Coût produit (COGS)</span>
+                        <span class="cost-value" id="breakdown-cogs">12,50 €</span>
+                        <span class="cost-percent" id="breakdown-cogs-pct">41,7%</span>
+                    </div>
+                    <div class="cost-item">
+                        <span class="cost-label">Frais de livraison + emballage</span>
+                        <span class="cost-value" id="breakdown-shipping">4,70 €</span>
+                        <span class="cost-percent" id="breakdown-shipping-pct">15,7%</span>
+                    </div>
+                    <div class="cost-item">
+                        <span class="cost-label">Frais bancaires</span>
+                        <span class="cost-value" id="breakdown-payment">0,87 €</span>
+                        <span class="cost-percent" id="breakdown-payment-pct">2,9%</span>
+                    </div>
+                    <div class="cost-item">
+                        <span class="cost-label">Commission plateforme</span>
+                        <span class="cost-value" id="breakdown-platform">0,00 €</span>
+                        <span class="cost-percent" id="breakdown-platform-pct">0,0%</span>
+                    </div>
+                    <div class="cost-item">
+                        <span class="cost-label">Autres coûts</span>
+                        <span class="cost-value" id="breakdown-others">2,50 €</span>
+                        <span class="cost-percent" id="breakdown-others-pct">8,3%</span>
+                    </div>
+                    <div class="cost-item total">
+                        <span class="cost-label"><strong>Total des coûts</strong></span>
+                        <span class="cost-value" id="breakdown-total">18,94 €</span>
+                        <span class="cost-percent" id="breakdown-total-pct">63,2%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommandations -->
+            <div class="recommendations-section">
+                <h4>💡 Recommandations Personnalisées</h4>
+                <div class="recommendations-advanced" id="advanced-recommendations">
+                    <div class="recommendation-item success">
+                        <span class="rec-icon">✅</span>
+                        <span class="rec-text">Excellente configuration ! Votre BEROAS de 2.71 vous donne une grande flexibilité publicitaire.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.advanced-calculator {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.calculator-intro {
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    padding: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.calculator-intro h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
+}
+
+.calculator-intro p {
+    color: #718096;
+    margin: 0 0 1rem 0;
+}
+
+.concept-reminder-compact {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+}
+
+.concept-compact {
+    font-size: 0.95rem;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+.advanced-content {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.inputs-sections {
+    margin-bottom: 3rem;
+}
+
+.input-section {
+    margin-bottom: 2.5rem;
+    padding: 2rem;
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+}
+
+.input-section h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.input-group label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.help-tooltip {
+    cursor: help;
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper input,
+.input-wrapper select {
+    width: 100%;
+    padding: 0.875rem 3rem 0.875rem 0.875rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.input-wrapper input:focus,
+.input-wrapper select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+}
+
+.input-currency {
+    position: absolute;
+    right: 0.875rem;
+    color: #718096;
+    font-weight: 600;
+    pointer-events: none;
+    font-size: 0.9rem;
+}
+
+.input-help {
+    color: #a0aec0;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    line-height: 1.3;
+}
+
+.advanced-results {
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    border: 1px solid #e2e8f0;
+}
+
+.advanced-results h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 2rem 0;
+    text-align: center;
+}
+
+.metrics-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card.large {
+    background: linear-gradient(135deg, #667eea10, #764ba220);
+    border-color: #667eea;
+}
+
+.metric-card.beroas-main {
+    background: linear-gradient(135deg, #48bb7810, #38a16920);
+    border-color: #48bb78;
+}
+
+.metric-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.metric-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+}
+
+.metric-title {
+    font-weight: 700;
+    color: #4a5568;
+    font-size: 1rem;
+}
+
+.metric-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    color: #718096;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.metric-card .metric-value {
+    font-size: 1.4rem;
+}
+
+.metric-percent,
+.metric-status {
+    font-size: 0.9rem;
+    color: #718096;
+    margin-bottom: 0.5rem;
+}
+
+.metric-progress {
+    margin-top: 0.75rem;
+    width: 100%;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #48bb78, #38a169);
+    transition: width 0.5s ease;
+}
+
+.progress-label {
+    font-size: 0.75rem;
+    color: #a0aec0;
+}
+
+.costs-section,
+.recommendations-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.costs-section h4,
+.recommendations-section h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 1rem 0;
+}
+
+.costs-breakdown {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.cost-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 1rem;
+    padding: 0.875rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    align-items: center;
+}
+
+.cost-item:last-child {
+    border-bottom: none;
+}
+
+.cost-item.total {
+    border-top: 2px solid #e2e8f0;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    background: #f8fafc;
+    border-radius: 0.25rem;
+    margin: 0.5rem -0.5rem 0;
+    padding: 1rem 1rem 0.875rem;
+}
+
+.cost-label {
+    font-size: 0.95rem;
+    color: #4a5568;
+}
+
+.cost-value {
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.cost-percent {
+    font-size: 0.85rem;
+    color: #718096;
+    background: #f1f5f9;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.recommendations-advanced {
+    display: grid;
+    gap: 1rem;
+}
+
+.recommendation-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: white;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    border: 1px solid #e2e8f0;
+}
+
+.recommendation-item.success {
+    border-left: 4px solid #48bb78;
+    background: rgba(72, 187, 120, 0.05);
+}
+
+.recommendation-item.warning {
+    border-left: 4px solid #ed8936;
+    background: rgba(237, 137, 54, 0.05);
+}
+
+.recommendation-item.error {
+    border-left: 4px solid #f56565;
+    background: rgba(245, 101, 101, 0.05);
+}
+
+.rec-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.rec-text {
+    flex: 1;
+    color: #4a5568;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .advanced-content {
+        padding: 1.5rem;
+    }
+    
+    .input-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .metrics-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cost-item {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        text-align: left;
+    }
+    
+    .cost-value,
+    .cost-percent {
+        justify-self: start;
+    }
+    
+    .input-section {
+        padding: 1.5rem;
+    }
+    
+    .input-group {
+        padding: 1rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Extended state for advanced calculator
+    const advancedState = {
+        packagingCost: 1.20,
+        platformFees: 0,
+        storageCost: 0.50,
+        returnsRate: 5,
+        targetMargin: 40
+    };
+    
+    // Initialize with default values
+    setTimeout(() => {
+        const advancedInputs = [
+            { selector: '#adv-packaging-cost', value: 1.20 },
+            { selector: '#adv-platform-fees', value: 0 },
+            { selector: '#adv-storage-cost', value: 0.50 },
+            { selector: '#adv-returns-rate', value: 5 },
+            { selector: '#adv-target-margin', value: 40 }
+        ];
+        
+        advancedInputs.forEach(({ selector, value }) => {
+            const input = document.querySelector(selector);
+            if (input && (!input.value || input.value === '0')) {
+                input.value = value;
+            }
+        });
+        
+        calculateAdvancedMetrics();
+    }, 100);
+    
+    // Advanced calculations
+    function calculateAdvancedMetrics() {
+        if (!window.roasCalculator) return;
+        
+        const state = { ...window.roasCalculator.state, ...advancedState };
+        const sellingPriceHT = state.sellingPrice;
+        
+        const paymentFeesAmount = (sellingPriceHT * state.paymentFees) / 100;
+        const platformFeesAmount = (sellingPriceHT * state.platformFees) / 100;
+        const returnsImpact = (sellingPriceHT * state.returnsRate) / 100;
+        
+        const totalCosts = state.productCost + 
+                          state.shippingCost + 
+                          state.packagingCost +
+                          state.storageCost +
+                          paymentFeesAmount + 
+                          platformFeesAmount + 
+                          state.otherCosts + 
+                          returnsImpact;
+        
+        const unitMargin = sellingPriceHT - totalCosts;
+        const marginPercent = sellingPriceHT > 0 ? (unitMargin / sellingPriceHT) * 100 : 0;
+        const calculatedBeroas = unitMargin > 0 ? sellingPriceHT / unitMargin : 0;
+        
+        updateAdvancedDisplay(state, {
+            totalCosts,
+            unitMargin,
+            marginPercent,
+            calculatedBeroas,
+            paymentFeesAmount,
+            platformFeesAmount,
+            returnsImpact
+        });
+        
+        updateCostsBreakdown(state, {
+            paymentFeesAmount,
+            platformFeesAmount,
+            returnsImpact,
+            totalCosts,
+            sellingPriceHT
+        });
+        
+        generateAdvancedRecommendations(state, {
+            marginPercent,
+            calculatedBeroas,
+            totalCosts,
+            sellingPriceHT
+        });
+    }
+    
+    function updateAdvancedDisplay(state, results) {
+        updateElement('adv-calculated-beroas', results.calculatedBeroas.toFixed(2));
+        updateElement('adv-unit-margin', formatCurrency(results.unitMargin));
+        updateElement('adv-margin-percent', `${results.marginPercent.toFixed(1)}%`);
+        updateElement('adv-max-becpa', formatCurrency(Math.max(0, results.unitMargin)));
+        updateElement('adv-price-ttc', formatCurrency(state.sellingPrice * (1 + state.vatRate / 100)));
+        updateElement('adv-total-costs', formatCurrency(results.totalCosts));
+        updateElement('adv-breakeven', results.calculatedBeroas.toFixed(2));
+        
+        let status = '';
+        if (results.unitMargin <= 0) {
+            status = '❌ Non rentable';
+        } else if (results.calculatedBeroas <= 2) {
+            status = '🚀 Excellent (≤ 2.0)';
+        } else if (results.calculatedBeroas <= 3) {
+            status = '✅ Très bon (≤ 3.0)';
+        } else if (results.calculatedBeroas <= 4) {
+            status = '👍 Bon (≤ 4.0)';
+        } else {
+            status = '⚠️ Difficile (> 4.0)';
+        }
+        updateElement('adv-beroas-status', status);
+        
+        const maxBeroas = 6;
+        const beroasProgress = results.calculatedBeroas > 0 ? 
+            Math.max(0, 100 - ((results.calculatedBeroas / maxBeroas) * 100)) : 0;
+        const marginProgress = Math.min(100, (results.marginPercent / state.targetMargin) * 100);
+        
+        updateProgressBar('beroas-progress', beroasProgress);
+        updateProgressBar('margin-progress', marginProgress);
+    }
+    
+    function updateCostsBreakdown(state, costs) {
+        const sellingPrice = state.sellingPrice;
+        
+        updateElement('breakdown-cogs', formatCurrency(state.productCost));
+        updateElement('breakdown-cogs-pct', `${((state.productCost / sellingPrice) * 100).toFixed(1)}%`);
+        
+        const shippingTotal = state.shippingCost + state.packagingCost;
+        updateElement('breakdown-shipping', formatCurrency(shippingTotal));
+        updateElement('breakdown-shipping-pct', `${((shippingTotal / sellingPrice) * 100).toFixed(1)}%`);
+        
+        updateElement('breakdown-payment', formatCurrency(costs.paymentFeesAmount));
+        updateElement('breakdown-payment-pct', `${((costs.paymentFeesAmount / sellingPrice) * 100).toFixed(1)}%`);
+        
+        updateElement('breakdown-platform', formatCurrency(costs.platformFeesAmount));
+        updateElement('breakdown-platform-pct', `${((costs.platformFeesAmount / sellingPrice) * 100).toFixed(1)}%`);
+        
+        const otherTotal = state.storageCost + state.otherCosts + costs.returnsImpact;
+        updateElement('breakdown-others', formatCurrency(otherTotal));
+        updateElement('breakdown-others-pct', `${((otherTotal / sellingPrice) * 100).toFixed(1)}%`);
+        
+        updateElement('breakdown-total', formatCurrency(costs.totalCosts));
+        updateElement('breakdown-total-pct', `${((costs.totalCosts / sellingPrice) * 100).toFixed(1)}%`);
+    }
+    
+    function generateAdvancedRecommendations(state, results) {
+        const recommendations = [];
+        
+        if (results.calculatedBeroas <= 2 && results.marginPercent > 30) {
+            recommendations.push({
+                type: 'success',
+                icon: '🚀',
+                text: `BEROAS exceptionnel (${results.calculatedBeroas.toFixed(2)}) ! Vous pouvez investir massivement en publicité avec confiance.`
+            });
+        } else if (results.calculatedBeroas <= 3) {
+            recommendations.push({
+                type: 'success',
+                icon: '✅',
+                text: `Excellent BEROAS (${results.calculatedBeroas.toFixed(2)}) - Configuration idéale pour la croissance publicitaire.`
+            });
+        } else if (results.calculatedBeroas <= 4) {
+            recommendations.push({
+                type: 'warning',
+                icon: '👍',
+                text: `BEROAS correct (${results.calculatedBeroas.toFixed(2)}) mais il y a de la marge d'amélioration.`
+            });
+        } else {
+            recommendations.push({
+                type: 'error',
+                icon: '⚠️',
+                text: `BEROAS élevé (${results.calculatedBeroas.toFixed(2)}) - Difficile d'être rentable en publicité.`
+            });
+        }
+        
+        if (results.marginPercent < 15) {
+            recommendations.push({
+                type: 'error',
+                icon: '🔴',
+                text: 'Marge critique (<15%) - Votre produit n\'est pas viable sans optimisations majeures.'
+            });
+        } else if (results.marginPercent >= 50) {
+            recommendations.push({
+                type: 'success',
+                icon: '💎',
+                text: `Marge excellente (${results.marginPercent.toFixed(1)}%) - Vous avez une grande flexibilité tarifaire.`
+            });
+        }
+        
+        if (state.paymentFees > 3.5) {
+            recommendations.push({
+                type: 'warning',
+                icon: '💳',
+                text: 'Frais bancaires élevés (>3.5%) - Négociez avec votre processeur ou changez de solution.'
+            });
+        }
+        
+        if (state.platformFees > 12) {
+            recommendations.push({
+                type: 'warning',
+                icon: '🏪',
+                text: 'Commission plateforme élevée (>12%) - Considérez vendre sur votre propre site.'
+            });
+        }
+        
+        if (state.returnsRate > 15) {
+            recommendations.push({
+                type: 'warning',
+                icon: '📦',
+                text: 'Taux de retour élevé (>15%) - Améliorez vos descriptions produit et photos.'
+            });
+        }
+        
+        if (results.calculatedBeroas > state.targetBeroas) {
+            const deficit = results.calculatedBeroas - state.targetBeroas;
+            recommendations.push({
+                type: 'warning',
+                icon: '🎯',
+                text: `Pour atteindre votre objectif BEROAS, réduisez vos coûts de ${deficit.toFixed(1)} points ou augmentez le prix.`
+            });
+        }
+        
+        updateRecommendationsList('advanced-recommendations', recommendations);
+    }
+    
+    function updateElement(id, value) {
+        const element = document.getElementById(id);
+        if (element) element.textContent = value;
+    }
+    
+    function updateProgressBar(id, percentage) {
+        const element = document.getElementById(id);
+        if (element) element.style.width = `${Math.min(100, Math.max(0, percentage))}%`;
+    }
+    
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: 'EUR',
+            minimumFractionDigits: 2
+        }).format(value);
+    }
+    
+    function updateRecommendationsList(containerId, recommendations) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        if (recommendations.length === 0) {
+            container.innerHTML = '<p class="recommendation-placeholder">Saisissez vos données pour obtenir des recommandations personnalisées</p>';
+            return;
+        }
+        
+        const html = recommendations.map(rec => 
+            `<div class="recommendation-item ${rec.type}">
+                <span class="rec-icon">${rec.icon}</span>
+                <span class="rec-text">${rec.text}</span>
+            </div>`
+        ).join('');
+        
+        container.innerHTML = html;
+    }
+    
+    // Bind advanced inputs
+    const advancedInputs = ['packagingCost', 'platformFees', 'storageCost', 'returnsRate', 'targetMargin'];
+    
+    advancedInputs.forEach(inputName => {
+        const element = document.querySelector(`[name="${inputName}"]`);
+        if (element) {
+            element.addEventListener('input', function() {
+                advancedState[inputName] = parseFloat(this.value) || 0;
+                calculateAdvancedMetrics();
+            });
+        }
+    });
+    
+    if (window.roasCalculator) {
+        window.roasCalculator.calculateAdvanced = calculateAdvancedMetrics;
+        
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('[data-tab="advanced"]')) {
+                setTimeout(calculateAdvancedMetrics, 100);
+            }
+        });
+    }
+});
+</script>

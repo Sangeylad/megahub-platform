@@ -1,0 +1,44 @@
+
+
+.auto-blogger-container {
+
+}
+
+.auto-blogger-container .section {
+    background: #f9f9f9;
+    border: 1px solid #e5e5e5;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.auto-blogger-container .section-header {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.auto-blogger-container .input-group {
+    margin-bottom: 15px;
+}
+
+.auto-blogger-container .input-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.auto-blogger-container .input-group textarea,
+.auto-blogger-container .input-group input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+.auto-blogger-container .input-group .switch {
+    /* Styles pour le commutateur personnalisé (si nécessaire) */
+}
+
+.auto-blogger-container .submit .button-primary {
+    /* Si tu veux personnaliser davantage le bouton Soumettre dans cette section */
+}
+

@@ -1,0 +1,159 @@
+# ==========================================
+# MegaHub Platform - .gitignore Enterprise
+# ==========================================
+
+# ==========================================
+# DEVELOPMENT ENVIRONMENT
+# ==========================================
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+.env.*
+
+# IDE et éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# BACKEND DJANGO
+# ==========================================
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.env
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static_root/
+
+# Migrations temporaires (garder celles en prod)
+# */migrations/0*_auto_*.py
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Storage et uploads
+storage/
+uploads/
+file_conversions/
+public_conversions/
+openai_exports/
+
+# ==========================================
+# FRONTEND REACT 19
+# ==========================================
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Testing
+coverage/
+.nyc_output
+.vitest/
+
+# TypeScript
+*.tsbuildinfo
+
+# TanStack Router
+.tanstack/
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# ==========================================
+# DOCKER & INFRASTRUCTURE
+# ==========================================
+# Docker
+.dockerignore
+
+# Backup files
+backups/
+*.backup
+*.bak
+*.tar.gz
+
+# Logs
+logs/
+*.log
+
+# ==========================================
+# SECURITY & SENSITIVE DATA
+# ==========================================
+# Clés et certificats
+*.key
+*.pem
+*.crt
+*.csr
+ssl/
+secrets/
+
+# Données de test sensibles
+**/fixtures/sensitive_*.json
+test_data/
+
+# ==========================================
+# TEMPORARY & CACHE
+# ==========================================
+# Cache
+.cache/
+.tmp/
+.temp/
+tmp/
+temp/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# OLD STRUCTURE (migration cleanup)
+OLD_BACKEND/
+*_backup_*/
+*_old/
+*.old
+
+# ==========================================
+# PRODUCTION SPECIFIC
+# ==========================================
+# Ne jamais commiter les données de production
+production_data/
+prod_backup/
+*.sql
+*.dump
+
+# Monitoring et métriques
+prometheus_data/
+grafana_data/

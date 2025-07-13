@@ -1,0 +1,17 @@
+/* ----------- INDEXING CSS ---------------*/
+
+.indexation-status-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.indexation-status-icon.good {
+    background-color: #7ad03a; /* Vert */
+}
+
+.indexation-status-icon.bad {
+    background-color: #dd3d36; /* Rouge */
+}

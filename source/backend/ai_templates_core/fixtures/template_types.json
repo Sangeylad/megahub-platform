@@ -1,0 +1,32 @@
+[
+  {
+    "model": "brands_template_core.templatetype",
+    "pk": 1,
+    "fields": {
+      "name": "website",
+      "display_name": "Page Website",
+      "description": "Templates pour pages web (landing, vitrine, service)",
+      "is_active": true
+    }
+  },
+  {
+    "model": "brands_template_core.templatetype", 
+    "pk": 2,
+    "fields": {
+      "name": "blog",
+      "display_name": "Article Blog",
+      "description": "Templates pour articles de blog SEO",
+      "is_active": true
+    }
+  },
+  {
+    "model": "brands_template_core.templatetype",
+    "pk": 3, 
+    "fields": {
+      "name": "social",
+      "display_name": "Réseaux Sociaux",
+      "description": "Templates pour posts sociaux",
+      "is_active": false
+    }
+  }
+]

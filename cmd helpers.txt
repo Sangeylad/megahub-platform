@@ -1,0 +1,17 @@
+docker exec -it megahub-backend python manage.py makemigrations
+docker exec -it megahub-backend python manage.py migrate
+
+docker-compose up --build -d
+
+
+alias dbe='docker exec -it megahub-backend bash'
+alias dfe='docker exec -it megahub-frontend bash'
+alias dmm='docker exec -it megahub-backend python manage.py makemigrations'
+alias dmi='docker exec -it megahub-backend python manage.py migrate'
+alias drs='docker exec -it megahub-backend python manage.py runserver'
+alias dct='docker exec -it megahub-backend python manage.py test'
+alias dcol='docker exec -it megahub-backend python manage.py collectstatic'
+alias dsh='docker exec -it megahub-backend python manage.py shell'
+alias cdm='cd /var/www/megahub'
+alias dlg='docker logs megahub-backend -f'
+alias dre='docker-compose restart'

@@ -1,0 +1,650 @@
+<!-- templates/public_tools/document/includes/_converter_form.html -->
+<section class="humari-converter__form-state" 
+         id="humari-form-state" 
+         aria-labelledby="form-title">
+    
+    <style>
+    /* CSS intégré pour éviter les conflits */
+    .humari-converter__form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .humari-converter__section-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #374151;
+        margin: 0 0 0.75rem 0;
+    }
+    
+    /* 🔧 NOUVEAU LAYOUT : Upload en pleine largeur */
+    .humari-converter__upload-section {
+        width: 100%;
+    }
+    
+    .humari-converter__upload-zone {
+        border: 2px dashed #d1d5db;
+        border-radius: 0.5rem;
+        padding: 1.5rem 1rem;
+        text-align: center;
+        background: #fafafa;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        position: relative;
+        min-height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .humari-converter__upload-zone:hover,
+    .humari-converter__upload-zone:focus {
+        border-color: #3b82f6;
+        background: #f8faff;
+        transform: translateY(-1px);
+        outline: none;
+    }
+    
+    .humari-converter__upload-zone.drag-over {
+        border-color: #10b981;
+        background: #f0fdf4;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    
+    .humari-converter__upload-zone.has-files {
+        border-color: #10b981;
+        background: #f0fdf4;
+        padding: 1rem;
+        align-items: flex-start;
+    }
+    
+    .humari-converter__file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 10;
+    }
+    
+    .humari-converter__upload-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .humari-converter__upload-icon {
+        font-size: 1.75rem;
+        opacity: 0.7;
+    }
+    
+    .humari-converter__upload-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .humari-converter__upload-text strong {
+        font-size: 0.95rem;
+        color: #374151;
+    }
+    
+    .humari-converter__upload-text span {
+        font-size: 0.75rem;
+        color: #9ca3af;
+    }
+    
+    .humari-converter__files-preview {
+        margin-top: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 20;
+        position: relative;
+    }
+    
+    .humari-converter__file-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: #ffffff;
+        border: 1px solid #10b981;
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        z-index: 25;
+        position: relative;
+    }
+    
+    .humari-converter__file-icon {
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    
+    .humari-converter__file-details {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .humari-converter__file-name {
+        font-weight: 600;
+        color: #065f46;
+        font-size: 0.8rem;
+        word-break: break-word;
+        line-height: 1.2;
+    }
+    
+    .humari-converter__file-size {
+        color: #059669;
+        font-size: 0.7rem;
+    }
+    
+    .humari-converter__file-remove {
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+        transition: color 0.2s;
+        flex-shrink: 0;
+        z-index: 30;
+        position: relative;
+    }
+    
+    .humari-converter__file-remove:hover {
+        color: #ef4444;
+    }
+    
+    .humari-converter__files-count {
+        text-align: center;
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+        z-index: 20;
+        position: relative;
+    }
+    
+    /* 🔧 NOUVEAU : Section format en pleine largeur, en bas */
+    .humari-converter__format-section {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .humari-converter__format-selector {
+        position: relative;
+        width: 100%;
+        max-width: 500px; /* 🔧 Largeur max pour éviter que ce soit trop large */
+        margin: 0 auto; /* 🔧 Centré */
+    }
+    
+    .humari-converter__format-dropdown-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        background: #ffffff;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        font-size: 1rem;
+        text-align: left;
+        min-height: 60px;
+    }
+    
+    .humari-converter__format-dropdown-btn:hover,
+    .humari-converter__format-dropdown-btn:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+    
+    .humari-converter__format-selected {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+    }
+    
+    .humari-converter__format-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+    
+    .humari-converter__format-text {
+        color: #374151;
+        font-weight: 500;
+        font-size: 1rem;
+    }
+    
+    .humari-converter__format-arrow {
+        color: #9ca3af;
+        font-size: 1rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .humari-converter__format-dropdown-btn[aria-expanded="true"] .humari-converter__format-arrow {
+        transform: rotate(180deg);
+    }
+    
+    .humari-converter__format-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border: 2px solid #3b82f6;
+        border-top: none;
+        border-radius: 0 0 0.5rem 0.5rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        max-height: 400px;
+        overflow: hidden;
+    }
+    
+    .humari-converter__format-search {
+        padding: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f8faff;
+    }
+    
+    .humari-converter__format-search-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    
+    .humari-converter__format-search-input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .humari-converter__format-options {
+        max-height: 280px;
+        overflow-y: auto;
+    }
+    
+    .humari-converter__format-option {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border: none;
+        width: 100%;
+        text-align: left;
+        background: none;
+    }
+    
+    .humari-converter__format-option:hover,
+    .humari-converter__format-option:focus {
+        background: #f8faff;
+        outline: none;
+    }
+    
+    /* 🔧 CORRECTION : Options masquées par la recherche */
+    .humari-converter__format-option.search-hidden {
+        display: none !important;
+    }
+    
+    .humari-converter__format-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .humari-converter__format-label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #374151;
+        line-height: 1.2;
+    }
+    
+    .humari-converter__format-description {
+        font-size: 0.8rem;
+        color: #6b7280;
+        line-height: 1.1;
+        margin-top: 0.25rem;
+    }
+    
+    /* 🔧 CORRECTION : Message "aucun résultat" */
+    .humari-converter__no-results {
+        padding: 2rem 1rem;
+        text-align: center;
+        color: #6b7280;
+        font-size: 0.9rem;
+        font-style: italic;
+        display: none;
+    }
+    
+    .humari-converter__submit-section {
+        width: 100%;
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    .humari-converter__submit-btn {
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.875rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        min-width: 280px;
+    }
+    
+    .humari-converter__submit-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    .humari-converter__submit-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        background: #9ca3af;
+    }
+    
+    .humari-converter__btn-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .humari-converter__upload-help,
+    .humari-converter__format-help,
+    .humari-converter__submit-help {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        margin-top: 0.5rem;
+        display: block;
+        text-align: center;
+    }
+    
+    /* 🔧 RESPONSIVE : Mieux adapté pour mobile */
+    @media (max-width: 768px) {
+        .humari-converter__form {
+            gap: 1.25rem;
+        }
+        
+        .humari-converter__upload-zone {
+            padding: 1.25rem 0.75rem;
+            min-height: 100px;
+        }
+        
+        .humari-converter__format-selector {
+            max-width: none;
+        }
+        
+        .humari-converter__format-dropdown {
+            max-height: 300px;
+        }
+        
+        .humari-converter__format-options {
+            max-height: 220px;
+        }
+        
+        .humari-converter__submit-btn {
+            min-width: 240px;
+        }
+    }
+    </style>
+    
+    <form class="humari-converter__form" 
+          id="humari-conversion-form"
+          method="post" 
+          action=""
+          enctype="multipart/form-data"
+          novalidate>
+        
+        <!-- Section upload - Pleine largeur -->
+        <div class="humari-converter__upload-section">
+            <h3 class="humari-converter__section-title">
+                📁 Sélectionner vos fichiers
+            </h3>
+            
+            <div class="humari-converter__upload-zone" 
+                 id="humari-upload-zone"
+                 tabindex="0"
+                 role="button"
+                 aria-describedby="upload-help"
+                 aria-label="Zone de téléchargement. Cliquez ou glissez-déposez vos fichiers">
+                
+                <input type="file" 
+                       class="humari-converter__file-input"
+                       id="humari-file-input"
+                       name="files[]"
+                       multiple
+                       accept=".pdf,.docx,.doc,.txt,.md,.html"
+                       aria-describedby="upload-help">
+                
+                <div class="humari-converter__upload-content" id="humari-upload-content">
+                    <span class="humari-converter__upload-icon" aria-hidden="true">📎</span>
+                    <div class="humari-converter__upload-text">
+                        <strong>Cliquez ou glissez vos fichiers ici</strong>
+                        <span>PDF, Word, TXT, Markdown, HTML (max 10MB chacun)</span>
+                        <span>Jusqu'à 10 fichiers simultanés</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="humari-converter__files-preview" 
+                 id="humari-files-preview" 
+                 style="display: none;"
+                 aria-live="polite">
+                <!-- Rempli par JS -->
+            </div>
+            
+            <small id="upload-help" class="humari-converter__upload-help">
+                Formats supportés : PDF, DOCX, DOC, TXT, MD, HTML
+            </small>
+        </div>
+        
+        <!-- Section format - Pleine largeur, centrée -->
+        <div class="humari-converter__format-section">
+            <h3 class="humari-converter__section-title">
+                🎯 Format de sortie
+            </h3>
+            
+            <div class="humari-converter__format-selector">
+                <button type="button" 
+                        class="humari-converter__format-dropdown-btn"
+                        id="humari-format-dropdown-btn"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-describedby="format-help">
+                    <span class="humari-converter__format-selected" id="humari-format-selected">
+                        <span class="humari-converter__format-icon">📄</span>
+                        <span class="humari-converter__format-text">Choisir un format</span>
+                    </span>
+                    <span class="humari-converter__format-arrow" aria-hidden="true">▼</span>
+                </button>
+                
+                <div class="humari-converter__format-dropdown" 
+                     id="humari-format-dropdown"
+                     role="listbox"
+                     aria-labelledby="humari-format-dropdown-btn"
+                     style="display: none;">
+                    
+                    <div class="humari-converter__format-search">
+                        <input type="text"
+                               class="humari-converter__format-search-input"
+                               id="humari-format-search"
+                               placeholder="Rechercher un format (ex: pdf, word, markdown...)"
+                               aria-label="Rechercher un format">
+                    </div>
+                    
+                    <div class="humari-converter__format-options" id="humari-format-options">
+                        <!-- 🔧 FORMATS EXEMPLE AVEC data-search-terms CORRECTS -->
+                        <div class="humari-converter__format-option" 
+                             data-value="pdf"
+                             data-search-terms="pdf portable document format acrobat adobe"
+                             role="option"
+                             tabindex="0"
+                             aria-selected="false">
+                            <span class="humari-converter__format-icon">📄</span>
+                            <div class="humari-converter__format-info">
+                                <div class="humari-converter__format-label">PDF</div>
+                                <div class="humari-converter__format-description">Portable Document Format</div>
+                            </div>
+                        </div>
+                        
+                        <div class="humari-converter__format-option" 
+                             data-value="docx"
+                             data-search-terms="docx word microsoft office document texte"
+                             role="option"
+                             tabindex="0"
+                             aria-selected="false">
+                            <span class="humari-converter__format-icon">📝</span>
+                            <div class="humari-converter__format-info">
+                                <div class="humari-converter__format-label">Word (DOCX)</div>
+                                <div class="humari-converter__format-description">Document Microsoft Word</div>
+                            </div>
+                        </div>
+                        
+                        <div class="humari-converter__format-option" 
+                             data-value="txt"
+                             data-search-terms="txt texte plain text brut simple note"
+                             role="option"
+                             tabindex="0"
+                             aria-selected="false">
+                            <span class="humari-converter__format-icon">📋</span>
+                            <div class="humari-converter__format-info">
+                                <div class="humari-converter__format-label">Texte (TXT)</div>
+                                <div class="humari-converter__format-description">Texte brut</div>
+                            </div>
+                        </div>
+                        
+                        <div class="humari-converter__format-option" 
+                             data-value="md"
+                             data-search-terms="md markdown markup texte formatage github readme"
+                             role="option"
+                             tabindex="0"
+                             aria-selected="false">
+                            <span class="humari-converter__format-icon">🔖</span>
+                            <div class="humari-converter__format-info">
+                                <div class="humari-converter__format-label">Markdown</div>
+                                <div class="humari-converter__format-description">Format de texte structuré</div>
+                            </div>
+                        </div>
+                        
+                        <div class="humari-converter__format-option" 
+                             data-value="html"
+                             data-search-terms="html web page site internet navigateur"
+                             role="option"
+                             tabindex="0"
+                             aria-selected="false">
+                            <span class="humari-converter__format-icon">🌐</span>
+                            <div class="humari-converter__format-info">
+                                <div class="humari-converter__format-label">HTML</div>
+                                <div class="humari-converter__format-description">Page web</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Message aucun résultat -->
+                        <div class="humari-converter__no-results" id="humari-no-results">
+                            Aucun format trouvé pour votre recherche
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="hidden" 
+                       name="target_format" 
+                       id="humari-target-format"
+                       required>
+            </div>
+            
+            <small id="format-help" class="humari-converter__format-help">
+                Sélectionnez le format de conversion souhaité
+            </small>
+        </div>
+        
+        <!-- Section submit -->
+        <div class="humari-converter__submit-section">
+            <button type="submit" 
+                    class="humari-converter__submit-btn"
+                    id="humari-submit-btn"
+                    disabled
+                    aria-describedby="submit-help">
+                <span class="humari-converter__btn-content">
+                    <span class="humari-converter__btn-icon" aria-hidden="true">🚀</span>
+                    <span class="humari-converter__btn-text">Lancer la conversion</span>
+                </span>
+            </button>
+            
+            <small id="submit-help" class="humari-converter__submit-help">
+                Vérifiez vos fichiers et le format avant de lancer
+            </small>
+        </div>
+    </form>
+    
+    <!-- Info simplicité & transparence -->
+    <footer class="humari-converter__footer">
+        <div class="humari-converter__security-info">
+            <p>🚀 <strong>100% gratuit</strong> • 🗑️ <strong>Fichiers supprimés automatiquement</strong> • 🎯 <strong>Outil simple et utile</strong></p>
+            <small>Pas d'inscription, pas de limite, pas de business derrière. Juste un petit outil pratique pour convertir vos fichiers rapidement !</small>
+        </div>
+    </footer>
+    
+    <style>
+    .humari-converter__footer {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        border-radius: 0.75rem;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+    }
+    
+    .humari-converter__security-info p {
+        margin: 0 0 0.5rem 0;
+        font-size: 0.9rem;
+        color: #374151;
+        font-weight: 500;
+    }
+    
+    .humari-converter__security-info small {
+        color: #6b7280;
+        font-size: 0.8rem;
+        line-height: 1.4;
+        display: block;
+        font-style: italic;
+    }
+    
+    @media (max-width: 768px) {
+        .humari-converter__footer {
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+        }
+        
+        .humari-converter__security-info p {
+            font-size: 0.85rem;
+        }
+        
+        .humari-converter__security-info small {
+            font-size: 0.75rem;
+        }
+    }
+    </style>
+</section>

@@ -1,0 +1,21 @@
+/*
+ * ATTENTION: An "eval-source-map" devtool has been used.
+ * This devtool is neither made for production nor for readable output files.
+ * It uses "eval()" calls to create a separate source file with attached SourceMaps in the browser devtools.
+ * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
+ * or disable the default devtool with "devtool: false".
+ * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
+ */
+(self["webpackChunk"] = self["webpackChunk"] || []).push([["flag-sh-ta-svg"],{
+
+/***/ "./node_modules/flag-icons/flags/1x1/sh-ta.svg":
+/*!*****************************************************!*\
+  !*** ./node_modules/flag-icons/flags/1x1/sh-ta.svg ***!
+  \*****************************************************/
+/***/ (() => {
+
+throw new Error("Module parse failed: Unexpected token (1:0)\nYou may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders\n> <svg xmlns=\"http://www.w3.org/2000/svg\" id=\"flag-icons-sh-ta\" viewBox=\"0 0 512 512\">\n|   <path fill=\"#006\" d=\"M512 512V0H0v512z\"/>\n|   <path fill=\"#8fc5ff\" stroke=\"#fff\" stroke-width=\"3.5\" d=\"M471.1 219.4c0 57.8-9.2 120.2-84.4 150-74.8-29.8-84-92.2-84.4-150z\"/>");
+
+/***/ })
+
+}]);

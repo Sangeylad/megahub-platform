@@ -1,0 +1,60 @@
+  frontend:
+    container_name: megahub-frontend
+    build: 
+      context: ./frontend/react-app
+      dockerfile: Dockerfile
+      target: runner
+      args:
+        - NODE_ENV=production
+        - VITE_API_BASE_URL=https://backoffice.humari.fr
+        - VITE_ENABLE_REACT_COMPILER=true
+        - VITE_ENABLE_LIGHTNING_CSS=true
+    
+    # ==========================================
+    # RÉSEAUX
+    # ==========================================
+    networks:
+      - megahub_network
+      - nginx-proxy
+    
+    # ==========================================
+    # VARIABLES ENVIRONNEMENT PRODUCTION
+    # ==========================================
+    environment:
+      # nginx-proxy SSL automatique
+      - VIRTUAL_HOST=megahub.humari.fr
+      - VIRTUAL_PORT=80
+      - LETSENCRYPT_HOST=megahub.humari.fr
+      - LETSENCRYPT_EMAIL=martin@frenchease.fr
+      
+      # Application React 19 + TanStack v5
+      - VITE_API_BASE_URL=https://backoffice.humari.fr
+      - VITE_APP_NAME=MegaHub
+      - VITE_APP_VERSION=3.0.0
+      - VITE_NODE_ENV=production
+      - VITE_ENABLE_REACT_COMPILER=true
+      - VITE_ENABLE_LIGHTNING_CSS=true
+      - VITE_ENABLE_DEVTOOLS=false
+    
+    # ==========================================
+    # MONITORING & HEALTH
+    # ==========================================
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # ==========================================
+    # RESSOURCES
+    # ==========================================
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M

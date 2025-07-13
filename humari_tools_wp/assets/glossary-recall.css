@@ -1,0 +1,261 @@
+/* ================================
+   GLOSSAIRE RAPPELS - STYLES
+   ================================ */
+
+/* STYLE BLOCK (Par défaut) */
+.humari-glossary-recall.style-block {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-left: 4px solid #6a5acd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.recall-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.recall-title {
+    margin: 0;
+    font-size: 1.1em;
+    color: #2c3e50;
+}
+
+.recall-title a {
+    color: #6a5acd;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.recall-title a:hover {
+    color: #5a4fcf;
+    text-decoration: underline;
+}
+
+.recall-category {
+    background: #6a5acd;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.recall-definition {
+    color: #495057;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.recall-footer {
+    text-align: right;
+}
+
+.recall-more {
+    color: #6a5acd;
+    text-decoration: none;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.recall-more:hover {
+    text-decoration: underline;
+}
+
+/* STYLE INLINE */
+.humari-glossary-recall.style-inline {
+    display: inline;
+}
+
+.humari-glossary-recall.style-inline .recall-link {
+    color: #6a5acd;
+    text-decoration: none;
+    border-bottom: 1px dotted #6a5acd;
+    transition: all 0.3s ease;
+}
+
+.humari-glossary-recall.style-inline .recall-link:hover {
+    color: #5a4fcf;
+    border-bottom-style: solid;
+}
+
+/* STYLE TOOLTIP */
+.humari-glossary-recall.style-tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+
+.recall-tooltip-text {
+    color: #6a5acd;
+    font-weight: 500;
+    border-bottom: 1px dotted #6a5acd;
+}
+
+.recall-tooltip-icon {
+    margin-left: 4px;
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+.recall-tooltip-content {
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c3e50;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    max-width: 300px;
+    white-space: normal;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.recall-tooltip-content::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #2c3e50;
+}
+
+.humari-glossary-recall.style-tooltip:hover .recall-tooltip-content {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tooltip-definition {
+    margin-bottom: 8px;
+}
+
+.tooltip-category {
+    font-size: 0.8em;
+    opacity: 0.8;
+    margin-bottom: 8px;
+}
+
+.tooltip-link a {
+    color: #84d4f0;
+    text-decoration: none;
+    font-size: 0.85em;
+}
+
+.tooltip-link a:hover {
+    text-decoration: underline;
+}
+
+/* STYLE CARD */
+.humari-glossary-recall.style-card {
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    padding: 0;
+    margin: 20px 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.humari-glossary-recall.style-card:hover {
+    box-shadow: 0 8px 25px rgba(106, 90, 205, 0.1);
+    transform: translateY(-2px);
+}
+
+.recall-card-header {
+    background: linear-gradient(135deg, #6a5acd 0%, #5a4fcf 100%);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recall-card-title a {
+    color: white;
+    text-decoration: none;
+}
+
+.recall-card-title a:hover {
+    text-decoration: underline;
+}
+
+.recall-card-category {
+    background: rgba(255,255,255,0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+}
+
+.recall-card-body {
+    padding: 20px;
+}
+
+.recall-card-body p {
+    margin: 0;
+    color: #495057;
+    line-height: 1.5;
+}
+
+.recall-card-footer {
+    padding: 0 20px 20px 20px;
+    text-align: right;
+}
+
+.recall-card-link {
+    color: #6a5acd;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9em;
+}
+
+.recall-card-link:hover {
+    text-decoration: underline;
+}
+
+/* MESSAGES D'ERREUR */
+.glossary-error {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 8px 12px;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: inline-block;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .recall-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .recall-tooltip-content {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        transform: none;
+        max-width: none;
+    }
+    
+    .humari-glossary-recall.style-card {
+        margin: 16px 0;
+    }
+}

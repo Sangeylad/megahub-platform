@@ -1,0 +1,92 @@
+version: '3.8'
+
+# ==========================================
+# MEGAHUB - DOCKER COMPOSE DEVELOPMENT
+# Environnement local de développement
+# ==========================================
+
+services:
+  backend:
+    container_name: megahub-backend-dev
+    build: ./source/backend  # ← Nouveau chemin
+    networks:
+      - megahub_network
+    command: sh -c "python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./source/backend:/app  # ← Nouveau chemin
+      - ./mcp_server:/mcp_server
+    environment:
+      - PYTHONPATH=/app:/mcp_server
+      - DJANGO_SETTINGS_MODULE=django_app.settings.development  # ← Settings dev
+      - POSTGRES_DB=mhdb24_dev  # ← DB dev
+      - POSTGRES_USER=SuperAdminduTurfu
+      - POSTGRES_PASSWORD=MHub2401!
+      - REDIS_URL=redis://redis:6379/0
+      - SHORTENER_DB_HOST=postgres-shortener
+      - SHORTENER_DB_NAME=shortener_dev  # ← DB shortener dev
+      - SHORTENER_DB_USER=shortener_user
+      - SHORTENER_DB_PASSWORD=ShortUrl2025!
+    ports:
+      - "8000:8000"  # ← Port exposé pour dev local
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    container_name: megahub-frontend-dev
+    build: 
+      context: ./source/frontend  # ← Nouveau chemin
+      dockerfile: Dockerfile
+      target: runner
+    networks:
+      - megahub_network
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000  # ← API locale
+      - VITE_APP_NAME=MegaHub Dev
+      - VITE_APP_VERSION=3.0.0-dev
+      - VITE_NODE_ENV=development
+      - VITE_ENABLE_REACT_COMPILER=true
+      - VITE_ENABLE_LIGHTNING_CSS=true
+    ports:
+      - "3000:80"  # ← Port exposé pour dev local
+    restart: unless-stopped
+    volumes:
+      - ./source/frontend:/app  # ← Hot reload dev
+
+  postgres:
+    image: postgres:15
+    container_name: megahub-postgres-dev
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data  # ← Volume dev
+    networks:
+      - megahub_network
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=MHub2401!
+      - POSTGRES_USER=SuperAdminduTurfu
+      - POSTGRES_DB=mhdb24_dev  # ← DB dev
+    ports:
+      - "5432:5432"  # ← Port exposé pour dev local
+
+  redis:
+    image: redis:7-alpine
+    container_name: megahub-redis-dev
+    networks:
+      - megahub_network
+    volumes:
+      - redis_dev_data:/data  # ← Volume dev
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"  # ← Port exposé pour dev local
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+
+networks:
+  megahub_network:
+    driver: bridge

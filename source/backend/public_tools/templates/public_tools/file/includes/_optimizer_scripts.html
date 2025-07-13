@@ -1,0 +1,535 @@
+<!-- templates/public_tools/file/includes/_optimizer_scripts.html -->
+<script>
+(function() {
+    'use strict';
+    
+    console.log('🚀 Humari File Optimizer - Initialisation...');
+    
+    // ✅ CONFIGURATION API UNIVERSELLE
+    let apiConfig = {
+        baseUrl: '/public-tools/file/optimizer',
+        ajaxUrl: '/wp-admin/admin-ajax.php',
+        isWordPress: false,
+        isDjango: false
+    };
+    
+    // ✅ DÉTECTION ENVIRONNEMENT ROBUSTE
+    if (typeof window.ajaxurl !== 'undefined' || 
+        document.querySelector('body.wordpress') || 
+        document.querySelector('#wpadminbar') ||
+        window.location.href.includes('wp-')) {
+        apiConfig.isWordPress = true;
+        if (window.ajaxurl) apiConfig.ajaxUrl = window.ajaxurl;
+        console.log('🎯 WordPress détecté');
+    } else {
+        apiConfig.isDjango = true;
+        console.log('🎯 Django détecté');
+    }
+    
+    // Variables globales
+    let selectedFiles = [];
+    let optimizationId = null;
+    let statusCheckInterval = null;
+    
+    const CONFIG = {
+        maxSize: 52428800, // 50MB
+        maxFiles: 5,
+        allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf']
+    };
+    
+    function initOptimizer() {
+        console.log('📋 Recherche des éléments DOM...');
+        
+        const elements = {
+            fileDropZone: document.querySelector('[data-drop-target]'),
+            fileInput: document.getElementById('file-input'),
+            selectedFilesDiv: document.getElementById('selected-files'),
+            selectedFilesList: document.getElementById('selected-files-list'),
+            optimizationOptions: document.getElementById('optimization-options'),
+            resizeGroup: document.getElementById('resize-group'),
+            resizeEnabled: document.getElementById('resize-enabled'),
+            resizeOptions: document.getElementById('resize-options'),
+            optimizeBtn: document.getElementById('optimize-button'),
+            clearBtn: document.getElementById('clear-button'),
+            progressFill: document.getElementById('progress-fill'),
+            progressText: document.getElementById('progress-text'),
+            downloadLink: document.getElementById('download-link'),
+            newOptimizationBtn: document.getElementById('new-optimization-button'),
+            errorText: document.getElementById('error-text'),
+            retryBtn: document.getElementById('retry-button'),
+            newFileBtn: document.getElementById('new-file-button'),
+            fileError: document.getElementById('file-error')
+        };
+        
+        Object.keys(elements).forEach(key => {
+            console.log(`${elements[key] ? '✅' : '❌'} ${key}:`, elements[key] ? 'trouvé' : 'MANQUANT');
+        });
+        
+        if (!elements.fileDropZone || !elements.fileInput) {
+            console.error('❌ Éléments DOM critiques manquants');
+            return;
+        }
+        
+        // Event listeners
+        elements.fileDropZone.addEventListener('click', () => elements.fileInput.click());
+        elements.fileDropZone.addEventListener('dragover', handleDragOver);
+        elements.fileDropZone.addEventListener('dragleave', handleDragLeave);
+        elements.fileDropZone.addEventListener('drop', handleDrop);
+        elements.fileInput.addEventListener('change', handleFileSelect);
+        
+        if (elements.resizeEnabled) elements.resizeEnabled.addEventListener('change', toggleResizeOptions);
+        if (elements.optimizeBtn) elements.optimizeBtn.addEventListener('click', startOptimization);
+        if (elements.clearBtn) elements.clearBtn.addEventListener('click', clearFiles);
+        if (elements.newOptimizationBtn) elements.newOptimizationBtn.addEventListener('click', resetForm);
+        if (elements.retryBtn) elements.retryBtn.addEventListener('click', resetForm);
+        if (elements.newFileBtn) elements.newFileBtn.addEventListener('click', resetForm);
+        
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.humari-file-optimizer__remove-btn')) {
+                const index = parseInt(e.target.closest('.humari-file-optimizer__remove-btn').dataset.index);
+                removeFile(index);
+            }
+        });
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            elements.fileDropZone.classList.add('drag-over');
+        }
+        
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            elements.fileDropZone.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            elements.fileDropZone.classList.remove('drag-over');
+            
+            const files = Array.from(e.dataTransfer?.files || []);
+            addFiles(files);
+        }
+        
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files || []);
+            addFiles(files);
+            elements.fileInput.value = '';
+        }
+        
+        function addFiles(newFiles) {
+            let hasErrors = false;
+            
+            for (let file of newFiles) {
+                if (selectedFiles.length >= CONFIG.maxFiles) {
+                    showFileError(`Maximum ${CONFIG.maxFiles} fichiers autorisés`);
+                    hasErrors = true;
+                    break;
+                }
+                
+                if (file.size > CONFIG.maxSize) {
+                    showFileError(`${file.name}: Fichier trop volumineux (max: ${formatFileSize(CONFIG.maxSize)})`);
+                    hasErrors = true;
+                    continue;
+                }
+                
+                if (!CONFIG.allowedTypes.includes(file.type)) {
+                    showFileError(`${file.name}: Type non supporté`);
+                    hasErrors = true;
+                    continue;
+                }
+                
+                selectedFiles.push(file);
+            }
+            
+            updateFilesDisplay();
+            
+            if (!hasErrors) {
+                hideFileError();
+            }
+        }
+        
+        function removeFile(index) {
+            if (index >= 0 && index < selectedFiles.length) {
+                selectedFiles.splice(index, 1);
+                updateFilesDisplay();
+                hideFileError();
+            }
+        }
+        
+        function clearFiles() {
+            selectedFiles = [];
+            updateFilesDisplay();
+            hideFileError();
+        }
+        
+        function updateFilesDisplay() {
+            console.log('🔄 Mise à jour affichage, fichiers:', selectedFiles.length);
+            
+            if (selectedFiles.length === 0) {
+                // Masquer tous les éléments liés aux fichiers sélectionnés
+                if (elements.selectedFilesDiv) {
+                    elements.selectedFilesDiv.style.display = 'none';
+                }
+                if (elements.optimizationOptions) {
+                    elements.optimizationOptions.style.display = 'none';
+                }
+                if (elements.optimizeBtn) elements.optimizeBtn.disabled = true;
+                if (elements.clearBtn) {
+                    elements.clearBtn.style.display = 'none';
+                }
+                return;
+            }
+            
+            // ✅ FORCER l'affichage avec toutes les propriétés CSS possibles
+            if (elements.selectedFilesDiv) {
+                elements.selectedFilesDiv.style.display = 'block';
+                elements.selectedFilesDiv.style.visibility = 'visible';
+                elements.selectedFilesDiv.style.opacity = '1';
+                elements.selectedFilesDiv.classList.remove('hidden');
+                elements.selectedFilesDiv.removeAttribute('hidden');
+            }
+            
+            if (elements.optimizationOptions) {
+                elements.optimizationOptions.style.display = 'block';
+                elements.optimizationOptions.style.visibility = 'visible';
+                elements.optimizationOptions.style.opacity = '1';
+                elements.optimizationOptions.classList.remove('hidden');
+                elements.optimizationOptions.removeAttribute('hidden');
+            }
+            
+            if (elements.clearBtn) {
+                elements.clearBtn.style.display = 'inline-flex';
+                elements.clearBtn.style.visibility = 'visible';
+                elements.clearBtn.style.opacity = '1';
+                elements.clearBtn.classList.remove('hidden');
+                elements.clearBtn.removeAttribute('hidden');
+            }
+            
+            // Afficher options resize si images
+            const hasImages = selectedFiles.some(file => file.type.startsWith('image/'));
+            if (elements.resizeGroup) {
+                if (hasImages) {
+                    elements.resizeGroup.style.display = 'block';
+                    elements.resizeGroup.style.visibility = 'visible';
+                    elements.resizeGroup.style.opacity = '1';
+                } else {
+                    elements.resizeGroup.style.display = 'none';
+                }
+            }
+            
+            // ✅ GÉNÉRER HTML avec les nouvelles classes
+            if (elements.selectedFilesList) {
+                let filesHtml = '';
+                selectedFiles.forEach((file, index) => {
+                    const fileType = file.type.split('/')[1]?.toUpperCase() || 'FILE';
+                    const fileIcon = getFileIcon(file.type);
+                    
+                    filesHtml += `
+                        <div class="humari-file-optimizer__file-item">
+                            <div class="humari-file-optimizer__file-details">
+                                <div class="humari-file-optimizer__file-name">
+                                    ${fileIcon} ${file.name}
+                                </div>
+                                <div class="humari-file-optimizer__file-size">
+                                    ${fileType} • ${formatFileSize(file.size)}
+                                </div>
+                            </div>
+                            <button type="button" class="humari-file-optimizer__remove-btn" data-index="${index}">
+                                <svg width="14" height="14" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                elements.selectedFilesList.innerHTML = filesHtml;
+                elements.selectedFilesList.style.display = 'block';
+                elements.selectedFilesList.style.visibility = 'visible';
+                elements.selectedFilesList.style.opacity = '1';
+                
+                console.log('✅ HTML généré:', filesHtml.length, 'caractères');
+            }
+            
+            if (elements.optimizeBtn) {
+                elements.optimizeBtn.disabled = false;
+            }
+            
+            console.log('✅ Mise à jour terminée, éléments visibles');
+        }
+        
+        function getFileIcon(mimeType) {
+            if (mimeType.startsWith('image/')) return '🖼️';
+            if (mimeType === 'application/pdf') return '📄';
+            return '📁';
+        }
+        
+        function toggleResizeOptions() {
+            if (elements.resizeOptions && elements.resizeEnabled) {
+                elements.resizeOptions.style.display = elements.resizeEnabled.checked ? 'block' : 'none';
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+        
+        function showFileError(message) {
+            if (elements.fileError) {
+                elements.fileError.textContent = message;
+                elements.fileError.style.display = 'block';
+                elements.fileError.style.color = '#dc2626';
+                elements.fileError.style.fontSize = '12px';
+                elements.fileError.style.marginTop = '8px';
+            }
+        }
+        
+        function hideFileError() {
+            if (elements.fileError) {
+                elements.fileError.style.display = 'none';
+            }
+        }
+        
+        function startOptimization() {
+            if (selectedFiles.length === 0) return;
+            
+            if (elements.optimizeBtn) elements.optimizeBtn.disabled = true;
+            showState('processing');
+            
+            const formData = new FormData();
+            
+            // ✅ GESTION UNIVERSELLE DJANGO/WORDPRESS
+            if (apiConfig.isWordPress) {
+                formData.append('action', 'humari_process_optimization');
+                
+                if (selectedFiles.length === 1) {
+                    formData.append('file', selectedFiles[0]);
+                } else {
+                    selectedFiles.forEach((file, index) => {
+                        formData.append(`file_${index}`, file);
+                    });
+                    formData.append('file_count', selectedFiles.length.toString());
+                }
+            } else {
+                // Django
+                selectedFiles.forEach((file) => {
+                    formData.append('files[]', file);
+                });
+            }
+            
+            formData.append('quality_level', document.getElementById('quality-level')?.value || 'medium');
+            
+            if (elements.resizeEnabled?.checked && document.getElementById('max-dimension')?.value) {
+                formData.append('resize_enabled', 'true');
+                formData.append('target_max_dimension', document.getElementById('max-dimension').value);
+            }
+            
+            updateProgress(10, 'Upload des fichiers...');
+            
+            const url = apiConfig.isWordPress ? apiConfig.ajaxUrl : apiConfig.baseUrl + '/process/';
+            
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('📨 Réponse reçue:', data);
+                
+                let result;
+                if (apiConfig.isWordPress) {
+                    if (data.success) {
+                        result = data.data;
+                    } else {
+                        throw new Error(data.data || 'Erreur d\'optimisation');
+                    }
+                } else {
+                    if (data.status === 'success') {
+                        result = data;
+                    } else {
+                        throw new Error(data.error || 'Erreur d\'optimisation');
+                    }
+                }
+                
+                optimizationId = result.optimization_id;
+                updateProgress(20, 'Optimisation en cours...');
+                startStatusCheck();
+            })
+            .catch(error => {
+                console.error('❌ Erreur optimisation:', error);
+                showError(error.message);
+                if (elements.optimizeBtn) elements.optimizeBtn.disabled = false;
+            });
+        }
+        
+        function startStatusCheck() {
+            if (statusCheckInterval) clearInterval(statusCheckInterval);
+            
+            statusCheckInterval = setInterval(() => {
+                let url, requestData;
+                
+                if (apiConfig.isWordPress) {
+                    url = apiConfig.ajaxUrl;
+                    requestData = new FormData();
+                    requestData.append('action', 'humari_optimization_status');
+                    requestData.append('optimization_id', optimizationId);
+                } else {
+                    url = apiConfig.baseUrl + '/status/' + optimizationId + '/';
+                    requestData = null;
+                }
+                
+                const options = {
+                    method: apiConfig.isWordPress ? 'POST' : 'GET'
+                };
+                if (requestData) options.body = requestData;
+                
+                fetch(url, options)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('📊 Statut reçu:', data);
+                    
+                    let result;
+                    if (apiConfig.isWordPress) {
+                        if (data.success) {
+                            result = data.data;
+                        } else {
+                            return; // Ignore les erreurs de statut
+                        }
+                    } else {
+                        result = data;
+                    }
+                    
+                    // ✅ VÉRIFICATION CORRECTE DU STATUT
+                    if (result.status === 'completed') {
+                        clearInterval(statusCheckInterval);
+                        updateProgress(100, 'Compression terminée !');
+                        setTimeout(() => showSuccess(result), 500);
+                    } else if (result.status === 'failed') {
+                        clearInterval(statusCheckInterval);
+                        showError(result.error_message || 'Erreur d\'optimisation');
+                    } else if (result.status === 'processing') {
+                        updateProgress(50, 'Optimisation en cours...');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Erreur vérification statut:', error);
+                });
+            }, 2000);
+        }
+        
+        function updateProgress(percentage, text) {
+            if (elements.progressFill) elements.progressFill.style.width = percentage + '%';
+            if (elements.progressText) elements.progressText.textContent = text;
+        }
+        
+        function showSuccess(data) {
+            console.log('✅ Affichage succès:', data);
+            showState('success');
+            
+            if (data.original_size && data.optimized_size) {
+                const reduction = data.size_reduction_percentage;
+                const savedBytes = data.original_size - data.optimized_size;
+                
+                const statsElements = {
+                    'original-size': formatFileSize(data.original_size),
+                    'optimized-size': formatFileSize(data.optimized_size),
+                    'processing-time': (data.optimization_time?.toFixed(1) || '0') + 's',
+                    'space-saved': formatFileSize(savedBytes) + ' (-' + (reduction?.toFixed(1) || '0') + '%)'
+                };
+                
+                Object.keys(statsElements).forEach(key => {
+                    const element = document.querySelector('[data-stat="' + key + '"]');
+                    if (element) {
+                        element.textContent = statsElements[key];
+                        console.log(`📊 Stat ${key}:`, statsElements[key]);
+                    }
+                });
+            }
+            
+            if (elements.downloadLink && data.download_token) {
+                if (apiConfig.isWordPress) {
+                    elements.downloadLink.href = apiConfig.ajaxUrl + '?action=humari_download_optimized&token=' + data.download_token;
+                } else {
+                    elements.downloadLink.href = apiConfig.baseUrl + '/download/' + data.download_token + '/';
+                }
+                elements.downloadLink.download = data.optimized_filename || 'fichiers_optimises';
+                console.log('🔗 Lien download configuré:', elements.downloadLink.href);
+            }
+        }
+        
+        function showError(message) {
+            console.log('❌ Affichage erreur:', message);
+            showState('error');
+            if (elements.errorText) elements.errorText.textContent = message;
+            if (elements.optimizeBtn) elements.optimizeBtn.disabled = false;
+            
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+        }
+        
+        function showState(state) {
+            console.log('🔄 Changement état vers:', state);
+            
+            const states = ['form', 'processing', 'success', 'error'];
+            states.forEach(s => {
+                const element = document.getElementById('humari-' + s + '-state');
+                if (element) {
+                    const isVisible = s === state;
+                    element.style.display = isVisible ? 'block' : 'none';
+                    element.style.visibility = isVisible ? 'visible' : 'hidden';
+                    element.style.opacity = isVisible ? '1' : '0';
+                    element.style.position = isVisible ? 'relative' : 'absolute';
+                    element.style.zIndex = isVisible ? '1' : '-1';
+                    
+                    if (isVisible) {
+                        element.classList.remove('hidden');
+                        element.removeAttribute('hidden');
+                        element.setAttribute('aria-hidden', 'false');
+                    } else {
+                        element.setAttribute('aria-hidden', 'true');
+                    }
+                    
+                    console.log(`🎭 État ${s}:`, isVisible ? 'VISIBLE' : 'masqué');
+                }
+            });
+        }
+        
+        function resetForm() {
+            clearFiles();
+            showState('form');
+            optimizationId = null;
+            
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+            
+            if (elements.optimizeBtn) elements.optimizeBtn.disabled = true;
+            if (elements.progressFill) elements.progressFill.style.width = '0%';
+            if (elements.progressText) elements.progressText.textContent = 'Préparation de la compression...';
+            
+            console.log('🔄 Formulaire réinitialisé');
+        }
+        
+        // Initialisation
+        showState('form');
+        console.log('✅ Humari File Optimizer initialisé');
+    }
+    
+    // Démarrer quand le DOM est prêt
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initOptimizer);
+    } else {
+        initOptimizer();
+    }
+    
+})();
+</script>

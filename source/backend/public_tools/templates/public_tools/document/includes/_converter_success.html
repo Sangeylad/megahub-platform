@@ -1,0 +1,347 @@
+<!-- templates/public_tools/document/includes/_converter_success.html -->
+<section class="humari-converter__success-state"
+         id="humari-success-state"
+         style="display: none;"
+         aria-labelledby="success-title">
+    
+    <style>
+    .humari-converter__success-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .humari-converter__success-icon {
+        font-size: 3rem;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+    
+    .humari-converter__success-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .humari-converter__success-subtitle {
+        color: #6b7280;
+        margin: 0;
+        font-size: 1rem;
+    }
+    
+    /* Actions principales en haut */
+    .humari-converter__main-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .humari-converter__download-all-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, #059669, #047857);
+        color: white;
+        padding: 0.875rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-decoration: none;
+        box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+    }
+    
+    .humari-converter__download-all-btn:hover {
+        background: linear-gradient(135deg, #047857, #065f46);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        color: white;
+    }
+    
+    .humari-converter__new-conversion-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #f8fafc;
+        color: #374151;
+        padding: 0.875rem 1.5rem;
+        border-radius: 0.5rem;
+        border: 2px solid #e2e8f0;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+    
+    .humari-converter__new-conversion-btn:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+    }
+    
+    /* Section des fichiers convertis - NOUVEAU DESIGN */
+    .humari-converter__converted-files {
+        margin-bottom: 1.5rem;
+    }
+    
+    .humari-converter__files-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #374151;
+        margin: 0 0 1rem 0;
+        text-align: center;
+    }
+    
+    .humari-converter__files-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    /* Design individuel par fichier - NOUVELLE APPROCHE */
+    .humari-converter__file-card {
+        display: flex;
+        align-items: center;
+        background: #ffffff;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        transition: all 0.25s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .humari-converter__file-card:hover {
+        border-color: #d1d5db;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+    
+    .humari-converter__file-card--success {
+        border-color: #10b981;
+        background: linear-gradient(135deg, #ffffff, #f0fdf4);
+    }
+    
+    .humari-converter__file-card--success:hover {
+        border-color: #059669;
+    }
+    
+    .humari-converter__file-card--error {
+        border-color: #ef4444;
+        background: linear-gradient(135deg, #ffffff, #fef2f2);
+    }
+    
+    .humari-converter__file-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .humari-converter__file-type-icon {
+        font-size: 2rem;
+        flex-shrink: 0;
+        width: 3rem;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .humari-converter__file-details {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .humari-converter__file-name {
+        font-weight: 600;
+        color: #111827;
+        font-size: 0.95rem;
+        line-height: 1.2;
+        margin-bottom: 0.25rem;
+        word-break: break-word;
+    }
+    
+    .humari-converter__file-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+    
+    .humari-converter__file-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    /* Bouton de téléchargement individuel */
+    .humari-converter__download-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.25s ease;
+        flex-shrink: 0;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    }
+    
+    .humari-converter__download-btn:hover {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        color: white;
+    }
+    
+    .humari-converter__download-btn:active {
+        transform: translateY(0);
+    }
+    
+    /* Fichiers en erreur */
+    .humari-converter__error-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .humari-converter__error-message {
+        color: #dc2626;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        font-style: italic;
+    }
+    
+    .humari-converter__retry-single {
+        background: #f59e0b;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        border: none;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .humari-converter__retry-single:hover {
+        background: #d97706;
+    }
+    
+    /* Stats en bas */
+    .humari-converter__stats {
+        text-align: center;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+        margin-top: 1.5rem;
+    }
+    
+    .humari-converter__stats-text {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .humari-converter__stats-numbers {
+        color: #059669;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .humari-converter__main-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .humari-converter__download-all-btn,
+        .humari-converter__new-conversion-btn {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+        
+        .humari-converter__file-card {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+            padding: 1rem;
+        }
+        
+        .humari-converter__file-info {
+            gap: 0.75rem;
+        }
+        
+        .humari-converter__file-type-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .humari-converter__download-btn {
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .humari-converter__file-meta {
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+    }
+    </style>
+         
+    <header class="humari-converter__success-header">
+        <div class="humari-converter__success-icon" aria-hidden="true">🎉</div>
+        <h2 id="success-title" class="humari-converter__success-title">
+            Conversion terminée !
+        </h2>
+        <p class="humari-converter__success-subtitle">
+            Vos fichiers sont prêts à être téléchargés
+        </p>
+    </header>
+
+    <!-- Actions principales -->
+    <div class="humari-converter__main-actions">
+        <button type="button" 
+                class="humari-converter__download-all-btn"
+                id="humari-download-all-btn"
+                style="display: none;">
+            <span>📦</span>
+            <span>Télécharger tout</span>
+        </button>
+        
+        <button type="button" 
+                class="humari-converter__new-conversion-btn"
+                id="humari-new-conversion-btn">
+            <span>🔄</span>
+            <span>Nouvelle conversion</span>
+        </button>
+    </div>
+
+    <!-- Zone des fichiers convertis -->
+    <div class="humari-converter__converted-files" id="humari-converted-files">
+        <!-- Rempli par JavaScript -->
+    </div>
+
+    <!-- Stats -->
+    <div class="humari-converter__stats" id="humari-conversion-stats">
+        <!-- Rempli par JavaScript -->
+    </div>
+</section>

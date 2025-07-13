@@ -1,0 +1,35 @@
+[
+  {
+    "model": "brands_template_storage.templatevariable",
+    "pk": 1,
+    "fields": {
+      "name": "brand_name",
+      "display_name": "Nom de la marque", 
+      "description": "Nom de la marque depuis Brand.name",
+      "variable_type": "brand",
+      "is_required": true
+    }
+  },
+  {
+    "model": "brands_template_storage.templatevariable",
+    "pk": 2,
+    "fields": {
+      "name": "target_keyword",
+      "display_name": "Mot-clé cible",
+      "description": "Mot-clé principal pour le contenu SEO", 
+      "variable_type": "seo",
+      "is_required": false
+    }
+  },
+  {
+    "model": "brands_template_storage.templatevariable",
+    "pk": 3,
+    "fields": {
+      "name": "brand_description", 
+      "display_name": "Description de la marque",
+      "description": "Description depuis Brand.description",
+      "variable_type": "brand",
+      "is_required": false
+    }
+  }
+]

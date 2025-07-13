@@ -1,0 +1,226 @@
+/* styles/globals.css - VERSION NETTOYÉE */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import './design-tokens.css';
+
+@layer base {
+  body {
+    @apply bg-white font-sans text-neutral-900 antialiased;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* ✅ SUPPRIMÉ: Variables CSS redondantes avec Tailwind */
+  /* Tailwind gère déjà tes couleurs via le config */
+}
+
+@layer components {
+  /* ✅ CORRIGÉ: Boutons utilisant les vraies classes Tailwind */
+  .btn-primary {
+    @apply bg-brand-500 text-white px-4 py-2 rounded-lg font-medium;
+    @apply hover:bg-brand-600 focus:ring-2 focus:ring-brand-400 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply transition-all duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-neutral-100 text-neutral-900 px-4 py-2 rounded-lg font-medium;
+    @apply hover:bg-neutral-200 focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply transition-all duration-200;
+  }
+
+  .btn-dark {
+    @apply bg-dark-900 text-white px-4 py-2 rounded-lg font-medium;
+    @apply hover:bg-dark-800 focus:ring-2 focus:ring-dark-600 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply transition-all duration-200;
+  }
+  
+  /* Cartes avec shadows Tailwind standards */
+  .card-base {
+    @apply bg-white rounded-xl shadow-md border border-neutral-100;
+    @apply p-6 transition-shadow hover:shadow-lg;
+  }
+
+  .card-elevated {
+    @apply bg-white rounded-2xl shadow-lg border border-neutral-100;
+    @apply p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+
+  .card-glass {
+    @apply bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20;
+    @apply p-8 transition-all duration-300;
+  }
+  
+  /* Markdown avec plugin typography */
+  .markdown-content {
+    @apply prose prose-neutral max-w-none;
+    @apply prose-headings:font-bold prose-headings:text-neutral-900;
+    @apply prose-a:text-brand-500 prose-a:no-underline hover:prose-a:underline;
+    @apply prose-strong:text-neutral-900 prose-code:text-brand-500;
+    @apply prose-pre:bg-neutral-50 prose-pre:border prose-pre:border-neutral-200;
+    @apply prose-blockquote:border-l-brand-500 prose-blockquote:text-neutral-700;
+    @apply prose-th:text-neutral-900 prose-td:text-neutral-700;
+  }
+  
+  .markdown-content h1 {
+    @apply text-3xl lg:text-4xl;
+  }
+  
+  .markdown-content h2 {
+    @apply text-2xl lg:text-3xl;
+  }
+  
+  .markdown-content h3 {
+    @apply text-xl lg:text-2xl;
+  }
+  
+  .markdown-content table {
+    @apply block overflow-x-auto whitespace-nowrap;
+  }
+  
+  .markdown-content img {
+    @apply rounded-lg shadow-md;
+  }
+
+  /* Containers */
+  .container-section {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .container-narrow {
+    @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .container-wide {
+    @apply max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ✅ NOUVEAU: Navigation dropdown améliorée */
+  .navigation-dropdown {
+    @apply opacity-0 invisible group-hover:opacity-100 group-hover:visible;
+    @apply transition-all duration-200 ease-out;
+    @apply transform translate-y-1 group-hover:translate-y-0;
+  }
+
+  .navigation-dropdown::before {
+    content: '';
+    @apply absolute -top-2 left-0 right-0 h-2 bg-transparent;
+  }
+}
+
+@layer utilities {
+  /* Text utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* ✅ SUPPRIMÉ: Variables CSS custom redondantes */
+  /* Tailwind gère déjà tout via le config */
+  
+  /* Gradients Humari */
+  .gradient-brand {
+    @apply bg-gradient-to-r from-brand-500 to-brand-600;
+  }
+  
+  .gradient-brand-dark {
+    @apply bg-gradient-to-r from-brand-500 to-dark-900;
+  }
+  
+  .gradient-dark {
+    @apply bg-gradient-to-r from-dark-900 to-dark-800;
+  }
+
+  /* Shadows custom */
+  .shadow-brand {
+    @apply shadow-[0_10px_15px_-3px_rgba(254,0,73,0.1),0_4px_6px_-2px_rgba(254,0,73,0.05)];
+  }
+
+  .shadow-glow {
+    @apply shadow-[0_0_20px_rgba(254,0,73,0.3)];
+  }
+
+  .shadow-dark {
+    @apply shadow-[0_10px_15px_-3px_rgba(20,27,42,0.1),0_4px_6px_-2px_rgba(20,27,42,0.05)];
+  }
+  
+  /* Animations */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-pulse-brand {
+    animation: pulse-brand 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.6s ease-out forwards;
+    opacity: 0;
+  }
+
+  /* Responsive utilities */
+  .min-h-screen-mobile {
+    min-height: calc(100vh - 4rem);
+  }
+
+  @screen lg {
+    .min-h-screen-mobile {
+      min-height: 100vh;
+    }
+  }
+}
+
+/* Animations keyframes */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse-brand {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Focus et accessibilité */
+@layer base {
+  *:focus {
+    @apply outline-none;
+  }
+  
+  *:focus-visible {
+    @apply outline-2 outline-brand-500 outline-offset-2;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

@@ -1,0 +1,100 @@
+version: '3.8'
+
+# ==========================================
+# MEGAHUB - DOCKER COMPOSE STAGING
+# Environnement de test pour associé
+# ==========================================
+
+services:
+  backend:
+    container_name: megahub-backend-staging
+    build: ./source/backend  # ← Nouveau chemin
+    networks:
+      - megahub_network
+      - nginx-proxy
+    command: sh -c "python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./source/backend:/app  # ← Nouveau chemin
+      - ./mcp_server:/mcp_server
+    environment:
+      - PYTHONPATH=/app:/mcp_server
+      - DJANGO_SETTINGS_MODULE=django_app.settings.staging  # ← Settings staging
+      - VIRTUAL_HOST=staging-api.megahub.humari.fr,backoffice.humari.fr
+      - VIRTUAL_PORT=8000
+      - LETSENCRYPT_HOST=staging-api.megahub.humari.fr,backoffice.humari.fr
+      - LETSENCRYPT_EMAIL=martin@frenchease.fr
+      - POSTGRES_DB=mhdb24_staging  # ← DB staging
+      - POSTGRES_USER=SuperAdminduTurfu
+      - POSTGRES_PASSWORD=MHub2401!
+      - REDIS_URL=redis://redis:6379/0
+      - SHORTENER_DB_HOST=postgres-shortener
+      - SHORTENER_DB_NAME=shortener_staging  # ← DB shortener staging
+      - SHORTENER_DB_USER=shortener_user
+      - SHORTENER_DB_PASSWORD=ShortUrl2025!
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    container_name: megahub-frontend-staging
+    build: 
+      context: ./source/frontend  # ← Nouveau chemin
+      dockerfile: Dockerfile
+      target: runner
+    networks:
+      - megahub_network
+      - nginx-proxy
+    environment:
+      - VIRTUAL_HOST=staging.megahub.humari.fr
+      - VIRTUAL_PORT=80
+      - LETSENCRYPT_HOST=staging.megahub.humari.fr
+      - LETSENCRYPT_EMAIL=martin@frenchease.fr
+      - VITE_API_BASE_URL=https://staging-api.megahub.humari.fr  # ← API staging
+      - VITE_APP_NAME=MegaHub Staging
+      - VITE_APP_VERSION=3.0.0-staging
+      - VITE_NODE_ENV=staging
+      - VITE_ENABLE_REACT_COMPILER=true
+      - VITE_ENABLE_LIGHTNING_CSS=true
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  postgres:
+    image: postgres:15
+    container_name: megahub-postgres-staging
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data  # ← Volume staging
+    networks:
+      - megahub_network
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=MHub2401!
+      - POSTGRES_USER=SuperAdminduTurfu
+      - POSTGRES_DB=mhdb24_staging  # ← DB staging
+
+  redis:
+    image: redis:7-alpine
+    container_name: megahub-redis-staging
+    networks:
+      - megahub_network
+    volumes:
+      - redis_staging_data:/data  # ← Volume staging
+    restart: always
+    command: redis-server --appendonly yes
+
+volumes:
+  postgres_staging_data:
+    driver: local
+  redis_staging_data:
+    driver: local
+
+networks:
+  megahub_network:
+    driver: bridge
+  nginx-proxy:
+    external: true

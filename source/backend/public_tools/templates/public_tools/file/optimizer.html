@@ -1,0 +1,114 @@
+<!-- templates/public_tools/file/optimizer.html -->
+{% extends "public_tools/base/tool_base.html" %}
+
+{% block content %}
+<main class="humari-file-optimizer" id="humari-file-optimizer-root" role="main">
+    <header class="humari-file-optimizer__header">
+        <h1 class="humari-file-optimizer__title">🗜️ Compresseur de fichiers</h1>
+        <p class="humari-file-optimizer__description">
+            Réduisez instantanément la taille de vos PDF et images. Gratuit et sécurisé.
+        </p>
+    </header>
+
+    <!-- États de l'optimiseur -->
+    <div class="humari-file-optimizer__states">
+        {% include "public_tools/file/includes/_optimizer_form.html" %}
+        {% include "public_tools/file/includes/_optimizer_processing.html" %}
+        {% include "public_tools/file/includes/_optimizer_success.html" %}
+        {% include "public_tools/file/includes/_optimizer_error.html" %}
+    </div>
+
+    <!-- Info sécurité -->
+    <footer class="humari-file-optimizer__footer">
+        <!-- Schema.org pour SEO -->
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Compresseur de fichiers gratuit",
+            "applicationCategory": "MultimediaApplication",
+            "operatingSystem": "Web",
+            "description": "Réduisez instantanément la taille de vos PDF et images. Gratuit, rapide et sécurisé.",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "EUR"
+            }
+        }
+        </script>
+    </footer>
+</main>
+
+<!-- Container pour résultats WordPress (caché par défaut) -->
+<div class="result-container" style="display: none;" aria-hidden="true"></div>
+
+<!-- Chargement des assets intégrés -->
+{% include "public_tools/file/includes/_optimizer_scripts.html" %}
+
+<style>
+.humari-file-optimizer {
+    max-width: 600px;
+    margin: 0 auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+    position: relative;
+    line-height: 1.5;
+}
+
+.humari-file-optimizer * {
+    box-sizing: border-box;
+}
+
+.humari-file-optimizer__header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    margin: 0;
+}
+
+.humari-file-optimizer__title {
+    margin: 0 0 6px 0;
+    font-size: 22px;
+    font-weight: 600;
+    font-family: inherit;
+    color: white;
+}
+
+.humari-file-optimizer__description {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 14px;
+    font-family: inherit;
+    color: white;
+}
+
+.humari-file-optimizer__states {
+    position: relative;
+    min-height: 200px;
+}
+
+@media (max-width: 768px) {
+    .humari-file-optimizer {
+        margin: 0 10px;
+        max-width: none;
+        border-radius: 6px;
+    }
+    
+    .humari-file-optimizer__header {
+        padding: 16px;
+    }
+    
+    .humari-file-optimizer__title {
+        font-size: 20px;
+    }
+    
+    .humari-file-optimizer__description {
+        font-size: 13px;
+    }
+}
+</style>
+{% endblock %}

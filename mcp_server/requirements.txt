@@ -1,0 +1,25 @@
+# mcp_server/requirements.txt
+
+# MCP core (priorité)
+mcp>=1.0.0
+
+# FastAPI stack (versions compatibles)
+fastapi>=0.100.0,<0.110.0
+uvicorn[standard]>=0.20.0,<0.30.0
+pydantic>=2.0.0,<3.0.0
+
+# Django minimal (pour accès models)
+Django>=4.1.0,<5.0.0
+asgiref>=3.6.0
+psycopg2-binary>=2.9.0
+
+# DRF minimal (si besoin)
+djangorestframework>=3.14.0
+
+# Utilitaires
+requests>=2.28.0
+python-dotenv>=1.0.0
+pytz>=2023.3
+
+# Logging amélioré
+structlog>=23.0.0

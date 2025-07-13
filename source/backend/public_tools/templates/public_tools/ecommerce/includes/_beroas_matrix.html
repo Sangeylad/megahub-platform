@@ -1,0 +1,1844 @@
+<div class="matrix-simulator">
+    <div class="matrix-intro">
+        <h2>🎯 Matrice BEROAS Interactive</h2>
+        <p>Visualisez en temps réel quelles combinaisons prix/coûts sont rentables pour votre business. 
+           <strong>Vert = Rentable</strong>, <strong>Rouge = À éviter</strong>.</p>
+    </div>
+
+    <!-- Configuration optimisée -->
+    <div class="matrix-config">
+        <div class="config-section">
+            <h3>⚙️ Paramètres de Rentabilité</h3>
+            <div class="config-grid">
+                <div class="config-group">
+                    <label for="matrix-target-beroas">🎯 BEROAS Objectif</label>
+                    <div class="config-input">
+                        <input type="range" id="matrix-target-beroas" min="1.5" max="6" step="0.1" value="3.0">
+                        <span class="config-value" id="target-beroas-display">3.0</span>
+                    </div>
+                    <small class="config-help">Votre seuil de rentabilité souhaité (plus bas = plus exigeant)</small>
+                </div>
+                
+                <div class="config-group">
+                    <label for="matrix-payment-fees">💳 Frais bancaires (%)</label>
+                    <div class="config-input">
+                        <input type="range" id="matrix-payment-fees" min="0" max="5" step="0.1" value="2.9">
+                        <span class="config-value" id="payment-fees-display">2.9%</span>
+                    </div>
+                    <small class="config-help">Commission processeur de paiement (Stripe ~2.9%, PayPal ~3.4%)</small>
+                </div>
+                
+                <div class="config-group">
+                    <label for="matrix-other-costs">📋 Autres coûts (€)</label>
+                    <div class="config-input">
+                        <input type="range" id="matrix-other-costs" min="0" max="10" step="0.25" value="2.0">
+                        <span class="config-value" id="other-costs-display">2.0€</span>
+                    </div>
+                    <small class="config-help">Livraison, SAV, frais généraux par commande</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Plages d'analyse -->
+        <div class="range-section">
+            <h3>📊 Plages d'Analyse</h3>
+            <div class="range-grid">
+                <div class="range-group">
+                    <label>🏷️ Prix de vente (€)</label>
+                    <div class="range-inputs">
+                        <input type="number" id="price-min" value="15" min="5" max="200" placeholder="Min" step="0.5">
+                        <span class="range-separator">à</span>
+                        <input type="number" id="price-max" value="45" min="5" max="200" placeholder="Max" step="0.5">
+                    </div>
+                </div>
+                
+                <div class="range-group">
+                    <label>📦 Coûts produit (€)</label>
+                    <div class="range-inputs">
+                        <input type="number" id="cost-min" value="8" min="1" max="100" placeholder="Min" step="0.25">
+                        <span class="range-separator">à</span>
+                        <input type="number" id="cost-max" value="20" min="1" max="100" placeholder="Max" step="0.25">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="matrix-main">
+        <!-- Matrice avec status -->
+        <div class="matrix-display">
+            <div class="matrix-header">
+                <h3>🔍 Analyse de Rentabilité</h3>
+                <div class="matrix-status">
+                    <span class="status-indicator" id="status-indicator">🔄</span>
+                    <span class="matrix-stats" id="matrix-stats">Initialisation...</span>
+                </div>
+            </div>
+
+            <div class="matrix-container">
+                <div class="matrix-wrapper" id="matrix-wrapper">
+                    <div class="matrix-placeholder">
+                        <div class="placeholder-icon">🎯</div>
+                        <h4>Matrice en Préparation</h4>
+                        <p>La matrice se génère automatiquement selon vos paramètres ci-dessus.</p>
+                        <div class="loading-animation">
+                            <div class="loading-spinner"></div>
+                            <span>Calcul en cours...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résultats responsive et détaillés -->
+        <div class="matrix-results">
+            <div class="results-overview">
+                <h3>📊 Vue d'Ensemble</h3>
+                <div class="overview-cards">
+                    <div class="overview-card">
+                        <div class="card-icon">🧮</div>
+                        <div class="card-content">
+                            <div class="card-number" id="total-tested">0</div>
+                            <div class="card-label">combinaisons</div>
+                        </div>
+                    </div>
+                    <div class="overview-card success">
+                        <div class="card-icon">✅</div>
+                        <div class="card-content">
+                            <div class="card-number" id="profitable-count">0</div>
+                            <div class="card-label">rentables</div>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="card-icon">🎯</div>
+                        <div class="card-content">
+                            <div class="card-number" id="success-rate">0%</div>
+                            <div class="card-label">taux réussite</div>
+                        </div>
+                    </div>
+                    <div class="overview-card best">
+                        <div class="card-icon">🏆</div>
+                        <div class="card-content">
+                            <div class="card-number" id="best-beroas">-</div>
+                            <div class="card-label">meilleur BEROAS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="top-combinations-section">
+                <h3>🏆 Top 3 des Combinaisons</h3>
+                <div class="combinations-list" id="top-combinations">
+                    <div class="combinations-placeholder">
+                        <div class="placeholder-icon">⏳</div>
+                        <p>Les meilleures combinaisons apparaîtront après l'analyse</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insights-section">
+                <h3>💡 Insights & Recommandations</h3>
+                <div class="insights-grid" id="matrix-insights">
+                    <div class="insight-placeholder">
+                        <div class="placeholder-icon">🎯</div>
+                        <p>Des insights personnalisés selon vos résultats</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export section -->
+    <div class="matrix-export">
+        <div class="export-actions">
+            <button class="export-btn" onclick="exportMatrixReport()">
+                📊 Exporter le Rapport Complet
+            </button>
+            <button class="export-btn secondary" onclick="exportMatrixData()">
+                📋 Exporter les Données CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Légende améliorée -->
+    <div class="matrix-legend">
+        <h4>🎨 Guide de Lecture</h4>
+        <div class="legend-grid">
+            <div class="legend-group">
+                <h5>Couleurs de Rentabilité</h5>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color excellent"></div>
+                        <span>🚀 Excellent (BEROAS ≤ 2.0)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color very-good"></div>
+                        <span>✅ Très bon (BEROAS ≤ 2.5)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color good"></div>
+                        <span>👍 Bon (BEROAS ≤ 3.5)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color warning"></div>
+                        <span>⚠️ Limite (BEROAS ≤ 5.0)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color bad"></div>
+                        <span>❌ Difficile (BEROAS > 5.0)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color impossible"></div>
+                        <span>🚫 Impossible (coût ≥ prix)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="legend-group">
+                <h5>Utilisation</h5>
+                <ul class="usage-tips">
+                    <li>📱 <strong>Cliquez</strong> sur une cellule pour voir le détail</li>
+                    <li>🔄 <strong>Modifiez</strong> les paramètres pour actualiser</li>
+                    <li>📊 <strong>Cherchez</strong> le maximum de cellules vertes</li>
+                    <li>🎯 <strong>Optimisez</strong> pour un BEROAS le plus bas possible</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de détail améliorée -->
+<div class="selection-detail" id="selection-detail">
+    <div class="detail-header">
+        <h4>🔍 Analyse Détaillée</h4>
+        <button type="button" class="close-detail" onclick="closeSelectionDetail()">×</button>
+    </div>
+    <div class="detail-content">
+        <div class="detail-scenario">
+            <div class="scenario-param">
+                <span class="param-label">Prix de vente :</span>
+                <span class="param-value" id="selected-price">0€</span>
+            </div>
+            <div class="scenario-param">
+                <span class="param-label">Coût produit :</span>
+                <span class="param-value" id="selected-cost">0€</span>
+            </div>
+            <div class="scenario-param highlight">
+                <span class="param-label">BEROAS calculé :</span>
+                <span class="param-value" id="selected-beroas">0</span>
+            </div>
+            <div class="scenario-param">
+                <span class="param-label">Marge unitaire :</span>
+                <span class="param-value" id="selected-margin">0€</span>
+            </div>
+        </div>
+        
+        <div class="detail-analysis">
+            <h5>💰 Analyse de Rentabilité :</h5>
+            <div class="analysis-content" id="detail-explanation">
+                <!-- Analyse dynamique -->
+            </div>
+        </div>
+        
+        <div class="detail-actions">
+            <button type="button" class="apply-values-btn" onclick="applySelectedValues()">
+                ✅ Utiliser ces Valeurs
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay"></div>
+
+<style>
+.matrix-simulator {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.matrix-intro {
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    padding: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.matrix-intro h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
+}
+
+.matrix-intro p {
+    color: #718096;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.matrix-config {
+    background: #f8fafc;
+    padding: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.config-section,
+.range-section {
+    margin-bottom: 2rem;
+}
+
+.config-section:last-child,
+.range-section:last-child {
+    margin-bottom: 0;
+}
+
+.config-section h3,
+.range-section h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 1rem 0;
+}
+
+.config-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.config-group {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.config-group:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.config-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.config-input {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.config-input input[type="range"] {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: #e2e8f0;
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+.config-input input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    transition: all 0.2s ease;
+}
+
+.config-input input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.config-value {
+    font-weight: 700;
+    color: #2d3748;
+    min-width: 60px;
+    text-align: right;
+    font-size: 1rem;
+    background: #f8fafc;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid #e2e8f0;
+}
+
+.config-help {
+    color: #a0aec0;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    text-align: left;
+}
+
+.range-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.range-group {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+}
+
+.range-group label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.range-inputs input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.5rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.range-inputs input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.range-separator {
+    color: #718096;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.matrix-main {
+    padding: 2rem;
+}
+
+.matrix-display {
+    margin-bottom: 2rem;
+}
+
+.matrix-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.matrix-header h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+}
+
+.matrix-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f8fafc;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.status-indicator {
+    font-size: 1rem;
+}
+
+.matrix-stats {
+    font-size: 0.9rem;
+    color: #718096;
+    font-weight: 600;
+}
+
+.matrix-container {
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    overflow: auto;
+    max-height: 600px;
+    position: relative;
+}
+
+.matrix-wrapper {
+    min-height: 400px;
+}
+
+.matrix-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    text-align: center;
+    padding: 2rem;
+}
+
+.placeholder-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+.matrix-placeholder h4 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 0.5rem 0;
+}
+
+.matrix-placeholder p {
+    color: #718096;
+    margin: 0 0 1.5rem 0;
+    max-width: 400px;
+    line-height: 1.5;
+}
+
+.loading-animation {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #e2e8f0;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.beroas-matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    background: white;
+}
+
+.beroas-matrix th {
+    background: #4a5568;
+    color: white;
+    padding: 1rem 0.75rem;
+    text-align: center;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-size: 0.8rem;
+    border: 1px solid #2d3748;
+}
+
+.beroas-matrix td {
+    padding: 0.875rem 0.75rem;
+    text-align: center;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    min-width: 60px;
+}
+
+.beroas-matrix td:hover {
+    transform: scale(1.1);
+    z-index: 5;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border-color: #667eea;
+    border-width: 2px;
+}
+
+.beroas-matrix .row-header {
+    background: #f7fafc;
+    font-weight: 700;
+    color: #2d3748;
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    cursor: default;
+    border-right: 2px solid #e2e8f0;
+}
+
+.beroas-matrix .row-header:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: #e2e8f0;
+    border-width: 1px;
+    border-right-width: 2px;
+}
+
+.beroas-cell.excellent { 
+    background: #9ae6b4; 
+    color: #1a202c; 
+}
+
+.beroas-cell.very-good { 
+    background: #c6f6d5; 
+    color: #22543d; 
+}
+
+.beroas-cell.good { 
+    background: #bee3f8; 
+    color: #2a4365; 
+}
+
+.beroas-cell.warning { 
+    background: #faf089; 
+    color: #744210; 
+}
+
+.beroas-cell.bad { 
+    background: #fed7d7; 
+    color: #742a2a; 
+}
+
+.beroas-cell.impossible { 
+    background: #f1f5f9; 
+    color: #a0aec0;
+    cursor: not-allowed;
+}
+
+.beroas-cell.selected {
+    box-shadow: 0 0 0 3px #667eea !important;
+    z-index: 6 !important;
+    border-color: #667eea !important;
+}
+
+.matrix-results {
+    display: grid;
+    gap: 2rem;
+}
+
+.results-overview {
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.results-overview h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 1rem 0;
+}
+
+.overview-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.overview-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.overview-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.overview-card.success {
+    border-color: #48bb78;
+    background: linear-gradient(135deg, #48bb7810, #38a16920);
+}
+
+.overview-card.best {
+    border-color: #ed8936;
+    background: linear-gradient(135deg, #ed893610, #f6ad5520);
+}
+
+.card-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.card-content {
+    flex: 1;
+}
+
+.card-number {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.card-label {
+    font-size: 0.8rem;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.top-combinations-section,
+.insights-section {
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.top-combinations-section h3,
+.insights-section h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 1rem 0;
+}
+
+.combinations-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.combination-item {
+    background: white;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.combination-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.combination-rank {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.rank-medal {
+    font-size: 1.5rem;
+}
+
+.combination-details {
+    flex: 1;
+    margin-left: 1rem;
+}
+
+.combination-info {
+    font-size: 0.95rem;
+    color: #4a5568;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.combination-margin {
+    font-size: 0.8rem;
+    color: #718096;
+}
+
+.combination-beroas {
+    font-weight: 700;
+    color: #48bb78;
+    font-size: 1.1rem;
+    text-align: right;
+}
+
+.insights-grid {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.insight-item {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid #48bb78;
+    background: white;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #4a5568;
+}
+
+.insight-item.warning {
+    border-left-color: #ed8936;
+}
+
+.insight-item.error {
+    border-left-color: #f56565;
+}
+
+.insight-item.info {
+    border-left-color: #4299e1;
+}
+
+.combinations-placeholder,
+.insight-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    color: #a0aec0;
+}
+
+.combinations-placeholder .placeholder-icon,
+.insight-placeholder .placeholder-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.7;
+}
+
+.matrix-export {
+    background: #f8fafc;
+    padding: 2rem;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.export-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.export-btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.export-btn:not(.secondary) {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.export-btn:not(.secondary):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.export-btn.secondary {
+    background: white;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+}
+
+.export-btn.secondary:hover {
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.matrix-legend {
+    background: #f8fafc;
+    padding: 2rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.matrix-legend h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+}
+
+.legend-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.legend-group h5 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 1rem 0;
+}
+
+.legend-items {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: #4a5568;
+    background: white;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 0.25rem;
+    flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.legend-color.excellent { background: #9ae6b4; }
+.legend-color.very-good { background: #c6f6d5; }
+.legend-color.good { background: #bee3f8; }
+.legend-color.warning { background: #faf089; }
+.legend-color.bad { background: #fed7d7; }
+.legend-color.impossible { background: #f1f5f9; }
+
+.usage-tips {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.usage-tips li {
+    background: white;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    font-size: 0.85rem;
+    color: #4a5568;
+    line-height: 1.4;
+}
+
+/* Modal amélioré */
+.selection-detail {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    border: 1px solid #e2e8f0;
+    z-index: 1000;
+    min-width: 450px;
+    max-width: 550px;
+    display: none;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.detail-header h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+}
+
+.close-detail {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #a0aec0;
+    cursor: pointer;
+    padding: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.close-detail:hover {
+    color: #718096;
+    background: #f7fafc;
+}
+
+.detail-content {
+    padding: 1.5rem;
+}
+
+.detail-scenario {
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.scenario-param {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.scenario-param:last-child {
+    border-bottom: none;
+}
+
+.scenario-param.highlight {
+    background: rgba(102, 126, 234, 0.1);
+    margin: 0.5rem -1rem;
+    padding: 1rem 1.5rem 0.75rem;
+    border-radius: 0.5rem;
+    border-bottom: none;
+}
+
+.param-label {
+    font-size: 0.9rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.param-value {
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.detail-analysis {
+    margin-bottom: 1.5rem;
+}
+
+.detail-analysis h5 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #4a5568;
+    margin: 0 0 0.75rem 0;
+}
+
+.analysis-content {
+    background: white;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #4a5568;
+}
+
+.detail-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.apply-values-btn {
+    flex: 1;
+    padding: 1rem;
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.apply-values-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 999;
+    display: none;
+    backdrop-filter: blur(2px);
+}
+
+.modal-overlay.active {
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .config-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .range-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .legend-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .matrix-main {
+        padding: 1.5rem;
+    }
+    
+    .matrix-config {
+        padding: 1.5rem;
+    }
+    
+    .selection-detail {
+        min-width: calc(100vw - 2rem);
+        max-width: calc(100vw - 2rem);
+        max-height: calc(100vh - 4rem);
+        overflow-y: auto;
+    }
+    
+    .beroas-matrix {
+        font-size: 0.75rem;
+    }
+    
+    .beroas-matrix th,
+    .beroas-matrix td {
+        padding: 0.5rem 0.4rem;
+    }
+    
+    .overview-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .config-grid {
+        gap: 1rem;
+    }
+    
+    .range-inputs {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .range-inputs input {
+        min-width: 100px;
+    }
+    
+    .export-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .export-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const matrixState = {
+        targetBeroas: 3.0,
+        paymentFees: 2.9,
+        otherCosts: 2.0,
+        priceMin: 15,
+        priceMax: 45,
+        costMin: 8,
+        costMax: 20,
+        matrixData: [],
+        selectedCell: null,
+        isGenerating: false,
+        generationTimeout: null
+    };
+    
+    // Initialize controls
+    initializeMatrixControls();
+    
+    // Auto-generate matrix on load
+    setTimeout(() => {
+        scheduleMatrixGeneration();
+    }, 1000);
+    
+    function initializeMatrixControls() {
+        // Range controls with immediate visual feedback
+        const rangeControls = [
+            { id: 'matrix-target-beroas', display: 'target-beroas-display', key: 'targetBeroas', suffix: '' },
+            { id: 'matrix-payment-fees', display: 'payment-fees-display', key: 'paymentFees', suffix: '%' },
+            { id: 'matrix-other-costs', display: 'other-costs-display', key: 'otherCosts', suffix: '€' }
+        ];
+        
+        rangeControls.forEach(control => {
+            const slider = document.getElementById(control.id);
+            const display = document.getElementById(control.display);
+            
+            if (slider && display) {
+                // Update display immediately
+                slider.addEventListener('input', function() {
+                    const value = parseFloat(this.value);
+                    matrixState[control.key] = value;
+                    display.textContent = value.toFixed(1) + control.suffix;
+                    
+                    // Schedule generation with debounce
+                    scheduleMatrixGeneration();
+                });
+                
+                // Initialize display
+                display.textContent = matrixState[control.key].toFixed(1) + control.suffix;
+            }
+        });
+        
+        // Range inputs
+        const rangeInputs = [
+            { id: 'price-min', key: 'priceMin' },
+            { id: 'price-max', key: 'priceMax' },
+            { id: 'cost-min', key: 'costMin' },
+            { id: 'cost-max', key: 'costMax' }
+        ];
+        
+        rangeInputs.forEach(({ id, key }) => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.addEventListener('input', function() {
+                    matrixState[key] = parseFloat(this.value) || 0;
+                    scheduleMatrixGeneration();
+                });
+            }
+        });
+    }
+    
+    function scheduleMatrixGeneration() {
+        // Clear existing timeout
+        if (matrixState.generationTimeout) {
+            clearTimeout(matrixState.generationTimeout);
+        }
+        
+        // Update status
+        updateStatus('🔄', 'Mise à jour programmée...');
+        
+        // Schedule generation with 600ms debounce
+        matrixState.generationTimeout = setTimeout(() => {
+            generateMatrix();
+        }, 600);
+    }
+    
+    function generateMatrix() {
+        if (matrixState.isGenerating) return;
+        
+        matrixState.isGenerating = true;
+        updateStatus('⚡', 'Génération en cours...');
+        
+        // Validate ranges
+        if (matrixState.priceMin >= matrixState.priceMax) {
+            updateStatus('❌', 'Erreur: Prix min ≥ Prix max');
+            matrixState.isGenerating = false;
+            return;
+        }
+        
+        if (matrixState.costMin >= matrixState.costMax) {
+            updateStatus('❌', 'Erreur: Coût min ≥ Coût max');
+            matrixState.isGenerating = false;
+            return;
+        }
+        
+        // Generate ranges - 12 prix × 10 coûts = 120 combinaisons
+        const prices = generateRange(matrixState.priceMin, matrixState.priceMax, 12);
+        const costs = generateRange(matrixState.costMin, matrixState.costMax, 10);
+        
+        matrixState.matrixData = [];
+        
+        // Create table HTML
+        let tableHTML = '<table class="beroas-matrix"><thead><tr><th>Prix \\ Coût</th>';
+        
+        // Column headers (costs)
+        costs.forEach(cost => {
+            tableHTML += `<th>${cost.toFixed(1)}€</th>`;
+        });
+        tableHTML += '</tr></thead><tbody>';
+        
+        // Data rows
+        prices.forEach(price => {
+            tableHTML += `<tr><td class="row-header">${price.toFixed(1)}€</td>`;
+            
+            costs.forEach(cost => {
+                const calculation = calculateBeroasForCell(price, cost);
+                const cellClass = getBeroasCellClass(calculation);
+                const cellValue = calculation.isValid ? calculation.beroas.toFixed(1) : '--';
+                
+                tableHTML += `<td class="beroas-cell ${cellClass}" 
+                                 data-price="${price.toFixed(2)}" 
+                                 data-cost="${cost.toFixed(2)}" 
+                                 data-beroas="${calculation.beroas.toFixed(2)}"
+                                 data-margin="${calculation.margin.toFixed(2)}"
+                                 onclick="selectMatrixCell(this)">
+                                 ${cellValue}
+                              </td>`;
+                
+                matrixState.matrixData.push({
+                    price,
+                    cost,
+                    beroas: calculation.beroas,
+                    margin: calculation.margin,
+                    isRentable: calculation.isValid && calculation.beroas <= matrixState.targetBeroas
+                });
+            });
+            
+            tableHTML += '</tr>';
+        });
+        
+        tableHTML += '</tbody></table>';
+        
+        // Update display
+        document.getElementById('matrix-wrapper').innerHTML = tableHTML;
+        
+        // Update statistics
+        updateMatrixStatistics();
+        
+        // Update results
+        generateMatrixResults();
+        
+        updateStatus('✅', `${matrixState.matrixData.filter(d => d.isRentable).length} combinaisons rentables sur ${matrixState.matrixData.length}`);
+        
+        matrixState.isGenerating = false;
+    }
+    
+    function calculateBeroasForCell(price, cost) {
+        // Calcul correct du BEROAS
+        const paymentFeesAmount = (price * matrixState.paymentFees) / 100;
+        const totalCosts = cost + paymentFeesAmount + matrixState.otherCosts;
+        const margin = price - totalCosts;
+        
+        // BEROAS = Prix de vente ÷ Marge unitaire
+        const beroas = margin > 0 ? price / margin : 0;
+        
+        return {
+            beroas: beroas,
+            margin: margin,
+            isValid: margin > 0 && cost < price,
+            totalCosts: totalCosts
+        };
+    }
+    
+    function getBeroasCellClass(calculation) {
+        if (!calculation.isValid) return 'impossible';
+        
+        const beroas = calculation.beroas;
+        
+        if (beroas <= 2.0) return 'excellent';
+        if (beroas <= 2.5) return 'very-good';
+        if (beroas <= 3.5) return 'good';
+        if (beroas <= 5.0) return 'warning';
+        return 'bad';
+    }
+    
+    function updateStatus(icon, message) {
+        const statusEl = document.getElementById('status-indicator');
+        const statsEl = document.getElementById('matrix-stats');
+        if (statusEl) statusEl.textContent = icon;
+        if (statsEl) statsEl.textContent = message;
+    }
+    
+    function updateMatrixStatistics() {
+        const total = matrixState.matrixData.length;
+        const profitable = matrixState.matrixData.filter(d => d.isRentable).length;
+        const rate = total > 0 ? Math.round((profitable / total) * 100) : 0;
+        const bestBeroas = matrixState.matrixData
+            .filter(d => d.isRentable && d.beroas > 0)
+            .sort((a, b) => a.beroas - b.beroas)[0];
+        
+        // Update display elements
+        updateElement('total-tested', total);
+        updateElement('profitable-count', profitable);
+        updateElement('success-rate', rate + '%');
+        updateElement('best-beroas', bestBeroas ? bestBeroas.beroas.toFixed(1) : '-');
+    }
+    
+    function generateMatrixResults() {
+        // Top combinations
+        const topCombinations = matrixState.matrixData
+            .filter(d => d.isRentable)
+            .sort((a, b) => a.beroas - b.beroas)
+            .slice(0, 3);
+        
+        const combinationsContainer = document.getElementById('top-combinations');
+        if (topCombinations.length === 0) {
+            combinationsContainer.innerHTML = `
+                <div class="combinations-placeholder">
+                    <div class="placeholder-icon">😔</div>
+                    <p><strong>Aucune combinaison rentable</strong><br>
+                    Ajustez votre objectif BEROAS ou vos plages de prix/coûts</p>
+                </div>`;
+        } else {
+            const html = topCombinations.map((combo, index) => {
+                const medals = ['🥇', '🥈', '🥉'];
+                const ranks = ['1er', '2ème', '3ème'];
+                return `<div class="combination-item">
+                    <div class="combination-rank">
+                        <span class="rank-medal">${medals[index]}</span>
+                    </div>
+                    <div class="combination-details">
+                        <div class="combination-info">
+                            ${ranks[index]} : Prix ${combo.price.toFixed(1)}€ • Coût ${combo.cost.toFixed(1)}€
+                        </div>
+                        <div class="combination-margin">
+                            Marge ${combo.margin.toFixed(2)}€ (${(combo.margin/combo.price*100).toFixed(1)}%)
+                        </div>
+                    </div>
+                    <div class="combination-beroas">BEROAS<br>${combo.beroas.toFixed(1)}</div>
+                </div>`;
+            }).join('');
+            combinationsContainer.innerHTML = html;
+        }
+        
+        // Generate insights
+        generateInsights();
+    }
+    
+    function generateInsights() {
+        const insights = [];
+        const profitableRate = matrixState.matrixData.filter(d => d.isRentable).length / matrixState.matrixData.length * 100;
+        
+        // Profitability insights
+        if (profitableRate === 0) {
+            insights.push({
+                type: 'error',
+                text: `🎯 Objectif BEROAS trop strict (${matrixState.targetBeroas}) : aucune combinaison n'est rentable. Augmentez votre objectif ou réduisez vos coûts.`
+            });
+        } else if (profitableRate < 20) {
+            insights.push({
+                type: 'warning',
+                text: `⚠️ Flexibilité limitée : seulement ${Math.round(profitableRate)}% des combinaisons sont rentables. Votre modèle nécessite une gestion très précise.`
+            });
+        } else if (profitableRate > 70) {
+            insights.push({
+                type: 'success',
+                text: `🚀 Excellente flexibilité ! ${Math.round(profitableRate)}% des combinaisons sont rentables. Vous avez beaucoup de marge de manœuvre.`
+            });
+        } else {
+            insights.push({
+                type: 'info',
+                text: `👍 Bonne flexibilité : ${Math.round(profitableRate)}% des combinaisons sont rentables. Un équilibre correct entre rentabilité et contraintes.`
+            });
+        }
+        
+        // Specific optimization advice
+        const topCombos = matrixState.matrixData
+            .filter(d => d.isRentable)
+            .sort((a, b) => a.beroas - b.beroas)
+            .slice(0, 3);
+        
+        if (topCombos.length > 0) {
+            const avgPrice = topCombos.reduce((sum, c) => sum + c.price, 0) / topCombos.length;
+            const avgCost = topCombos.reduce((sum, c) => sum + c.cost, 0) / topCombos.length;
+            const bestBeroas = topCombos[0].beroas;
+            
+            if (bestBeroas <= 2.0) {
+                insights.push({
+                    type: 'success',
+                    text: `💎 Configuration optimale identifiée : prix ~${Math.round(avgPrice)}€, coûts ~${Math.round(avgCost)}€ pour un BEROAS exceptionnel de ${bestBeroas.toFixed(1)}.`
+                });
+            } else {
+                insights.push({
+                    type: 'info',
+                    text: `🎯 Zone de performance : visez un prix autour de ${Math.round(avgPrice)}€ avec des coûts maximums de ${Math.round(avgCost)}€.`
+                });
+            }
+        }
+        
+        // Cost optimization advice
+        if (matrixState.paymentFees > 3.5) {
+            insights.push({
+                type: 'warning',
+                text: `💳 Frais bancaires élevés (${matrixState.paymentFees}%) : négociez avec votre processeur ou changez de solution pour gagner en rentabilité.`
+            });
+        }
+        
+        if (matrixState.otherCosts > 6) {
+            insights.push({
+                type: 'warning',
+                text: `📦 Autres coûts élevés (${matrixState.otherCosts}€) : analysez vos coûts de livraison et frais généraux pour identifier des économies.`
+            });
+        }
+        
+        // Pricing strategy insights
+        const priceRange = matrixState.priceMax - matrixState.priceMin;
+        
+        if (priceRange / matrixState.priceMin > 2) {
+            insights.push({
+                type: 'info',
+                text: `📊 Large gamme de prix testée (${matrixState.priceMin}€ à ${matrixState.priceMax}€) : excellente approche pour identifier les zones optimales.`
+            });
+        }
+        
+        updateInsightsList('matrix-insights', insights);
+    }
+    
+    function updateInsightsList(containerId, insights) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        if (insights.length === 0) {
+            container.innerHTML = `
+                <div class="insight-placeholder">
+                    <div class="placeholder-icon">🎯</div>
+                    <p>Des insights personnalisés selon vos résultats</p>
+                </div>`;
+            return;
+        }
+        
+        const html = insights.map(item => 
+            `<div class="insight-item ${item.type}">${item.text}</div>`
+        ).join('');
+        
+        container.innerHTML = html;
+    }
+    
+    // Matrix cell selection
+    window.selectMatrixCell = function(cell) {
+        // Remove previous selection
+        document.querySelectorAll('.beroas-cell.selected').forEach(c => {
+            c.classList.remove('selected');
+        });
+        
+        // Select new cell
+        cell.classList.add('selected');
+        
+        const price = parseFloat(cell.dataset.price);
+        const cost = parseFloat(cell.dataset.cost);
+        const beroas = parseFloat(cell.dataset.beroas);
+        const margin = parseFloat(cell.dataset.margin);
+        
+        // Update detail panel
+        document.getElementById('selected-price').textContent = formatCurrency(price);
+        document.getElementById('selected-cost').textContent = formatCurrency(cost);
+        document.getElementById('selected-beroas').textContent = beroas.toFixed(2);
+        document.getElementById('selected-margin').textContent = formatCurrency(margin);
+        
+        // Generate detailed analysis
+        let analysis = '';
+        if (margin > 0 && beroas <= matrixState.targetBeroas) {
+            const marginPercent = ((margin / price) * 100);
+            const budgetPerSale = margin;
+            analysis = `✅ <strong>Combinaison rentable et performante</strong><br><br>
+                       • <strong>Marge :</strong> ${formatCurrency(margin)} par vente (${marginPercent.toFixed(1)}%)<br>
+                       • <strong>Budget pub max :</strong> ${formatCurrency(budgetPerSale)} par vente<br>
+                       • <strong>BEROAS :</strong> ${beroas.toFixed(2)} ≤ objectif (${matrixState.targetBeroas})<br><br>
+                       🎯 <strong>Recommandation :</strong> Cette combinaison respecte votre seuil de rentabilité. Vous pouvez investir jusqu'à ${formatCurrency(budgetPerSale)} en publicité par vente réalisée.`;
+        } else if (margin > 0) {
+            const deficit = beroas - matrixState.targetBeroas;
+            const reduction = (deficit / beroas * price);
+            analysis = `⚠️ <strong>Combinaison rentable mais hors objectif</strong><br><br>
+                       • <strong>Marge :</strong> ${formatCurrency(margin)} par vente<br>
+                       • <strong>BEROAS :</strong> ${beroas.toFixed(2)} > objectif (${matrixState.targetBeroas})<br>
+                       • <strong>Écart :</strong> ${deficit.toFixed(1)} points trop élevé<br><br>
+                       🔧 <strong>Pour atteindre votre objectif :</strong><br>
+                       Réduisez les coûts de ${formatCurrency(reduction)} ou augmentez le prix de ${formatCurrency(reduction)}.`;
+        } else {
+            analysis = `❌ <strong>Combinaison non viable</strong><br><br>
+                       • <strong>Problème :</strong> Les coûts (${formatCurrency(cost)} + frais) dépassent le prix de vente<br>
+                       • <strong>Perte :</strong> ${formatCurrency(Math.abs(margin))} par vente<br><br>
+                       🚫 <strong>Cette configuration génère une perte systématique.</strong><br>
+                       Augmentez le prix ou réduisez drastiquement les coûts.`;
+        }
+        
+        document.getElementById('detail-explanation').innerHTML = analysis;
+        
+        // Store selection
+        matrixState.selectedCell = { price, cost };
+        
+        // Show detail panel
+        showSelectionDetail();
+    };
+    
+    function showSelectionDetail() {
+        const detail = document.getElementById('selection-detail');
+        const overlay = document.getElementById('modal-overlay');
+        
+        overlay.classList.add('active');
+        detail.style.display = 'block';
+        
+        overlay.onclick = closeSelectionDetail;
+    }
+    
+    window.closeSelectionDetail = function() {
+        const detail = document.getElementById('selection-detail');
+        const overlay = document.getElementById('modal-overlay');
+        
+        detail.style.display = 'none';
+        overlay.classList.remove('active');
+        
+        // Remove selection highlight
+        document.querySelectorAll('.beroas-cell.selected').forEach(c => {
+            c.classList.remove('selected');
+        });
+    };
+    
+    window.applySelectedValues = function() {
+        if (!matrixState.selectedCell) return;
+        
+        // Apply to main calculator
+        const priceInputs = [
+            document.getElementById('basic-selling-price'),
+            document.getElementById('adv-selling-price')
+        ].filter(Boolean);
+        
+        const costInputs = [
+            document.getElementById('basic-product-cost'),
+            document.getElementById('adv-product-cost')
+        ].filter(Boolean);
+        
+        priceInputs.forEach(input => {
+            input.value = matrixState.selectedCell.price.toFixed(2);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        
+        costInputs.forEach(input => {
+            input.value = matrixState.selectedCell.cost.toFixed(2);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        
+        // Close detail
+        closeSelectionDetail();
+        
+        // Show success message
+        showToast('✅ Valeurs appliquées ! Consultez l\'onglet "Calculateur Simple" pour voir les résultats.', 'success');
+        
+        // Switch to basic tab after delay
+        setTimeout(() => {
+            const basicTab = document.querySelector('[data-tab="basic"]');
+            if (basicTab) {
+                basicTab.click();
+            }
+        }, 2000);
+    };
+    
+    // Export functions
+    window.exportMatrixReport = function() {
+        if (matrixState.matrixData.length === 0) {
+            showToast('Veuillez d\'abord générer la matrice', 'warning');
+            return;
+        }
+        
+        generateMatrixReport();
+    };
+    
+    window.exportMatrixData = function() {
+        if (matrixState.matrixData.length === 0) {
+            showToast('Veuillez d\'abord générer la matrice', 'warning');
+            return;
+        }
+        
+        generateMatrixCSV();
+    };
+    
+    function generateMatrixReport() {
+        const profitable = matrixState.matrixData.filter(d => d.isRentable);
+        const profitableRate = (profitable.length / matrixState.matrixData.length * 100);
+        
+        const bestCombo = profitable.sort((a, b) => a.beroas - b.beroas)[0];
+        const avgMargin = profitable.reduce((sum, d) => sum + d.margin, 0) / profitable.length;
+        
+        const reportContent = `
+# 🎯 RAPPORT MATRICE BEROAS
+
+## 📊 Configuration Analysée
+- **Plage de prix :** ${matrixState.priceMin}€ à ${matrixState.priceMax}€
+- **Plage de coûts :** ${matrixState.costMin}€ à ${matrixState.costMax}€
+- **BEROAS objectif :** ${matrixState.targetBeroas}
+- **Frais bancaires :** ${matrixState.paymentFees}%
+- **Autres coûts :** ${matrixState.otherCosts}€
+
+## 📈 Résultats Globaux
+- **Total combinaisons testées :** ${matrixState.matrixData.length}
+- **Combinaisons rentables :** ${profitable.length} (${profitableRate.toFixed(1)}%)
+- **Taux de réussite :** ${profitableRate.toFixed(1)}%
+
+## 🏆 Meilleures Combinaisons
+
+${profitable.slice(0, 5).map((combo, index) => `
+### ${index + 1}. Prix ${combo.price.toFixed(1)}€ • Coût ${combo.cost.toFixed(1)}€
+- **BEROAS :** ${combo.beroas.toFixed(2)}
+- **Marge :** ${combo.margin.toFixed(2)}€ (${(combo.margin/combo.price*100).toFixed(1)}%)
+- **Budget pub max :** ${combo.margin.toFixed(2)}€ par vente
+`).join('')}
+
+## 💡 Recommandations
+
+${profitableRate === 0 ? '⚠️ **Aucune combinaison rentable** - Réduisez vos coûts ou augmentez votre objectif BEROAS' : 
+  profitableRate < 20 ? '⚠️ **Flexibilité limitée** - Optimisez vos coûts pour plus de marge de manœuvre' :
+  profitableRate > 70 ? '🚀 **Excellente flexibilité** - Vous pouvez scaler sereinement' :
+  '👍 **Bonne flexibilité** - Équilibre correct entre rentabilité et contraintes'}
+
+${bestCombo ? `
+## 🎯 Configuration Optimale Recommandée
+- **Prix de vente :** ${bestCombo.price.toFixed(1)}€
+- **Coût maximum :** ${bestCombo.cost.toFixed(1)}€
+- **BEROAS obtenu :** ${bestCombo.beroas.toFixed(2)}
+- **Marge générée :** ${bestCombo.margin.toFixed(2)}€
+
+Cette configuration vous permet d'investir jusqu'à **${bestCombo.margin.toFixed(2)}€ en publicité** par vente tout en respectant votre objectif de rentabilité.
+` : ''}
+
+## 📝 Méthodologie
+Cette analyse a testé **${matrixState.matrixData.length} combinaisons** (12 prix × 10 coûts) en tenant compte des frais bancaires (${matrixState.paymentFees}%) et autres coûts (${matrixState.otherCosts}€).
+
+**Formule BEROAS :** Prix de vente ÷ (Prix de vente - Coûts totaux)
+
+---
+*Rapport généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}*
+*Calculateur BEROAS - MEGAHUB*
+        `;
+        
+        // Create and download
+        const blob = new Blob([reportContent], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `rapport-matrice-beroas-${new Date().toISOString().split('T')[0]}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast('📊 Rapport exporté avec succès !', 'success');
+    }
+    
+    function generateMatrixCSV() {
+        const headers = ['Prix de vente', 'Coût produit', 'BEROAS', 'Marge unitaire', 'Rentable'];
+        const rows = matrixState.matrixData.map(d => [
+            d.price.toFixed(2),
+            d.cost.toFixed(2),
+            d.beroas.toFixed(2),
+            d.margin.toFixed(2),
+            d.isRentable ? 'Oui' : 'Non'
+        ]);
+        
+        const csvContent = [headers, ...rows]
+            .map(row => row.join(','))
+            .join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `donnees-matrice-beroas-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast('📋 Données CSV exportées avec succès !', 'success');
+    }
+    
+    // Utility functions
+    function generateRange(min, max, steps) {
+        const range = [];
+        const step = (max - min) / (steps - 1);
+        
+        for (let i = 0; i < steps; i++) {
+            range.push(min + (step * i));
+        }
+        
+        return range;
+    }
+    
+    function updateElement(id, value) {
+        const element = document.getElementById(id);
+        if (element) element.textContent = value;
+    }
+    
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: 'EUR',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value);
+    }
+    
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        const colors = {
+            success: '#48bb78',
+            error: '#f56565',
+            warning: '#ed8936',
+            info: '#4299e1'
+        };
+        
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${colors[type] || colors.info};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 10000;
+            font-weight: 600;
+            max-width: 400px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        `;
+        
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        
+        // Animate in
+        setTimeout(() => {
+            toast.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Auto-hide
+        setTimeout(() => {
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }, 5000);
+    }
+});
+</script>

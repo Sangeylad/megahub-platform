@@ -1,0 +1,16 @@
+// lib/sections-registry/schemas/index.ts - MISE À JOUR
+export { heroSchema } from './hero-banner.schema'
+export { headerSchema } from './header.schema'
+export { ctaSchema } from './cta-banner.schema'
+export { statsSchema } from './stats-section.schema'
+export { servicesSchema } from './services-grid.schema'
+export { testimonialSchema } from './testimonial-carousel.schema'
+export { contactFormSchema } from './contact-form.schema'
+export { featuresSchema } from './features-grid.schema'
+export { richTextSchema } from './rich-text.schema'
+export { layoutColumnsSchema } from './layout-columns.schema'
+export { beroasCalculatorSchema } from './beroas-calculator.schema'
+export { calorieCalculatorSchema } from './calorie-calculator.schema'
+export { glossarySearchSchema } from './glossary-search.schema'
+export { glossaryTermSchema } from './glossary-term.schema'
+export { toolsListingSchema } from './tools-listing.schema' // 🆕 AJOUTÉ

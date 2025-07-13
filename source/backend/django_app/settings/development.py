@@ -11,6 +11,12 @@ ALLOWED_HOSTS = [
     'testserver',
 ]
 
+# ✅ Development - runserver sert directement, pas de collectstatic nécessaire
+# STATIC_ROOT non nécessaire en dev (commenté)
+# STATIC_ROOT = '/tmp/static_dev'  # Optionnel
+
+print("🔧 Django DEVELOPMENT settings loaded")
+
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',

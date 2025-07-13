@@ -5,6 +5,16 @@ from .base import *
 # STAGING ENVIRONMENT
 DEBUG = False
 
+
+
+STATIC_ROOT = '/app/staticfiles'  # Chemin Docker container
+
+# Debug collectstatic en staging
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+print("🧪 Django STAGING settings loaded")
+
+
 ALLOWED_HOSTS = [
     'staging.megahub.humari.fr',
     'staging-api.megahub.humari.fr',

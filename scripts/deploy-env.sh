@@ -1,6 +1,7 @@
 #!/bin/bash
 # /var/www/megahub/scripts/deploy-env.sh
 # Script unifié de déploiement multi-environnements selon standards leaders
+# ✅ VERSION MISE À JOUR - Collectstatic robuste intégré
 
 set -euo pipefail
 
@@ -172,13 +173,53 @@ run_migrations() {
     # Migrations
     docker exec $BACKEND_CONTAINER python manage.py migrate --database=default
     
-    # Collectstatic si production/staging
-    if [ "$ENVIRONMENT" != "development" ]; then
-        django_log "📦 Collectstatic"
-        docker exec $BACKEND_CONTAINER python manage.py collectstatic --noinput || log "⚠️ Collectstatic échoué"
-    fi
-    
     django_log "Migrations $ENVIRONMENT terminées"
+}
+
+# ==========================================
+# ✅ COLLECTSTATIC ROBUSTE - PERMISSIONS FIX
+# ==========================================
+run_collectstatic() {
+    if [ "$ENVIRONMENT" != "development" ]; then
+        django_log "📦 Collectstatic $ENVIRONMENT"
+        
+        # ✅ Forcer permissions correctes sur le volume staticfiles
+        log "🔒 Configuration permissions staticfiles"
+        docker exec --user root $BACKEND_CONTAINER chown -R debian:megahub_devs /app/staticfiles || log "⚠️ Chown staticfiles échoué"
+        docker exec --user root $BACKEND_CONTAINER chmod -R 755 /app/staticfiles || log "⚠️ Chmod staticfiles échoué"
+        
+        # Créer le répertoire staticfiles si nécessaire avec bonnes permissions
+        docker exec $BACKEND_CONTAINER mkdir -p /app/staticfiles || log "⚠️ Mkdir staticfiles échoué"
+        
+        # Vérifier que STATIC_ROOT est configuré
+        if docker exec $BACKEND_CONTAINER python -c "from django.conf import settings; print(settings.STATIC_ROOT)" >/dev/null 2>&1; then
+            
+            # Collectstatic avec gestion d'erreurs robuste
+            log "📦 Lancement collectstatic"
+            if docker exec $BACKEND_CONTAINER python manage.py collectstatic --noinput --clear; then
+                success "Collectstatic réussi"
+                
+                # Vérification post-collectstatic
+                STATIC_COUNT=$(docker exec $BACKEND_CONTAINER find /app/staticfiles -type f 2>/dev/null | wc -l || echo "0")
+                django_log "📊 $STATIC_COUNT fichiers static collectés"
+                
+                # Vérification finale permissions
+                docker exec --user root $BACKEND_CONTAINER chmod -R 755 /app/staticfiles || log "⚠️ Chmod final staticfiles échoué"
+                
+                # Vérification espace disque
+                STATIC_SIZE=$(docker exec $BACKEND_CONTAINER du -sh /app/staticfiles 2>/dev/null | cut -f1 || echo "Unknown")
+                django_log "💾 Taille staticfiles: $STATIC_SIZE"
+                
+            else
+                log "⚠️ Collectstatic échoué - Continuons sans static files"
+                # En staging/prod, ne pas faire échouer le déploiement pour collectstatic
+            fi
+        else
+            log "⚠️ STATIC_ROOT non configuré - Ignorons collectstatic"
+        fi
+    else
+        django_log "🔧 Development - Pas de collectstatic nécessaire (runserver sert directement)"
+    fi
 }
 
 # ==========================================
@@ -208,7 +249,7 @@ health_checks() {
     sleep 20
     
     # Check containers
-    if ! docker-compose -f $COMPOSE_FILE ps | grep -q "Up"; then
+    if ! docker-compose -f $COMPOSE_FILE ps | grep -q -E "(Up|healthy)"; then
         error "Containers ne démarrent pas"
     fi
     success "Containers actifs"
@@ -275,7 +316,7 @@ performance_test() {
 }
 
 # ==========================================
-# EXÉCUTION PRINCIPALE
+# ✅ EXÉCUTION PRINCIPALE MISE À JOUR
 # ==========================================
 main() {
     backup_current_state
@@ -283,6 +324,7 @@ main() {
     build_frontend
     deploy_containers
     run_migrations
+    run_collectstatic  # ✅ AJOUT - Collectstatic après migrations
     health_checks
     performance_test
     

@@ -3,6 +3,7 @@ version: '3.8'
 # ==========================================
 # MEGAHUB - DOCKER COMPOSE STAGING
 # Environnement de test pour associé
+# ✅ VERSION MISE À JOUR - Static Files Support
 # ==========================================
 
 services:
@@ -16,6 +17,7 @@ services:
     volumes:
       - ./source/backend:/app  # ← Nouveau chemin
       - ./mcp_server:/mcp_server
+      - megahub_static_staging:/app/staticfiles  # ✅ AJOUT Volume static
     environment:
       - PYTHONPATH=/app:/mcp_server
       - DJANGO_SETTINGS_MODULE=django_app.settings.staging  # ← Settings staging
@@ -91,6 +93,8 @@ volumes:
   postgres_staging_data:
     driver: local
   redis_staging_data:
+    driver: local
+  megahub_static_staging:  # ✅ AJOUT Volume static files
     driver: local
 
 networks:

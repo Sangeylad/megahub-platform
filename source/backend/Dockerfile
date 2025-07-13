@@ -1,7 +1,7 @@
 # /var/www/megahub/source/backend/Dockerfile
-
 # ==========================================
 # MegaHub Backend - Production Dockerfile Django Multi-Environment
+# ✅ VERSION CORRIGÉE - Staticfiles Permissions Fix
 # ==========================================
 
 FROM python:3.11-slim AS base
@@ -61,7 +61,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # ==========================================
-# CONFIGURATION STOCKAGE & PERMISSIONS
+# ✅ CONFIGURATION STOCKAGE & PERMISSIONS - STATICFILES FIX
 # ==========================================
 RUN mkdir -p \
   /app/logs \
@@ -69,35 +69,38 @@ RUN mkdir -p \
   /app/storage/file_conversions/outputs \
   /app/storage/openai_exports \
   /app/storage/public_conversions \
+  /app/staticfiles \
   && chown -R debian:megahub_devs /app
+
+# ✅ CRÉATION STATICFILES avec permissions debian
+RUN mkdir -p /app/staticfiles && \
+  chown -R debian:megahub_devs /app/staticfiles && \
+  chmod -R 755 /app/staticfiles
 
 # ==========================================
 # SCRIPTS UTILITAIRES
 # ==========================================
-# Script de santé Django
-COPY <<EOF /app/health_check.py
-#!/usr/bin/env python3
-import os
-import sys
-import django
-from django.conf import settings
-from django.core.management import execute_from_command_line
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_app.settings.production')
-django.setup()
-
-try:
-    from django.db import connection
-    cursor = connection.cursor()
-    cursor.execute("SELECT 1")
-    print("✅ Database connection OK")
-    sys.exit(0)
-except Exception as e:
-    print(f"❌ Database connection failed: {e}")
-    sys.exit(1)
-EOF
-
-RUN chmod +x /app/health_check.py
+# Script de santé Django avec syntaxe Docker correcte
+RUN echo '#!/usr/bin/env python3' > /app/health_check.py && \
+  echo 'import os' >> /app/health_check.py && \
+  echo 'import sys' >> /app/health_check.py && \
+  echo 'import django' >> /app/health_check.py && \
+  echo 'from django.conf import settings' >> /app/health_check.py && \
+  echo 'from django.core.management import execute_from_command_line' >> /app/health_check.py && \
+  echo '' >> /app/health_check.py && \
+  echo 'os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_app.settings.production")' >> /app/health_check.py && \
+  echo 'django.setup()' >> /app/health_check.py && \
+  echo '' >> /app/health_check.py && \
+  echo 'try:' >> /app/health_check.py && \
+  echo '    from django.db import connection' >> /app/health_check.py && \
+  echo '    cursor = connection.cursor()' >> /app/health_check.py && \
+  echo '    cursor.execute("SELECT 1")' >> /app/health_check.py && \
+  echo '    print("✅ Database connection OK")' >> /app/health_check.py && \
+  echo '    sys.exit(0)' >> /app/health_check.py && \
+  echo 'except Exception as e:' >> /app/health_check.py && \
+  echo '    print(f"❌ Database connection failed: {e}")' >> /app/health_check.py && \
+  echo '    sys.exit(1)' >> /app/health_check.py && \
+  chmod +x /app/health_check.py
 
 # ==========================================
 # CHANGEMENT UTILISATEUR SÉCURISÉ

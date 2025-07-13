@@ -17,6 +17,17 @@ CSRF_TRUSTED_ORIGINS = [
     'https://api.megahub.humari.fr'
 ]
 
+
+STATIC_ROOT = '/app/staticfiles'  # Chemin Docker container
+
+# Storage avec compression et optimisations production
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
+# Cache static files en production
+STATICFILES_DIRS = []  # Pas de dossiers supplémentaires en prod
+
+print("🚀 Django PRODUCTION settings loaded")
+
 # Database - Production (ton setup actuel)
 DATABASES = {
     'default': {

@@ -1,4 +1,5 @@
 # /var/www/megahub/source/backend/django_app/settings/base.py
+# ✅ VERSION CORRIGÉE - STATICFILES_DIRS Fix
 
 from pathlib import Path
 from datetime import timedelta
@@ -177,8 +178,30 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
+# ✅ STATIC FILES CONFIGURATION - CORRIGÉE
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
+
+# ✅ STATIC_ROOT pour collectstatic (obligatoire staging/production)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# ✅ STATICFILES_DIRS - Seulement si dossier existe
+STATICFILES_DIRS = []  # Vide par défaut - évite le warning
+
+# Vérifier existence du dossier static avant de l'ajouter
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+if os.path.exists(STATIC_DIR):
+    STATICFILES_DIRS.append(STATIC_DIR)
+
+# Configuration staticfiles - Optimisations production
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+# Storage pour production (avec compression)
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users_core.CustomUser' 
 

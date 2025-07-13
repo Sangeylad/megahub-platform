@@ -93,7 +93,30 @@ backup_current_state() {
     # Backup base de données si pas development
     if [ "$ENVIRONMENT" != "development" ]; then
         log "📦 Backup base de données $ENVIRONMENT"
-        docker exec $BACKEND_CONTAINER pg_dump > "$BACKUP_DIR/db_${ENVIRONMENT}_backup_$TIMESTAMP.sql" || log "⚠️ Backup DB échoué"
+        
+        # Vérifier que les containers existent avant backup
+        if docker ps -q -f name=$BACKEND_CONTAINER >/dev/null 2>&1; then
+            # Variables DB pour l'environnement
+            case $ENVIRONMENT in
+                "staging")
+                    POSTGRES_USER="SuperAdminduTurfu"
+                    POSTGRES_DB="mhdb24_staging"
+                    ;;
+                "production")
+                    POSTGRES_USER="SuperAdminduTurfu"  
+                    POSTGRES_DB="mhdb24"
+                    ;;
+            esac
+            
+            # Backup via container backend (accès DB interne)
+            docker exec $BACKEND_CONTAINER pg_dump \
+                -h postgres \
+                -U "$POSTGRES_USER" \
+                -d "$POSTGRES_DB" \
+                > "$BACKUP_DIR/db_${ENVIRONMENT}_backup_$TIMESTAMP.sql" 2>/dev/null || log "⚠️ Backup DB échoué"
+        else
+            log "⚠️ Container $BACKEND_CONTAINER non trouvé - Skip backup DB"
+        fi
     fi
     
     # Tag Git pour rollback possible

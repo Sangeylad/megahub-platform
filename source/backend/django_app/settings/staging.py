@@ -5,16 +5,6 @@ from .base import *
 # STAGING ENVIRONMENT
 DEBUG = False
 
-
-
-STATIC_ROOT = '/app/staticfiles'  # Chemin Docker container
-
-# Debug collectstatic en staging
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-
-print("🧪 Django STAGING settings loaded")
-
-
 ALLOWED_HOSTS = [
     'staging.megahub.humari.fr',
     'staging-api.megahub.humari.fr',
@@ -29,7 +19,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://backoffice.humari.fr',
 ]
 
-# Database - Staging distant
+# ✅ Database - Staging (OPTIONS corrigées)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -39,7 +29,8 @@ DATABASES = {
         'HOST': os.environ.get('POSTGRES_HOST', 'postgres'),
         'PORT': '5432',
         'OPTIONS': {
-            'sslmode': 'prefer',  # SSL en staging
+            'connect_timeout': 10,
+            # ✅ REMOVED: options PostgreSQL invalides
         },
     },
     'shortener': {
@@ -50,7 +41,7 @@ DATABASES = {
         'HOST': os.environ.get('SHORTENER_DB_HOST', 'postgres-shortener'),
         'PORT': '5432',
         'OPTIONS': {
-            'sslmode': 'prefer',
+            'connect_timeout': 10,
         },
     }
 }
@@ -76,6 +67,12 @@ CORS_EXPOSE_HEADERS = [
     'Content-Type',
     'X-Total-Count',
 ]
+
+# ✅ Static files staging
+STATIC_ROOT = '/app/staticfiles'
+
+# Debug collectstatic en staging
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # Sécurité staging (moins stricte que prod)
 SECURE_BROWSER_XSS_FILTER = True

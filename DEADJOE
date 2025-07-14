@@ -1,0 +1,12 @@
+
+*** These modified files were found in JOE when it aborted on Sun Jul 13 13:47:11 2025
+*** JOE was aborted by UNIX signal 1
+
+*** File '(Unnamed)'
+/var/www/megahub/.git/MERGE_MSG
+
+*** File '* Startup Log *'
+Processing '/etc/joe/editorrc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/editorrc

@@ -1,0 +1,300 @@
+/* frontend/src/styles/globals.css */
+@import "tailwindcss";
+
+/* === SOURCE PATTERNS === */
+@source "./src/**/*.{js,ts,jsx,tsx}";
+@source "./components/**/*.{js,ts,jsx,tsx}";
+@source "./features/**/*.{js,ts,jsx,tsx}";
+@source "./pages/**/*.{js,ts,jsx,tsx}";
+
+/* === DESIGN TOKENS AVEC @theme === */
+@theme {
+  /* === COULEURS DESIGN SYSTEM === */
+  --color-primary-50: oklch(0.98 0.02 254);
+  --color-primary-100: oklch(0.95 0.05 254);
+  --color-primary-200: oklch(0.89 0.12 254);
+  --color-primary-300: oklch(0.82 0.18 254);
+  --color-primary-400: oklch(0.71 0.24 254);
+  --color-primary-500: oklch(0.58 0.22 254);     /* Principal MegaHub */
+  --color-primary-600: oklch(0.51 0.20 254);
+  --color-primary-700: oklch(0.44 0.18 254);
+  --color-primary-800: oklch(0.37 0.15 254);
+  --color-primary-900: oklch(0.25 0.12 254);
+  --color-primary-950: oklch(0.15 0.08 254);
+  
+  /* === NEUTRAL GRAYSCALE === */
+  --color-neutral-50: oklch(0.99 0.005 254);
+  --color-neutral-100: oklch(0.96 0.01 254);
+  --color-neutral-200: oklch(0.90 0.015 254);
+  --color-neutral-300: oklch(0.83 0.02 254);
+  --color-neutral-400: oklch(0.64 0.025 254);
+  --color-neutral-500: oklch(0.52 0.03 254);
+  --color-neutral-600: oklch(0.42 0.025 254);
+  --color-neutral-700: oklch(0.34 0.02 254);
+  --color-neutral-800: oklch(0.27 0.015 254);
+  --color-neutral-900: oklch(0.16 0.01 254);
+  --color-neutral-950: oklch(0.08 0.005 254);
+  
+  /* === COULEURS SÉMANTIQUES === */
+  --color-success-500: oklch(0.69 0.15 142);
+  --color-warning-500: oklch(0.76 0.15 68);
+  --color-error-500: oklch(0.62 0.22 25);
+  --color-info-500: oklch(0.64 0.18 240);
+  
+  /* === TYPOGRAPHY === */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", Consolas, monospace;
+  --font-display: "Inter", system-ui, sans-serif;
+  
+  /* === ESPACEMENTS === */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  
+  /* === BORDURES === */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  
+  /* === OMBRES === */
+  --shadow-soft: 0 1px 3px rgb(0 0 0 / 0.1), 0 1px 2px rgb(0 0 0 / 0.1);
+  --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-strong: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  /* === TRANSITIONS === */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+}
+
+/* === UTILITIES CUSTOM LIGHTNING CSS COMPATIBLE === */
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-lg);
+  border-width: 1px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+@utility btn-focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-500), 0 0 0 4px rgb(var(--color-primary-500) / 0.2);
+}
+
+@utility btn-disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+@utility btn-primary {
+  border-color: var(--color-primary-600);
+  background-color: var(--color-primary-600);
+  color: white;
+}
+
+@utility btn-primary-hover {
+  border-color: var(--color-primary-700);
+  background-color: var(--color-primary-700);
+}
+
+@utility btn-secondary {
+  border-color: var(--color-neutral-300);
+  background-color: white;
+  color: var(--color-neutral-900);
+}
+
+@utility btn-secondary-hover {
+  border-color: var(--color-neutral-400);
+  background-color: var(--color-neutral-50);
+}
+
+@utility btn-danger {
+  border-color: var(--color-error-500);
+  background-color: var(--color-error-500);
+  color: white;
+}
+
+@utility btn-danger-hover {
+  border-color: var(--color-error-600);
+  background-color: var(--color-error-600);
+}
+
+@utility btn-ghost {
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--color-neutral-900);
+}
+
+@utility btn-ghost-hover {
+  background-color: var(--color-neutral-100);
+}
+
+@utility btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+@utility btn-md {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+@utility btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+@utility input {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-neutral-300);
+  background-color: white;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  transition: border-color var(--duration-normal) var(--ease-smooth);
+}
+
+@utility input-focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 1px var(--color-primary-500);
+}
+
+@utility input-disabled {
+  cursor: not-allowed;
+  background-color: var(--color-neutral-50);
+  opacity: 0.5;
+}
+
+@utility card {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-neutral-200);
+  background-color: white;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-soft);
+}
+
+@utility spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@utility animate-fade-in {
+  animation: fadeIn 0.3s var(--ease-smooth);
+}
+
+@utility animate-slide-up {
+  animation: slideUp 0.3s var(--ease-smooth);
+}
+
+@utility animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* === BASE STYLES === */
+html {
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-variant-ligatures: contextual;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  background-color: var(--color-neutral-50);
+  color: var(--color-neutral-900);
+  line-height: 1.5;
+}
+
+/* === FOCUS ET HOVER STATES === */
+.btn:focus-visible {
+  @apply btn-focus;
+}
+
+.btn:disabled {
+  @apply btn-disabled;
+}
+
+.btn-primary:hover:not(:disabled) {
+  @apply btn-primary-hover;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  @apply btn-secondary-hover;
+}
+
+.btn-danger:hover:not(:disabled) {
+  @apply btn-danger-hover;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  @apply btn-ghost-hover;
+}
+
+.input:focus {
+  @apply input-focus;
+}
+
+.input:disabled {
+  @apply input-disabled;
+}
+
+/* === SCROLLBAR CUSTOM === */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--color-neutral-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-neutral-400);
+}

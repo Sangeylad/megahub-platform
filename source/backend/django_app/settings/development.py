@@ -12,14 +12,14 @@ ALLOWED_HOSTS = [
 ]
 
 # ✅ Development - runserver sert directement, pas de collectstatic nécessaire
-# STATIC_ROOT non nécessaire en dev (commenté)
-# STATIC_ROOT = '/tmp/static_dev'  # Optionnel
-
 print("🔧 Django DEVELOPMENT settings loaded")
 
+# ✅ CORS FIX - Support HMR Vite port 3001 + Build port 3000
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    'http://localhost:3001',    # ← AJOUT HMR VITE
+    'http://127.0.0.1:3001',    # ← AJOUT HMR VITE
 ]
 
 # Database - Docker local
@@ -42,7 +42,7 @@ DATABASES = {
     }
 }
 
-# CORS Development
+# ✅ CORS Development - Support HMR + Build
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
@@ -51,9 +51,12 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     'X-Brand-ID',
 ]
 
+# ✅ CORS_ALLOWED_ORIGINS - MISE À JOUR avec port 3001 HMR
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
+    'http://localhost:3000',      # Build Vite (docker)
+    'http://127.0.0.1:3000',      # Build Vite (local)
+    'http://localhost:3001',      # ← HMR Vite (npm run dev)
+    'http://127.0.0.1:3001',      # ← HMR Vite (local)
 ]
 
 CORS_EXPOSE_HEADERS = [

@@ -146,6 +146,9 @@ export default function App(): React.JSX.Element {
         window.removeEventListener('auth:userChanged', handleAuthChange);
       };
     }
+
+    // 🎯 FIX TypeScript : Retourner undefined explicitement si pas en dev
+    return undefined;
   }, []);
 
   return (

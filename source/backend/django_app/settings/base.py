@@ -82,6 +82,33 @@ INSTALLED_APPS = [
     'onboarding_invitations',
     'onboarding_trials',
     'auth_core',
+    'company_categorization_core',        # Catégories core
+    'company_categorization_fintech',     # Profils FinTech  
+    'company_categorization_saas',        # Profils SaaS
+    'company_categorization_realestate',  # Profils Immobilier
+    'company_categorization_healthcare',  # Profils Santé
+    'company_categorization_ecommerce',   # Profils E-commerce
+    'company_categorization_services',    # Profils Services Pro
+    'crm_entities_core',        # Entités principales (Account, Contact, Opportunity)
+    'crm_entities_relations',   # Relations entre entités
+    'crm_entities_scoring',     # Scoring et analytics
+    'crm_entities_enrichment',  # Enrichissement données
+    'crm_pipeline_core',         # Pipeline et Stage core
+    'crm_pipeline_automation',   # Automatisation rules
+    'crm_pipeline_forecasting',  # Prévisions commerciales
+    'crm_activities_core',             # Activités de base
+    'crm_activities_communication',    # Call, Email, Meeting
+    'crm_activities_tasks',           # Task, Reminder
+    'crm_activities_notes',           # Note, Comment
+    'crm_workflow_core',         # Workflow, WorkflowStep, Execution
+    'crm_workflow_automation',   # Triggers, Conditions, Actions
+    'crm_workflow_templates',    # Templates & Presets sectoriels
+    'crm_analytics_core',         # Dashboard, Metric, Chart
+    'crm_analytics_reports',      # Report, Generation, Filter
+    'crm_analytics_forecasting',  # Forecast, Scenario, Trend
+    'crm_analytics_kpis',         # KPI, Performance, Benchmark
+    'crm_analytics_predictions',  # Prediction, Recommendation, Insight
+    'crm_analytics_sentiment',    # Sentiment, TextAnalysis, Profile
 ]
 
 MIDDLEWARE = [

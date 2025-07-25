@@ -1,139 +1,91 @@
-// frontend/src/pages/_authenticated.tsx - Fix Compatible avec TokenManager Actuel
+// frontend/src/pages/_authenticated.tsx - Fix TypeScript selon Standards TanStack Router v1.126.1
 
 import { authService } from '@/services/api/authService';
 import { tokenManager } from '@/utils/security/tokenManager';
-import { createFileRoute, Outlet } from '@tanstack/react-router';
+import {
+  createFileRoute,
+  Outlet
+} from '@tanstack/react-router';
 import React from 'react';
 
 // ==========================================
-// AUTHENTICATED LAYOUT ROUTE - FIX BOUCLE COMPATIBLE
+// TYPES TANSTACK ROUTER - TypeScript 5.8.3 Strict
+// ==========================================
+
+interface AuthContext {
+  auth: {
+    isAuthenticated: boolean;
+    user?: any;
+  }
+  queryClient: any;
+}
+
+interface RouteBeforeLoadContext {
+  context: AuthContext;
+  location: {
+    href: string;
+    pathname: string;
+    search: string;
+    hash: string;
+  };
+}
+
+// ==========================================
+// AUTHENTICATED LAYOUT ROUTE - FIX TYPESCRIPT COMPLET
 // ==========================================
 
 export const Route = createFileRoute('/_authenticated')({
-  // 🔒 BEFORELOAD - Protection authentification ENHANCED ANTI-BOUCLE
-  beforeLoad: async ({ location }: { location: { href: string } }) => {
+  // 🔒 BEFORELOAD - Protection authentification TypeScript strict
+  beforeLoad: async ({ context, location }: RouteBeforeLoadContext) => {
     if (import.meta.env.MODE === 'development') {
-      console.log('🔒 [Auth Check] Début vérification authentification pour:', location.href);
+      console.log('🔒 [Auth Check] Vérification authentification pour:', location.href);
     }
 
-    // ===== ÉTAPE 1 : Vérification tokens directs SANS cache =====
-    let hasValidTokens = false;
+    // ===== VÉRIFICATION SIMPLE ET DIRECTE - Selon standards TanStack =====
 
-    try {
-      // Check direct des tokens sans passer par authService.isAuthenticated()
-      const accessToken = tokenManager.getAccessToken();
-      const refreshToken = tokenManager.getRefreshToken();
+    // 1. Vérifier context auth (source de vérité principale)
+    const contextAuth = context?.auth?.isAuthenticated ?? false;
 
-      if (import.meta.env.MODE === 'development') {
-        console.log('🔧 [Auth Check] Tokens directs:', {
-          hasAccess: !!accessToken,
-          hasRefresh: !!refreshToken
-        });
-      }
+    // 2. Vérifier tokens directs
+    const hasValidTokens = !!tokenManager.getAccessToken() || !!tokenManager.getRefreshToken();
 
-      // Si on a au moins un token valide
-      hasValidTokens = !!accessToken || !!refreshToken;
+    // 3. Vérifier AuthService (backup)
+    const authServiceCheck = authService.isAuthenticated();
 
-    } catch (error) {
-      console.error('❌ [Auth Check] Erreur vérification tokens:', error);
-      hasValidTokens = false;
+    if (import.meta.env.MODE === 'development') {
+      console.log('🔧 [Auth Check] États:', {
+        contextAuth,
+        hasValidTokens,
+        authServiceCheck
+      });
     }
 
-    // ===== ÉTAPE 2 : Si pas de tokens, redirection immédiate =====
-    if (!hasValidTokens) {
+    // ===== DÉCISION SIMPLE - PAS DE MULTI-VÉRIFICATIONS =====
+
+    const isAuthenticated = contextAuth && hasValidTokens && authServiceCheck;
+
+    if (!isAuthenticated) {
       if (import.meta.env.MODE === 'development') {
-        console.log('❌ [Auth Check] Aucun token - Redirection immédiate vers login');
+        console.log('❌ [Auth Check] Non authentifié - Redirection vers login');
       }
 
-      // Redirection avec URL preservation
-      const redirectUrl = encodeURIComponent(location.href);
-      const loginUrl = `/auth/login?redirect=${redirectUrl}`;
+      // 🎯 FIX : Redirection simple avec URL params
+      const redirectUrl = `/auth/login?redirect=${encodeURIComponent(location.href)}`;
 
-      if (import.meta.env.MODE === 'development') {
-        console.log('🔄 [Auth Check] Redirection vers:', loginUrl);
+      // Option 1: Redirection immédiate
+      if (typeof window !== 'undefined') {
+        window.location.href = redirectUrl;
       }
 
-      throw new Error(`REDIRECT:${loginUrl}`);
-    }
-
-    // ===== ÉTAPE 3 : Si refresh token seulement, essayer refresh =====
-    const accessToken = tokenManager.getAccessToken();
-    if (!accessToken && tokenManager.getRefreshToken()) {
-      if (import.meta.env.MODE === 'development') {
-        console.log('🔄 [Auth Check] Pas d\'access token, tentative refresh...');
-      }
-
-      try {
-        const newAccessToken = await authService.refreshToken();
-        if (newAccessToken) {
-          if (import.meta.env.MODE === 'development') {
-            console.log('✅ [Auth Check] Refresh token réussi');
-          }
-        } else {
-          throw new Error('Refresh failed');
-        }
-      } catch (refreshError) {
-        console.error('❌ [Auth Check] Échec refresh token:', refreshError);
-
-        // Clear tokens et redirection
-        tokenManager.clearTokens();
-        const redirectUrl = encodeURIComponent(location.href);
-        throw new Error(`REDIRECT:/auth/login?redirect=${redirectUrl}`);
-      }
-    }
-
-    // ===== ÉTAPE 4 : Validation finale avec AuthService =====
-    let finalAuthCheck = false;
-    try {
-      // Force une vérification fresh (pas de cache)
-      if (import.meta.env.MODE === 'development') {
-        console.log('🔧 [Auth Check] Validation finale AuthService...');
-      }
-
-      // 🔧 FIX COMPATIBLE : Invalider le cache si la méthode existe
-      try {
-        const authServiceInstance = (window as any).authService;
-        if (authServiceInstance && typeof authServiceInstance.invalidateAuthCachePublic === 'function') {
-          authServiceInstance.invalidateAuthCachePublic();
-        }
-      } catch (cacheError) {
-        // Ignore si méthode pas disponible
-        if (import.meta.env.MODE === 'development') {
-          console.log('🔧 [Auth Check] Cache invalidation non disponible');
-        }
-      }
-
-      finalAuthCheck = authService.isAuthenticated();
-
-    } catch (error) {
-      console.error('❌ [Auth Check] Erreur validation finale:', error);
-      finalAuthCheck = false;
-    }
-
-    // ===== ÉTAPE 5 : Décision finale =====
-    if (!finalAuthCheck) {
-      if (import.meta.env.MODE === 'development') {
-        console.log('❌ [Auth Check] Validation finale échouée - Redirection vers login');
-        console.log('🔧 [Auth Check] Debug final:', {
-          hasAccessToken: !!tokenManager.getAccessToken(),
-          hasRefreshToken: !!tokenManager.getRefreshToken(),
-          authServiceResult: finalAuthCheck,
-          sessionInfo: authService.getSessionInfo(),
-          tokenDebug: tokenManager.getDebugInfo()
-        });
-      }
-
-      // Clear complet et redirection
-      tokenManager.clearTokens();
-      const redirectUrl = encodeURIComponent(location.href);
-      throw new Error(`REDIRECT:/auth/login?redirect=${redirectUrl}`);
+      // Option 2 : Lancer une erreur pour stopper l'exécution
+      throw new Error(`REDIRECT_TO_LOGIN:${redirectUrl}`);
     }
 
     if (import.meta.env.MODE === 'development') {
       console.log('✅ [Auth Check] Utilisateur authentifié - Accès autorisé');
     }
 
-    // ===== ÉTAPE 6 : Context enrichi pour les pages protégées =====
+    // Context enrichi pour routes enfants
     return {
       auth: {
         isAuthenticated: true,
@@ -143,35 +95,33 @@ export const Route = createFileRoute('/_authenticated')({
     };
   },
 
-  // 🎯 COMPONENT - Layout pour routes protégées ENHANCED
+  // 🎯 COMPONENT - Layout pour routes protégées
   component: AuthenticatedLayout,
 
-  // 🚨 ERROR COMPONENT - Gestion erreurs authentification COMPATIBLE
+  // 🚨 ERROR COMPONENT - Gestion erreurs TypeScript strict
   errorComponent: ({ error, reset }: { error: Error; reset: () => void }) => {
-    // 🔧 FIX : Si erreur de redirection, effectuer la redirection
-    if (error.message?.includes('REDIRECT:')) {
-      const redirectUrl = error.message.split('REDIRECT:')[1];
-      if (redirectUrl) {
-        if (import.meta.env.MODE === 'development') {
-          console.log('🔄 [Auth Error] Redirection automatique vers:', redirectUrl);
-        }
+    // 🎯 FIX : Gérer la redirection personnalisée
+    if (error.message?.startsWith('REDIRECT_TO_LOGIN:')) {
+      const redirectUrl = error.message.split('REDIRECT_TO_LOGIN:')[1];
 
-        // Redirection immédiate
-        window.location.href = redirectUrl;
-
-        // Afficher un loading pendant la redirection
-        return (
-          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Redirection vers la connexion...</p>
-            </div>
-          </div>
-        );
+      if (redirectUrl && typeof window !== 'undefined') {
+        // Redirection différée pour éviter les erreurs React
+        setTimeout(() => {
+          window.location.href = redirectUrl;
+        }, 100);
       }
+
+      // Afficher un loader pendant la redirection
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Redirection vers la connexion...</p>
+          </div>
+        </div>
+      );
     }
 
-    // Autres erreurs d'authentification
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow p-6 max-w-md w-full">
@@ -191,17 +141,8 @@ export const Route = createFileRoute('/_authenticated')({
           <div className="flex space-x-3">
             <button
               onClick={() => {
-                // 🔧 FIX COMPATIBLE : Clear avec méthode disponible
+                // Clear tokens et reset
                 tokenManager.clearTokens();
-
-                // Clear additional storage si besoin
-                try {
-                  localStorage.clear();
-                  sessionStorage.clear();
-                } catch (storageError) {
-                  console.warn('⚠️ Erreur clear storage:', storageError);
-                }
-
                 reset();
               }}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -210,14 +151,8 @@ export const Route = createFileRoute('/_authenticated')({
             </button>
             <button
               onClick={() => {
-                // 🔧 FIX COMPATIBLE : Clear avant redirection
+                // Clear et redirection
                 tokenManager.clearTokens();
-                try {
-                  localStorage.clear();
-                  sessionStorage.clear();
-                } catch (storageError) {
-                  console.warn('⚠️ Erreur clear storage:', storageError);
-                }
                 window.location.href = '/auth/login';
               }}
               className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
@@ -248,10 +183,10 @@ export const Route = createFileRoute('/_authenticated')({
 });
 
 // ==========================================
-// AUTHENTICATED LAYOUT COMPONENT - ENHANCED
+// AUTHENTICATED LAYOUT COMPONENT - TypeScript Strict
 // ==========================================
 
-function AuthenticatedLayout() {
+function AuthenticatedLayout(): React.JSX.Element {
   return (
     <div className="authenticated-layout min-h-screen bg-gray-50">
 
@@ -306,17 +241,17 @@ function AuthenticatedLayout() {
 }
 
 // ==========================================
-// DEVELOPMENT TOKEN SYNC MONITOR OPTIMISÉ
+// DEVELOPMENT TOKEN SYNC MONITOR - TypeScript Strict
 // ==========================================
 
-function TokenSyncMonitor() {
-  interface SyncStatus {
-    hasAccessToken: boolean;
-    hasRefreshToken: boolean;
-    isAuthenticated: boolean;
-    lastCheck: number;
-  }
+interface SyncStatus {
+  hasAccessToken: boolean;
+  hasRefreshToken: boolean;
+  isAuthenticated: boolean;
+  lastCheck: number;
+}
 
+function TokenSyncMonitor(): React.JSX.Element | null {
   const [syncStatus, setSyncStatus] = React.useState<SyncStatus>({
     hasAccessToken: false,
     hasRefreshToken: false,
@@ -325,7 +260,11 @@ function TokenSyncMonitor() {
   });
 
   React.useEffect(() => {
-    const checkSync = () => {
+    if (import.meta.env.MODE !== 'development') {
+      return;
+    }
+
+    const checkSync = (): void => {
       try {
         const status: SyncStatus = {
           hasAccessToken: !!tokenManager.getAccessToken(),
@@ -342,14 +281,12 @@ function TokenSyncMonitor() {
     // Check initial
     checkSync();
 
-    // Check périodique (moins fréquent)
-    const interval = setInterval(checkSync, 3000); // 3 secondes au lieu de 1
+    // Check périodique moins fréquent
+    const interval = setInterval(checkSync, 5000); // 5 secondes
 
-    // Écouter les événements auth avec throttling
-    let eventTimeout: NodeJS.Timeout;
-    const handleAuthEvent = () => {
-      clearTimeout(eventTimeout);
-      eventTimeout = setTimeout(checkSync, 200);
+    // Écouter événements auth avec cleanup
+    const handleAuthEvent = (): void => {
+      setTimeout(checkSync, 200);
     };
 
     window.addEventListener('auth:login', handleAuthEvent);
@@ -357,7 +294,6 @@ function TokenSyncMonitor() {
 
     return () => {
       clearInterval(interval);
-      clearTimeout(eventTimeout);
       window.removeEventListener('auth:login', handleAuthEvent);
       window.removeEventListener('auth:logout', handleAuthEvent);
     };

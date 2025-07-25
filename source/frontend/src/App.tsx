@@ -1,9 +1,11 @@
-// frontend/src/App.tsx
+// frontend/src/App.tsx - TanStack Router v1.126 + Auth Context DYNAMIQUE
 
-// 🚀 App Root - TanStack Router v1.126 + TanStack Query v5 avec Auth Context
-
+import { authService } from '@/services/api/authService';
+import { useAuthStore } from '@/stores/authStore';
+import { tokenManager } from '@/utils/security/tokenManager';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
+import React from 'react';
 import { routeTree } from './routeTree.gen';
 
 // ==========================================
@@ -44,20 +46,73 @@ const queryClient = new QueryClient({
 });
 
 // ==========================================
-// ROUTER - Configuration simple selon standards
+// FONCTION HELPER - Auth Context Dynamique
 // ==========================================
 
-const router = createRouter({
-  routeTree,
-  context: {
-    queryClient,
-    auth: {
-      isAuthenticated: false,
-      user: null,
-      checkAuth: () => false,
+function createAuthContext() {
+  return {
+    // 🎯 FIX : Valeurs dynamiques basées sur l'état réel
+    get isAuthenticated() {
+      // Triple vérification pour être sûr
+      const storeAuth = useAuthStore.getState().isAuthenticated;
+      const serviceAuth = authService.isAuthenticated();
+      const hasTokens = !!tokenManager.getAccessToken() || !!tokenManager.getRefreshToken();
+
+      const result = storeAuth && serviceAuth && hasTokens;
+
+      if (import.meta.env.MODE === 'development') {
+        console.log('🔧 [Router Context] Auth check:', {
+          storeAuth,
+          serviceAuth,
+          hasTokens,
+          result
+        });
+      }
+
+      return result;
     },
-  } as RouterContext,
-});
+
+    get user() {
+      return useAuthStore.getState().user;
+    },
+
+    checkAuth: () => {
+      // Fonction helper pour vérifications manuelles
+      return authService.isAuthenticated() && !!tokenManager.getAccessToken();
+    }
+  };
+}
+
+// ==========================================
+// ROUTER COMPONENT - Avec Context Réactif
+// ==========================================
+
+function AppRouter() {
+  // 🎯 FIX : Hook pour forcer re-render quand auth change
+  const { isAuthenticated, user } = useAuthStore();
+
+  // Créer router avec context dynamique à chaque render
+  const router = React.useMemo(() => {
+    const authContext = createAuthContext();
+
+    if (import.meta.env.MODE === 'development') {
+      console.log('🔧 [AppRouter] Creating router with auth context:', {
+        isAuthenticated: authContext.isAuthenticated,
+        hasUser: !!authContext.user
+      });
+    }
+
+    return createRouter({
+      routeTree,
+      context: {
+        queryClient,
+        auth: authContext,
+      } as RouterContext,
+    });
+  }, [isAuthenticated, user]); // Re-créer quand auth change
+
+  return <RouterProvider router={router} />;
+}
 
 // ==========================================
 // TYPE DECLARATION - Module augmentation TanStack Router
@@ -65,18 +120,43 @@ const router = createRouter({
 
 declare module '@tanstack/react-router' {
   interface Register {
-    router: typeof router;
+    router: ReturnType<typeof createRouter>;
   }
 }
 
 // ==========================================
-// APP COMPONENT - Simple selon exemple official
+// APP COMPONENT - Avec Auth Context Dynamique
 // ==========================================
 
-export default function App() {
+export default function App(): React.JSX.Element {
+  // 🎯 Surveillance des changements d'auth pour debug
+  React.useEffect(() => {
+    if (import.meta.env.MODE === 'development') {
+      const handleAuthChange = (event: Event) => {
+        console.log('🔧 [App] Auth event détecté:', event.type);
+      };
+
+      window.addEventListener('auth:login', handleAuthChange);
+      window.addEventListener('auth:logout', handleAuthChange);
+      window.addEventListener('auth:userChanged', handleAuthChange);
+
+      return () => {
+        window.removeEventListener('auth:login', handleAuthChange);
+        window.removeEventListener('auth:logout', handleAuthChange);
+        window.removeEventListener('auth:userChanged', handleAuthChange);
+      };
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <AppRouter />
     </QueryClientProvider>
   );
 }
+
+// ==========================================
+// EXPORT COMPLEMENTAIRE - Pour tests si besoin
+// ==========================================
+
+export { queryClient };

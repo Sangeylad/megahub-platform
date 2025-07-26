@@ -1,4 +1,3 @@
-# backend/common/models/mixins.py
 # /var/www/megahub/backend/common/mixins/model_mixins.py
 
 from django.db import models

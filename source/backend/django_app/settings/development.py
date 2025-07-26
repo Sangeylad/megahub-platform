@@ -46,9 +46,18 @@ DATABASES = {
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
-from corsheaders.defaults import default_headers
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    'X-Brand-ID',
+# ✅ FIX CORS_ALLOW_HEADERS - Import correct selon standards MegaHub
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'X-Brand-ID',  # ← Header custom MegaHub
 ]
 
 # ✅ CORS_ALLOWED_ORIGINS - MISE À JOUR avec port 3001 HMR

@@ -147,6 +147,247 @@ urlpatterns = [
             path('', include(('ai_templates_core.urls', 'ai_templates_core'), namespace='templates')),
         ])),
         
+        # ========== MAILING SYSTEM ==========
+      # 📧 Système complet de mailing et email marketing
+      path('mailing/', include([
+          # Gestion des abonnés et contacts
+          # GET/POST /mailing/contacts/ → CRUD abonnés email
+          # GET /mailing/contacts/stats/ → Statistiques abonnés
+          # POST /mailing/contacts/{id}/subscribe/ → Réabonner
+          # POST /mailing/contacts/{id}/unsubscribe/ → Désabonner
+          # POST /mailing/contacts/bulk-import/ → Import en masse
+          path('contacts/', include([
+              # Préférences et consentements RGPD
+              # GET/PUT /mailing/contacts/preferences/ → CRUD préférences
+              # POST /mailing/contacts/preferences/gdpr-consent/ → Gestion RGPD
+              path('preferences/', include(('mailing_contacts_preferences.urls', 'mailing_contacts_preferences'), namespace='contacts_preferences')),
+              
+              # Tracking comportemental et engagement
+              # GET /mailing/contacts/tracking/ → Métriques engagement
+              # GET /mailing/contacts/tracking/stats/ → Stats comportementales
+              path('tracking/', include(('mailing_contacts_tracking.urls', 'mailing_contacts_tracking'), namespace='contacts_tracking')),
+              
+              # Lifecycle marketing automation
+              # GET/PUT /mailing/contacts/lifecycle/ → Étapes lifecycle
+              # GET /mailing/contacts/lifecycle/funnel/ → Analyse funnel
+              path('lifecycle/', include(('mailing_contacts_lifecycle.urls', 'mailing_contacts_lifecycle'), namespace='contacts_lifecycle')),
+              
+              # 🔧 Contacts core en DERNIER (catch-all)
+              # GET/POST /mailing/contacts/ → CRUD abonnés email principal
+              path('', include(('mailing_contacts_core.urls', 'mailing_contacts_core'), namespace='contacts')),
+          ])),
+          
+          # Gestion des listes et segmentation
+          # GET/POST /mailing/lists/ → CRUD listes de diffusion
+          # GET /mailing/lists/{id}/subscribers/ → Abonnés d'une liste
+          # POST /mailing/lists/{id}/add-subscribers/ → Ajouter abonnés
+          # POST /mailing/lists/{id}/remove-subscribers/ → Retirer abonnés
+          # GET /mailing/lists/stats/ → Statistiques listes
+          path('lists/', include([
+              # Segmentation avancée avec critères
+              # GET/POST /mailing/lists/segments/ → CRUD segments dynamiques
+              # POST /mailing/lists/segments/{id}/evaluate/ → Réévaluer segment
+              path('segments/', include(('mailing_lists_segments.urls', 'mailing_lists_segments'), namespace='lists_segments')),
+              
+              # Import/export de listes
+              # POST /mailing/lists/imports/ → Import CSV/Excel
+              # GET /mailing/lists/imports/{id}/status/ → Status import
+              # GET /mailing/lists/exports/ → Export listes
+              path('imports/', include(('mailing_lists_imports.urls', 'mailing_lists_imports'), namespace='lists_imports')),
+              
+              # Compliance et suppression lists
+              # GET/POST /mailing/lists/suppressions/ → CRUD suppressions
+              # POST /mailing/lists/compliance/check/ → Vérification conformité
+              path('compliance/', include(('mailing_lists_compliance.urls', 'mailing_lists_compliance'), namespace='lists_compliance')),
+              
+              # 🔧 Listes core en DERNIER (catch-all)
+              # GET/POST /mailing/lists/ → CRUD listes principales
+              path('', include(('mailing_lists_core.urls', 'mailing_lists_core'), namespace='lists')),
+          ])),
+          
+          # Gestion des templates email
+          # GET/POST /mailing/templates/ → CRUD templates email
+          # POST /mailing/templates/{id}/duplicate/ → Dupliquer template
+          # POST /mailing/templates/{id}/toggle-favorite/ → Favoris
+          # GET /mailing/templates/{id}/preview/ → Prévisualisation
+          path('templates/', include([
+              # Versioning et historique des templates
+              # GET/POST /mailing/templates/versions/ → CRUD versions
+              # POST /mailing/templates/{id}/create-version/ → Nouvelle version
+              # POST /mailing/templates/versions/{id}/rollback/ → Rollback version
+              path('versions/', include(('mailing_templates_versions.urls', 'mailing_templates_versions'), namespace='templates_versions')),
+              
+              # 🔧 Templates core en DERNIER (catch-all)
+              # GET/POST /mailing/templates/ → CRUD templates principaux
+              path('', include(('mailing_templates_core.urls', 'mailing_templates_core'), namespace='templates')),
+          ])),
+          
+          # Campagnes et envois
+          # GET/POST /mailing/campaigns/ → CRUD campagnes email
+          # POST /mailing/campaigns/{id}/send/ → Envoyer maintenant
+          # POST /mailing/campaigns/{id}/schedule/ → Programmer envoi
+          # POST /mailing/campaigns/{id}/pause/ → Mettre en pause
+          # POST /mailing/campaigns/{id}/duplicate/ → Dupliquer campagne
+          path('campaigns/', include([
+              # Gestion des envois et delivery
+              # GET /mailing/campaigns/sending/ → Status envois en cours
+              # GET /mailing/campaigns/sending/{id}/progress/ → Progression envoi
+              # POST /mailing/campaigns/sending/{id}/pause/ → Pause envoi
+              path('sending/', include(('mailing_campaigns_sending.urls', 'mailing_campaigns_sending'), namespace='campaigns_sending')),
+              
+              # 🔧 Campagnes core en DERNIER (catch-all)
+              # GET/POST /mailing/campaigns/ → CRUD campagnes principales
+              path('', include(('mailing_campaigns_core.urls', 'mailing_campaigns_core'), namespace='campaigns')),
+          ])),
+          
+          # Analytics et événements
+          # GET /mailing/analytics/events/ → Événements email
+          # GET /mailing/analytics/events/dashboard/ → Dashboard analytics
+          # GET /mailing/analytics/events/trends/ → Tendances temporelles
+          path('analytics/', include([
+              # Tracking ouvertures détaillé
+              # GET /mailing/analytics/opens/ → Analytics ouvertures
+              # GET /mailing/analytics/opens/heatmap/ → Heatmap ouvertures
+              path('opens/', include(('mailing_analytics_opens.urls', 'mailing_analytics_opens'), namespace='analytics_opens')),
+              
+              # Tracking clics avec attribution
+              # GET /mailing/analytics/clicks/ → Analytics clics
+              # GET /mailing/analytics/clicks/links/ → Performance liens
+              path('clicks/', include(('mailing_analytics_clicks.urls', 'mailing_analytics_clicks'), namespace='analytics_clicks')),
+              
+              # Tracking conversions et ROI
+              # GET /mailing/analytics/conversions/ → Analytics conversions
+              # GET /mailing/analytics/conversions/roi/ → Calculs ROI
+              path('conversions/', include(('mailing_analytics_conversions.urls', 'mailing_analytics_conversions'), namespace='analytics_conversions')),
+              
+              # Rapports et dashboards custom
+              # GET/POST /mailing/analytics/reports/ → CRUD rapports
+              # GET /mailing/analytics/reports/{id}/generate/ → Générer rapport
+              path('reports/', include(('mailing_analytics_reports.urls', 'mailing_analytics_reports'), namespace='analytics_reports')),
+              
+              # 🔧 Analytics core en DERNIER (catch-all)
+              # GET /mailing/analytics/events/ → Événements centralisés
+              path('', include(('mailing_analytics_core.urls', 'mailing_analytics_core'), namespace='analytics')),
+          ])),
+          
+          # Automations et workflows
+          # GET/POST /mailing/automations/ → CRUD automations
+          # POST /mailing/automations/{id}/activate/ → Activer automation
+          # POST /mailing/automations/{id}/pause/ → Pause automation
+          path('automations/', include([
+              # Déclencheurs des automations
+              # GET/POST /mailing/automations/triggers/ → CRUD triggers
+              # POST /mailing/automations/triggers/{id}/test/ → Test trigger
+              path('triggers/', include(('mailing_automations_triggers.urls', 'mailing_automations_triggers'), namespace='automations_triggers')),
+              
+              # Actions des automations
+              # GET/POST /mailing/automations/actions/ → CRUD actions
+              # GET /mailing/automations/actions/types/ → Types d'actions
+              path('actions/', include(('mailing_automations_actions.urls', 'mailing_automations_actions'), namespace='automations_actions')),
+              
+              # Conditions et logique métier
+              # GET/POST /mailing/automations/conditions/ → CRUD conditions
+              # POST /mailing/automations/conditions/evaluate/ → Test conditions
+              path('conditions/', include(('mailing_automations_conditions.urls', 'mailing_automations_conditions'), namespace='automations_conditions')),
+              
+              # Séquences drip campaigns
+              # GET/POST /mailing/automations/sequences/ → CRUD séquences
+              # GET /mailing/automations/sequences/{id}/performance/ → Performance séquence
+              path('sequences/', include(('mailing_automations_sequences.urls', 'mailing_automations_sequences'), namespace='automations_sequences')),
+              
+              # 🔧 Automations core en DERNIER (catch-all)
+              # GET/POST /mailing/automations/ → CRUD automations principales
+              path('', include(('mailing_automations_core.urls', 'mailing_automations_core'), namespace='automations')),
+          ])),
+          
+          # Deliverability et conformité
+          # GET /mailing/deliverability/ → Status deliverability global
+          # GET /mailing/deliverability/reputation/ → Score réputation
+          path('deliverability/', include([
+              # Email warming (lemwarm-like)
+              # GET/POST /mailing/deliverability/warming/ → CRUD campagnes warming
+              # GET /mailing/deliverability/warming/{id}/metrics/ → Métriques warming
+              # POST /mailing/deliverability/warming/{id}/adjust/ → Ajuster algorithme
+              path('warming/', include(('mailing_deliverability_warming.urls', 'mailing_deliverability_warming'), namespace='deliverability_warming')),
+              
+              # Monitoring deliverability temps réel
+              # GET /mailing/deliverability/monitoring/ → Dashboard monitoring
+              # GET /mailing/deliverability/monitoring/inbox-rate/ → Taux inbox
+              path('monitoring/', include(('mailing_deliverability_monitoring.urls', 'mailing_deliverability_monitoring'), namespace='deliverability_monitoring')),
+              
+              # Gestion des bounces
+              # GET /mailing/deliverability/bounces/ → Analytics bounces
+              # POST /mailing/deliverability/bounces/suppress/ → Suppression automatique
+              path('bounces/', include(('mailing_deliverability_bounces.urls', 'mailing_deliverability_bounces'), namespace='deliverability_bounces')),
+              
+              # Configuration SPF/DKIM/DMARC
+              # GET/PUT /mailing/deliverability/authentication/ → Config DNS
+              # POST /mailing/deliverability/authentication/verify/ → Vérification DNS
+              path('authentication/', include(('mailing_deliverability_authentication.urls', 'mailing_deliverability_authentication'), namespace='deliverability_authentication')),
+              
+              # Suivi réputation domaine/IP
+              # GET /mailing/deliverability/reputation/ → Historique réputation
+              # GET /mailing/deliverability/reputation/alerts/ → Alertes réputation
+              path('reputation/', include(('mailing_deliverability_reputation.urls', 'mailing_deliverability_reputation'), namespace='deliverability_reputation')),
+              
+              # 🔧 Deliverability core en DERNIER (catch-all)
+              # GET /mailing/deliverability/ → Configuration globale
+              path('', include(('mailing_deliverability_core.urls', 'mailing_deliverability_core'), namespace='deliverability')),
+          ])),
+          
+          # Intégrations externes
+          # GET /mailing/integrations/ → Liste intégrations actives
+          # POST /mailing/integrations/{id}/sync/ → Synchronisation manuelle
+          path('integrations/', include([
+              # Sync bidirectionnelle avec CRM
+              # GET/POST /mailing/integrations/crm/ → CRUD sync CRM
+              # POST /mailing/integrations/crm/sync-contacts/ → Sync contacts
+              path('crm/', include(('mailing_integrations_crm.urls', 'mailing_integrations_crm'), namespace='integrations_crm')),
+              
+              # Connexions API externes
+              # GET/POST /mailing/integrations/api/ → CRUD connexions API
+              # POST /mailing/integrations/api/{id}/test/ → Test connexion
+              path('api/', include(('mailing_integrations_api.urls', 'mailing_integrations_api'), namespace='integrations_api')),
+              
+              # Intégration formulaires web
+              # GET/POST /mailing/integrations/forms/ → CRUD formulaires
+              # GET /mailing/integrations/forms/{id}/embed/ → Code embed
+              path('forms/', include(('mailing_integrations_forms.urls', 'mailing_integrations_forms'), namespace='integrations_forms')),
+              
+              # 🔧 Intégrations core en DERNIER (catch-all)
+              # GET /mailing/integrations/ → Hub intégrations
+              path('', include(('mailing_integrations_core.urls', 'mailing_integrations_core'), namespace='integrations')),
+          ])),
+          
+          # Configuration et paramètres
+          # GET /mailing/config/ → Configuration globale mailing
+          path('config/', include([
+              # Configuration domaines d'envoi
+              # GET/POST /mailing/config/domains/ → CRUD domaines
+              # POST /mailing/config/domains/{id}/verify/ → Vérification DNS
+              path('domains/', include(('mailing_configuration_domains.urls', 'mailing_configuration_domains'), namespace='config_domains')),
+              
+              # Permissions utilisateurs mailing
+              # GET/PUT /mailing/config/users/ → Permissions granulaires
+              # GET /mailing/config/users/roles/ → Rôles disponibles
+              path('users/', include(('mailing_configuration_users.urls', 'mailing_configuration_users'), namespace='config_users')),
+              
+              # Configuration branding emails
+              # GET/PUT /mailing/config/branding/ → Templates marque
+              # GET /mailing/config/branding/preview/ → Prévisualisation
+              path('branding/', include(('mailing_configuration_branding.urls', 'mailing_configuration_branding'), namespace='config_branding')),
+              
+              # Quotas et rate limiting
+              # GET/PUT /mailing/config/limits/ → Limites envoi
+              # GET /mailing/config/limits/usage/ → Usage actuel
+              path('limits/', include(('mailing_configuration_limits.urls', 'mailing_configuration_limits'), namespace='config_limits')),
+              
+              # 🔧 Configuration core en DERNIER (catch-all)
+              # GET/PUT /mailing/config/ → Paramètres globaux
+              path('', include(('mailing_configuration_core.urls', 'mailing_configuration_core'), namespace='config')),
+          ])),
+      ])),
+        
         # ========== BUSINESS CORE EXTENDED ==========
         # 🏢 Gestion des entreprises et facturation
         path('companies/', include([
